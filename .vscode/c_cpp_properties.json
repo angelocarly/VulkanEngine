@@ -3,7 +3,7 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceRoot}",
+                "${workspaceRoot}/src",
                 "${workspaceRoot}/Dependencies/include"
             ],
             "defines": [

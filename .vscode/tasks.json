@@ -8,7 +8,7 @@
             "args": [
                 "-g",
                 "-std=c++11",
-                "main.cpp",
+                "src/main.cpp",
                 "-o",
                 "${workspaceFolder}\\Builds\\Win_Build\\engine.exe",
                 "-IDependencies/include",
