@@ -3,9 +3,8 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceRoot}/Dependencies/include",
-                "/usr/include",
-                "/usr/local/include"
+                "${workspaceRoot}",
+                "${workspaceRoot}/Dependencies/include"
             ],
             "defines": [
                 "_DEBUG",
@@ -17,6 +16,22 @@
             "cStandard": "c11",
             "cppStandard": "c++17",
             "intelliSenseMode": "msvc-x64"
+        },
+        {
+            "name": "Linux",
+            "includePath": [
+                "${workspaceRoot}",
+                "/usr/include",
+                "/usr/local/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "_UNICODE"
+            ],
+            "cStandard": "c11",
+            "cppStandard": "c++17",
+            "intelliSenseMode": "clang-x64"
         }
     ],
     "version": 4
