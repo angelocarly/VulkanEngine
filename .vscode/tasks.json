@@ -7,7 +7,7 @@
             "command": "g++",
             "args": [
                 "-g",
-                "-std=c++11",
+                "-std=c++17",
                 "src/main.cpp",
                 "-o",
                 "${workspaceFolder}\\Builds\\Win_Build\\engine.exe",
