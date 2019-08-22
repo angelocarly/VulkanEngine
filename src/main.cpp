@@ -9,8 +9,6 @@
 #include <cstring>
 #include <optional>
 
-#include "renderer.h"
-
 const int WIDTH = 800;
 const int HEIGHT = 600;
 
@@ -318,7 +316,6 @@ private:
 int main()
 {
     Application app;
-    Renderer r;
 
     try
     {
