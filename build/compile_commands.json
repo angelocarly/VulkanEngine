@@ -1,0 +1,82 @@
+[
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build",
+  "command": "C:\\MinGW\\bin\\g++.exe   @CMakeFiles/VulkanEngine.dir/includes_CXX.rsp -g   -std=gnu++17 -o CMakeFiles\\VulkanEngine.dir\\src\\main.cpp.obj -c D:\\Projects\\cpp\\VulkanEngine\\src\\main.cpp",
+  "file": "D:/Projects/cpp/VulkanEngine/src/main.cpp"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\context.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\context.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/context.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\init.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\init.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/init.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\input.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\input.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/input.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\monitor.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\monitor.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/monitor.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\vulkan.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\vulkan.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/vulkan.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\window.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\window.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/window.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_init.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\win32_init.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/win32_init.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_joystick.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\win32_joystick.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/win32_joystick.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_monitor.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\win32_monitor.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/win32_monitor.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_time.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\win32_time.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/win32_time.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_thread.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\win32_thread.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/win32_thread.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\win32_window.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\win32_window.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/win32_window.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\wgl_context.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\wgl_context.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/wgl_context.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\egl_context.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\egl_context.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/egl_context.c"
+},
+{
+  "directory": "D:/Projects/cpp/VulkanEngine/build/lib/GLFW/src",
+  "command": "C:\\MinGW\\bin\\gcc.exe -DUNICODE -DWINVER=0x0501 -D_GLFW_USE_CONFIG_H @CMakeFiles/glfw.dir/includes_C.rsp -g   -Wall -Wdeclaration-after-statement -o CMakeFiles\\glfw.dir\\osmesa_context.c.obj   -c D:\\Projects\\cpp\\VulkanEngine\\lib\\GLFW\\src\\osmesa_context.c",
+  "file": "D:/Projects/cpp/VulkanEngine/lib/GLFW/src/osmesa_context.c"
+}
+]
