@@ -75,8 +75,8 @@ preinstall: lib/glfw/preinstall
 # Target rules for target CMakeFiles/VulkanEngine.dir
 
 # All Build rule for target.
-CMakeFiles/VulkanEngine.dir/all: lib/glfw/src/CMakeFiles/glfw.dir/all
 CMakeFiles/VulkanEngine.dir/all: CMakeFiles/glad.dir/all
+CMakeFiles/VulkanEngine.dir/all: lib/glfw/src/CMakeFiles/glfw.dir/all
 	$(MAKE) -f CMakeFiles/VulkanEngine.dir/build.make CMakeFiles/VulkanEngine.dir/depend
 	$(MAKE) -f CMakeFiles/VulkanEngine.dir/build.make CMakeFiles/VulkanEngine.dir/build
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --progress-dir=/home/magnias/Projects/VulkanEngine/build/CMakeFiles --progress-num=1,2 "Built target VulkanEngine"
