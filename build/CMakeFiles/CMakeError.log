@@ -1,22 +1,58 @@
-Performing C SOURCE FILE Test _GLFW_HAS_64ASLR failed with the following output:
-Change Dir: D:/Projects/cpp/VulkanEngine/build/CMakeFiles/CMakeTmp
+Performing C SOURCE FILE Test CMAKE_HAVE_LIBC_PTHREAD failed with the following output:
+Change Dir: /home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp
 
-Run Build Command(s):C:/MinGW/bin/mingw32-make.exe cmTC_4eff8/fast && C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_4eff8.dir\build.make CMakeFiles/cmTC_4eff8.dir/build
-mingw32-make.exe[1]: Entering directory 'D:/Projects/cpp/VulkanEngine/build/CMakeFiles/CMakeTmp'
-Building C object CMakeFiles/cmTC_4eff8.dir/src.c.obj
-C:\MinGW\bin\gcc.exe   -D_GLFW_HAS_64ASLR -Wl,--high-entropy-va   -o CMakeFiles\cmTC_4eff8.dir\src.c.obj   -c D:\Projects\cpp\VulkanEngine\build\CMakeFiles\CMakeTmp\src.c
-Linking C executable cmTC_4eff8.exe
-"D:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_4eff8.dir\link.txt --verbose=1
-"D:\Program Files\CMake\bin\cmake.exe" -E remove -f CMakeFiles\cmTC_4eff8.dir/objects.a
-C:\MinGW\bin\ar.exe cr CMakeFiles\cmTC_4eff8.dir/objects.a @CMakeFiles\cmTC_4eff8.dir\objects1.rsp
-C:\MinGW\bin\gcc.exe  -D_GLFW_HAS_64ASLR -Wl,--high-entropy-va    -Wl,--whole-archive CMakeFiles\cmTC_4eff8.dir/objects.a -Wl,--no-whole-archive  -o cmTC_4eff8.exe -Wl,--out-implib,libcmTC_4eff8.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cmTC_4eff8.dir\linklibs.rsp
-C:/MinGW/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/bin/ld.exe: unrecognized option '--high-entropy-va'
-C:/MinGW/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/bin/ld.exe: use the --help option for usage information
-collect2.exe: error: ld returned 1 exit status
-mingw32-make.exe[1]: *** [CMakeFiles\cmTC_4eff8.dir\build.make:88: cmTC_4eff8.exe] Error 1
-mingw32-make.exe[1]: Leaving directory 'D:/Projects/cpp/VulkanEngine/build/CMakeFiles/CMakeTmp'
-mingw32-make.exe: *** [Makefile:120: cmTC_4eff8/fast] Error 2
+Run Build Command(s):/usr/bin/make cmTC_70144/fast && /usr/bin/make -f CMakeFiles/cmTC_70144.dir/build.make CMakeFiles/cmTC_70144.dir/build
+make[1]: Entering directory '/home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_70144.dir/src.c.o
+/usr/bin/cc   -DCMAKE_HAVE_LIBC_PTHREAD   -o CMakeFiles/cmTC_70144.dir/src.c.o   -c /home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp/src.c
+Linking C executable cmTC_70144
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_70144.dir/link.txt --verbose=1
+/usr/bin/cc  -DCMAKE_HAVE_LIBC_PTHREAD    -rdynamic CMakeFiles/cmTC_70144.dir/src.c.o  -o cmTC_70144 
+/usr/bin/ld: CMakeFiles/cmTC_70144.dir/src.c.o: in function `main':
+src.c:(.text+0x3e): undefined reference to `pthread_create'
+/usr/bin/ld: src.c:(.text+0x4a): undefined reference to `pthread_detach'
+/usr/bin/ld: src.c:(.text+0x5b): undefined reference to `pthread_join'
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_70144.dir/build.make:87: cmTC_70144] Error 1
+make[1]: Leaving directory '/home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_70144/fast] Error 2
 
 
 Source file was:
-int main(void) { return 0; }
+#include <pthread.h>
+
+void* test_func(void* data)
+{
+  return data;
+}
+
+int main(void)
+{
+  pthread_t thread;
+  pthread_create(&thread, NULL, test_func, NULL);
+  pthread_detach(thread);
+  pthread_join(thread, NULL);
+  pthread_atfork(NULL, NULL, NULL);
+  pthread_exit(NULL);
+
+  return 0;
+}
+
+Determining if the function pthread_create exists in the pthreads failed with the following output:
+Change Dir: /home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/usr/bin/make cmTC_1e4b2/fast && /usr/bin/make -f CMakeFiles/cmTC_1e4b2.dir/build.make CMakeFiles/cmTC_1e4b2.dir/build
+make[1]: Entering directory '/home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_1e4b2.dir/CheckFunctionExists.c.o
+/usr/bin/cc   -DCHECK_FUNCTION_EXISTS=pthread_create   -o CMakeFiles/cmTC_1e4b2.dir/CheckFunctionExists.c.o   -c /usr/share/cmake-3.15/Modules/CheckFunctionExists.c
+Linking C executable cmTC_1e4b2
+/usr/bin/cmake -E cmake_link_script CMakeFiles/cmTC_1e4b2.dir/link.txt --verbose=1
+/usr/bin/cc  -DCHECK_FUNCTION_EXISTS=pthread_create    -rdynamic CMakeFiles/cmTC_1e4b2.dir/CheckFunctionExists.c.o  -o cmTC_1e4b2 -lpthreads 
+/usr/bin/ld: cannot find -lpthreads
+collect2: error: ld returned 1 exit status
+make[1]: *** [CMakeFiles/cmTC_1e4b2.dir/build.make:87: cmTC_1e4b2] Error 1
+make[1]: Leaving directory '/home/magnias/Projects/VulkanEngine/build/CMakeFiles/CMakeTmp'
+make: *** [Makefile:121: cmTC_1e4b2/fast] Error 2
+
+
+

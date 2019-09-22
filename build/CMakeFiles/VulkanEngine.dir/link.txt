@@ -1,3 +1,1 @@
-"D:\Program Files\CMake\bin\cmake.exe" -E remove -f CMakeFiles\VulkanEngine.dir/objects.a
-C:\MinGW\bin\ar.exe cr CMakeFiles\VulkanEngine.dir/objects.a @CMakeFiles\VulkanEngine.dir\objects1.rsp
-C:\MinGW\bin\g++.exe -g   -Wl,--whole-archive CMakeFiles\VulkanEngine.dir/objects.a -Wl,--no-whole-archive  -o VulkanEngine.exe -Wl,--out-implib,libVulkanEngine.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\VulkanEngine.dir\linklibs.rsp
+/usr/bin/c++    -rdynamic CMakeFiles/VulkanEngine.dir/src/main.cpp.o  -o VulkanEngine /usr/lib/libvulkan.so lib/glfw/src/libglfw3.a libglad.a -ldl -lrt -lm -ldl -lX11 -lpthread 
