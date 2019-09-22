@@ -1,9 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/VulkanEngine.dir/src/main.cpp.obj"
-  "VulkanEngine.exe"
-  "VulkanEngine.exe.manifest"
+  "CMakeFiles/VulkanEngine.dir/src/main.cpp.o"
+  "VulkanEngine"
   "VulkanEngine.pdb"
-  "libVulkanEngine.dll.a"
 )
 
 # Per-language clean rules from dependency scanning.

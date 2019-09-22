@@ -4,6 +4,10 @@ This is my try at learning C++ and Vulkan at the same time. Do not expect much f
 
 ## Installation
 
-1. Clone this repository.
-2. Install MinGW32 and make sure it's path is in the environment variables.
-3. Build the application with Ctrl+Shift+B or F1 -> Tasks: Run Build Task.
+1. `$ cd build`
+2. `$ cmake ..`
+3. `$ make`
+
+## Running
+
+Launch the `Vulkanengine` application in build/
