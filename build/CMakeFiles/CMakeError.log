@@ -1,0 +1,22 @@
+Performing C SOURCE FILE Test _GLFW_HAS_64ASLR failed with the following output:
+Change Dir: D:/Projects/cpp/VulkanEngine/build/CMakeFiles/CMakeTmp
+
+Run Build Command(s):C:/MinGW/bin/mingw32-make.exe cmTC_4eff8/fast && C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_4eff8.dir\build.make CMakeFiles/cmTC_4eff8.dir/build
+mingw32-make.exe[1]: Entering directory 'D:/Projects/cpp/VulkanEngine/build/CMakeFiles/CMakeTmp'
+Building C object CMakeFiles/cmTC_4eff8.dir/src.c.obj
+C:\MinGW\bin\gcc.exe   -D_GLFW_HAS_64ASLR -Wl,--high-entropy-va   -o CMakeFiles\cmTC_4eff8.dir\src.c.obj   -c D:\Projects\cpp\VulkanEngine\build\CMakeFiles\CMakeTmp\src.c
+Linking C executable cmTC_4eff8.exe
+"D:\Program Files\CMake\bin\cmake.exe" -E cmake_link_script CMakeFiles\cmTC_4eff8.dir\link.txt --verbose=1
+"D:\Program Files\CMake\bin\cmake.exe" -E remove -f CMakeFiles\cmTC_4eff8.dir/objects.a
+C:\MinGW\bin\ar.exe cr CMakeFiles\cmTC_4eff8.dir/objects.a @CMakeFiles\cmTC_4eff8.dir\objects1.rsp
+C:\MinGW\bin\gcc.exe  -D_GLFW_HAS_64ASLR -Wl,--high-entropy-va    -Wl,--whole-archive CMakeFiles\cmTC_4eff8.dir/objects.a -Wl,--no-whole-archive  -o cmTC_4eff8.exe -Wl,--out-implib,libcmTC_4eff8.dll.a -Wl,--major-image-version,0,--minor-image-version,0 @CMakeFiles\cmTC_4eff8.dir\linklibs.rsp
+C:/MinGW/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/bin/ld.exe: unrecognized option '--high-entropy-va'
+C:/MinGW/bin/../lib/gcc/i686-w64-mingw32/8.1.0/../../../../i686-w64-mingw32/bin/ld.exe: use the --help option for usage information
+collect2.exe: error: ld returned 1 exit status
+mingw32-make.exe[1]: *** [CMakeFiles\cmTC_4eff8.dir\build.make:88: cmTC_4eff8.exe] Error 1
+mingw32-make.exe[1]: Leaving directory 'D:/Projects/cpp/VulkanEngine/build/CMakeFiles/CMakeTmp'
+mingw32-make.exe: *** [Makefile:120: cmTC_4eff8/fast] Error 2
+
+
+Source file was:
+int main(void) { return 0; }
