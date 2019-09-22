@@ -9,7 +9,7 @@
             "name": "c++ Launch",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/build/VulkanEngine.exe",
+            "program": "${workspaceFolder}/build/VulkanEngine",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}",
@@ -17,7 +17,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "gdb",
-            "miDebuggerPath": "gdb.exe",
+            "miDebuggerPath": "gdb",
             "setupCommands": [
                 {
                     "description": "Enable pretty-printing for gdb",

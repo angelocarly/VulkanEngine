@@ -69,4 +69,8 @@ optional
 -
 set
 -
+cstdint
+-
+algorithm
+-
 
