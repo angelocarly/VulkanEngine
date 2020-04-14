@@ -1,1 +1,0 @@
-/usr/bin/c++  -g  -rdynamic CMakeFiles/VulkanEngine.dir/src/main.cpp.o  -o VulkanEngine /usr/lib/libvulkan.so lib/glfw/src/libglfw3.a libglad.a -ldl -lrt -lm -ldl -lX11 -lpthread 
