@@ -18,7 +18,9 @@ const int HEIGHT = 600;
 // Enable validation layers when debugging.
 const std::vector<const char *> validationLayers = {
     //"VK_LAYER_KHRONOS_validation",
-    "VK_LAYER_LUNARG_standard_validation"};
+    "VK_LAYER_NV_optimus",
+    // "VK_LAYER_LUNARG_standard_validation"
+};
 
 const std::vector<const char *> deviceExtensions = {
     VK_KHR_SWAPCHAIN_EXTENSION_NAME};
@@ -154,6 +156,7 @@ private:
         createLogicalDevice();
         createSwapChain();
         createImageViews();
+        createGraphicsPipeline();
     }
 
     void createInstance()
@@ -225,6 +228,10 @@ private:
         vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
         bool allLayersFound = true;
+
+        // for (const VkLayerProperties layerName : availableLayers) {
+            // std::cout << layerName.layerName << '\n';
+        // }
 
         // Check support
         for (const char *layerName : validationLayers)
@@ -626,11 +633,15 @@ private:
             createInfo.subresourceRange.baseArrayLayer = 0;
             createInfo.subresourceRange.layerCount = 1;
 
-            if(vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
+            if (vkCreateImageView(device, &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to create image views");
             }
         }
+    }
+
+    void createGraphicsPipeline()
+    {
     }
 };
 
