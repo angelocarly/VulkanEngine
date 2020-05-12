@@ -22,15 +22,17 @@ find_package(Vulkan REQUIRED)
 target_link_libraries(VulkanEngine Vulkan::Vulkan)
 
 # GLFW
-set(GLFW_DIR "${LIB_DIR}/glfw")
-set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
-set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
-set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
-set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
-add_subdirectory("${GLFW_DIR}")
-target_link_libraries(${PROJECT_NAME} "glfw" "${GLFW_LIBRARIES}")
-target_include_directories(${PROJECT_NAME} PRIVATE "${GLFW_DIR}/include")
-target_compile_definitions(${PROJECT_NAME} PRIVATE "GLFW_INCLUDE_NONE")
+find_package(glfw3 3.3 REQUIRED)
+target_link_libraries(VulkanEngine glfw)
+#set(GLFW_DIR "${LIB_DIR}/glfw")
+#set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
+#set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
+#set(GLFW_BUILD_DOCS OFF CACHE INTERNAL "Build the GLFW documentation")
+#set(GLFW_INSTALL OFF CACHE INTERNAL "Generate installation target")
+#add_subdirectory("${GLFW_DIR}")
+#target_link_libraries(${PROJECT_NAME} "glfw" "${GLFW_LIBRARIES}")
+#target_include_directories(${PROJECT_NAME} PRIVATE "${GLFW_DIR}/include")
+#target_compile_definitions(${PROJECT_NAME} PRIVATE "GLFW_INCLUDE_NONE")
 
 # glad
 set(GLAD_DIR "${LIB_DIR}/glad")

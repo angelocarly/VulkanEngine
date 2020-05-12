@@ -5,7 +5,7 @@
 		<Option title="VulkanEngine"/>
 		<Option makefile_is_custom="1"/>
 		<Option compiler="gcc"/>
-		<Option virtualFolders="CMake Files\;CMake Files\lib\;CMake Files\lib\glfw\;CMake Files\lib\glfw\src\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\lib64\;CMake Files\..\..\..\..\usr\lib64\cmake\;CMake Files\..\..\..\..\usr\lib64\cmake\glm\;"/>
+		<Option virtualFolders="CMake Files\;CMake Files\..\;CMake Files\..\..\;CMake Files\..\..\..\;CMake Files\..\..\..\..\;CMake Files\..\..\..\..\usr\;CMake Files\..\..\..\..\usr\local\;CMake Files\..\..\..\..\usr\local\lib\;CMake Files\..\..\..\..\usr\local\lib\cmake\;CMake Files\..\..\..\..\usr\local\lib\cmake\glfw3\;CMake Files\..\..\..\..\usr\lib64\;CMake Files\..\..\..\..\usr\lib64\cmake\;CMake Files\..\..\..\..\usr\lib64\cmake\glm\;"/>
 		<Build>
 			<Target title="all">
 				<Option working_dir="/home/magnias/Projects/VulkanEngine/cmake-build-debug"/>
@@ -90,9 +90,7 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DGLFW_INCLUDE_NONE"/>
 					<Add directory="/home/magnias/Projects/VulkanEngine/src"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glfw/include"/>
 					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glad/include"/>
 					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0"/>
 					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0/x86_64-pc-linux-gnu"/>
@@ -116,9 +114,7 @@
 				<Option type="1"/>
 				<Option compiler="gcc"/>
 				<Compiler>
-					<Add option="-DGLFW_INCLUDE_NONE"/>
 					<Add directory="/home/magnias/Projects/VulkanEngine/src"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glfw/include"/>
 					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glad/include"/>
 					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0"/>
 					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0/x86_64-pc-linux-gnu"/>
@@ -135,148 +131,9 @@
 					<DistClean command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/Makefile&quot;  VERBOSE=1 clean"/>
 				</MakeCommands>
 			</Target>
-			<Target title="glfw">
-				<Option output="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/libglfw3.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-D_GLFW_USE_CONFIG_H"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glfw/include"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glfw/src"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0/x86_64-pc-linux-gnu"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/include-fixed"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 glfw"/>
-					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
-			<Target title="glfw/fast">
-				<Option output="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/libglfw3.a" prefix_auto="0" extension_auto="0"/>
-				<Option working_dir="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src"/>
-				<Option object_output="./"/>
-				<Option type="2"/>
-				<Option compiler="gcc"/>
-				<Compiler>
-					<Add option="-D_GLFW_USE_CONFIG_H"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glfw/include"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/lib/glfw/src"/>
-					<Add directory="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0/x86_64-pc-linux-gnu"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/../../../../include/c++/9.3.0/backward"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/include"/>
-					<Add directory="/usr/local/include"/>
-					<Add directory="/usr/lib/gcc/x86_64-pc-linux-gnu/9.3.0/include-fixed"/>
-					<Add directory="/usr/include"/>
-				</Compiler>
-				<MakeCommands>
-					<Build command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 glfw/fast"/>
-					<CompileFile command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 &quot;$file&quot;"/>
-					<Clean command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 clean"/>
-					<DistClean command="/usr/bin/make -j12 -f &quot;/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/Makefile&quot;  VERBOSE=1 clean"/>
-				</MakeCommands>
-			</Target>
 		</Build>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/cmake-build-debug/lib/glfw/src/glfw_config.h">
-			<Option target="glfw"/>
-		</Unit>
 		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glad/src/glad.c">
 			<Option target="glad"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/include/GLFW/glfw3.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/include/GLFW/glfw3native.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/context.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/egl_context.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/egl_context.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/glx_context.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/glx_context.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/init.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/input.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/internal.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/linux_joystick.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/linux_joystick.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/mappings.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/monitor.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/osmesa_context.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/osmesa_context.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/posix_thread.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/posix_thread.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/posix_time.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/posix_time.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/vulkan.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/window.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/x11_init.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/x11_monitor.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/x11_platform.h">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/x11_window.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/xkb_unicode.c">
-			<Option target="glfw"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/xkb_unicode.h">
-			<Option target="glfw"/>
 		</Unit>
 		<Unit filename="/home/magnias/Projects/VulkanEngine/src/main.cpp">
 			<Option target="VulkanEngine"/>
@@ -284,20 +141,17 @@
 		<Unit filename="/home/magnias/Projects/VulkanEngine/CMakeLists.txt">
 			<Option virtualFolder="CMake Files\"/>
 		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\lib\glfw\"/>
+		<Unit filename="/home/magnias/Projects/VulkanEngine/../../../../usr/local/lib/cmake/glfw3/glfw3Config.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/CMakeLists.txt">
-			<Option virtualFolder="CMake Files\lib\glfw\src\"/>
+		<Unit filename="/home/magnias/Projects/VulkanEngine/../../../../usr/local/lib/cmake/glfw3/glfw3ConfigVersion.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/glfw3.pc.in">
-			<Option virtualFolder="CMake Files\lib\glfw\src\"/>
+		<Unit filename="/home/magnias/Projects/VulkanEngine/../../../../usr/local/lib/cmake/glfw3/glfw3Targets-noconfig.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\glfw3\"/>
 		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/glfw3Config.cmake.in">
-			<Option virtualFolder="CMake Files\lib\glfw\src\"/>
-		</Unit>
-		<Unit filename="/home/magnias/Projects/VulkanEngine/lib/glfw/src/glfw_config.h.in">
-			<Option virtualFolder="CMake Files\lib\glfw\src\"/>
+		<Unit filename="/home/magnias/Projects/VulkanEngine/../../../../usr/local/lib/cmake/glfw3/glfw3Targets.cmake">
+			<Option virtualFolder="CMake Files\..\..\..\..\usr\local\lib\cmake\glfw3\"/>
 		</Unit>
 		<Unit filename="/home/magnias/Projects/VulkanEngine/../../../../usr/lib64/cmake/glm/glmConfig.cmake">
 			<Option virtualFolder="CMake Files\..\..\..\..\usr\lib64\cmake\glm\"/>
