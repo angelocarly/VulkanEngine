@@ -9,13 +9,17 @@ set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
 set(SOURCES "${SRC_DIR}/main.cpp")
 
-# Shaders
-file(COPY ${SRC_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR})
-
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
+
+# Shaders
+add_custom_command(
+        TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${SRC_DIR}/shaders
+        ${CMAKE_CURRENT_BINARY_DIR}/shaders)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
