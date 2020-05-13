@@ -1,9 +1,0 @@
-/home/magnias/Projects/VulkanEngine/build/CMakeFiles/edit_cache.dir
-/home/magnias/Projects/VulkanEngine/build/CMakeFiles/VulkanEngine.dir
-/home/magnias/Projects/VulkanEngine/build/CMakeFiles/rebuild_cache.dir
-/home/magnias/Projects/VulkanEngine/build/CMakeFiles/glad.dir
-/home/magnias/Projects/VulkanEngine/build/lib/glfw/CMakeFiles/rebuild_cache.dir
-/home/magnias/Projects/VulkanEngine/build/lib/glfw/CMakeFiles/edit_cache.dir
-/home/magnias/Projects/VulkanEngine/build/lib/glfw/src/CMakeFiles/rebuild_cache.dir
-/home/magnias/Projects/VulkanEngine/build/lib/glfw/src/CMakeFiles/glfw.dir
-/home/magnias/Projects/VulkanEngine/build/lib/glfw/src/CMakeFiles/edit_cache.dir
