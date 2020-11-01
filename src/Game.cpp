@@ -8,7 +8,8 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
-Game::Game() : vulkan(Vulkan(this->window.getGLFWwindow()))
+Game::Game() : window(Window(800, 600)),
+               vulkan(Vulkan(this->window.getGLFWwindow()))
 {
 //    vulkan = Vulkan(this->window);
     this->vulkan.initVulkan();

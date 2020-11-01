@@ -16,7 +16,7 @@ public:
     void run();
 
 private:
-    Window window = Window(800, 600);
+    Window window;
     Vulkan vulkan;
     void update();
     void render();
