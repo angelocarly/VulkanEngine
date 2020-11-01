@@ -11,6 +11,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Vulkan.h"
+#include "VulkanBuffer.h"
 
 #include <chrono>
 #include <iostream>
@@ -139,12 +140,12 @@ void Vulkan::initVulkan()
     createGraphicsPipeline();
     createFramebuffers();
     createCommandPool();
-    createVertexBuffer();
+//    createVertexBuffer();
     createIndexBuffer();
     createUniformBuffers();
     createDescriptorPool();
     createDescriptorSets();
-    createCommandBuffers();
+//    createCommandBuffers();
     createSyncObjects();
 }
 
@@ -159,8 +160,9 @@ void Vulkan::cleanup()
     vkDestroyBuffer(device, indexBuffer, nullptr);
     vkFreeMemory(device, indexBufferMemory, nullptr);
 
-    vkDestroyBuffer(device, vertexBuffer, nullptr);
-    vkFreeMemory(device, vertexBufferMemory, nullptr);
+    // TODO destroy buffers
+//    vkDestroyBuffer(device, buffer, nullptr);
+//    vkFreeMemory(device, memory, nullptr);
 
     for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
     {
@@ -400,6 +402,7 @@ void Vulkan::createSwapChain()
     vkGetSwapchainImagesKHR(device, swapChain, &imageCount, swapChainImages.data());
 
     swapChainImageFormat = surfaceFormat.format;
+
     swapChainExtent = extent;
 }
 
@@ -434,27 +437,29 @@ void Vulkan::cleanupSwapChain()
 
 void Vulkan::recreateSwapChain()
 {
-    int width = 0, height = 0;
-    glfwGetFramebufferSize(window, &width, &height);
-    while (width == 0 || height == 0)
-    {
-        glfwGetFramebufferSize(window, &width, &height);
-        glfwWaitEvents();
-    }
+    throw std::runtime_error("Recreate swap chain not implemented");
 
-    vkDeviceWaitIdle(device);
-
-    cleanupSwapChain();
-
-    createSwapChain();
-    createImageViews();
-    createRenderPass();
-    createGraphicsPipeline();
-    createFramebuffers();
-    createUniformBuffers();
-    createDescriptorPool();
-    createDescriptorSets();
-    createCommandBuffers();
+//    int width = 0, height = 0;
+//    glfwGetFramebufferSize(window, &width, &height);
+//    while (width == 0 || height == 0)
+//    {
+//        glfwGetFramebufferSize(window, &width, &height);
+//        glfwWaitEvents();
+//    }
+//
+//    vkDeviceWaitIdle(device);
+//
+//    cleanupSwapChain();
+//
+//    createSwapChain();
+//    createImageViews();
+//    createRenderPass();
+//    createGraphicsPipeline();
+//    createFramebuffers();
+//    createUniformBuffers();
+//    createDescriptorPool();
+//    createDescriptorSets();
+//    createCommandBuffers();
 }
 
 void Vulkan::createImageViews()
@@ -694,7 +699,7 @@ void Vulkan::createCommandPool()
     }
 }
 
-void Vulkan::createCommandBuffers()
+void Vulkan::createCommandBuffers(vks::Renderable *renderable)
 {
     commandBuffers.resize(swapChainFramebuffers.size());
 
@@ -734,9 +739,10 @@ void Vulkan::createCommandBuffers()
 
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
-        VkBuffer vertexBuffers[] = {vertexBuffer};
-        VkDeviceSize offsets[] = {0};
-        vkCmdBindVertexBuffers(commandBuffers[i], 0, 1, vertexBuffers, offsets);
+        if (renderable != nullptr)
+        {
+            renderable->draw(commandBuffers[i], pipelineLayout);
+        }
 
         vkCmdBindIndexBuffer(commandBuffers[i], indexBuffer, 0, VK_INDEX_TYPE_UINT16);
 
@@ -745,8 +751,6 @@ void Vulkan::createCommandBuffers()
                                 nullptr);
 
         vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
-
-//            vkCmdDraw(commandBuffers[i], static_cast<uint32_t>(vertices.size()), 1, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
@@ -1122,8 +1126,10 @@ void Vulkan::createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryP
     vkBindBufferMemory(device, buffer, bufferMemory, 0);
 }
 
-void Vulkan::createVertexBuffer()
+void Vulkan::createVertexBuffer(vks::Buffer *buffer)
 {
+    buffer->device = device;
+
     VkDeviceSize bufferSize = sizeof(vertices[0]) * vertices.size();
 
     VkBuffer stagingBuffer;
@@ -1138,9 +1144,9 @@ void Vulkan::createVertexBuffer()
     vkUnmapMemory(device, stagingBufferMemory);
 
     createBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vertexBuffer, vertexBufferMemory);
+                 VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, buffer->buffer, buffer->memory);
 
-    copyBuffer(stagingBuffer, vertexBuffer, bufferSize);
+    copyBuffer(stagingBuffer, buffer->buffer, bufferSize);
 
     vkDestroyBuffer(device, stagingBuffer, nullptr);
     vkFreeMemory(device, stagingBufferMemory, nullptr);

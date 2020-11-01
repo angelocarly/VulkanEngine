@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="BranchesTreeState">
+    <expand />
+    <select />
+  </component>
   <component name="CMakeRunConfigurationManager" shouldGenerate="true" shouldDeleteObsolete="true">
     <generated>
-      <config projectName="VulkanEngine" targetName="glad" />
       <config projectName="VulkanEngine" targetName="VulkanEngine" />
+      <config projectName="VulkanEngine" targetName="glad" />
     </generated>
   </component>
   <component name="CMakeSettings">
@@ -13,14 +17,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/.gitignore" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/discord.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/discord.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanBuffer.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanBuffer.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanDevice.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanRenderable.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workspace.code-workspace" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Vulkan.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/shader.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/shader.frag" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -35,6 +44,9 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="ProjectId" id="1jfG4ZHIlJN4RcVkDeoRDz78ljt" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
@@ -48,6 +60,11 @@
     <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -56,6 +73,11 @@
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -86,30 +108,50 @@
   <component name="TypeScriptGeneratedFilesManager">
     <option name="version" value="3" />
   </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State />
+          </value>
+        </entry>
+      </map>
+    </option>
+    <option name="oldMeFiltersMigrated" value="true" />
+  </component>
   <component name="WindowStateProjectService">
     <state x="2983" y="488" width="424" height="454" key="FileChooserDialogImpl" timestamp="1604187977249">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state x="2983" y="488" width="424" height="454" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187977249" />
-    <state width="2560" height="417" key="GridCell.Tab.0.bottom" timestamp="1604187725646">
+    <state width="2028" height="406" key="GridCell.Tab.0.bottom" timestamp="1604264642770">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2560" height="417" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187725646" />
-    <state width="2560" height="417" key="GridCell.Tab.0.center" timestamp="1604187725645">
+    <state width="2028" height="406" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604264642770" />
+    <state width="2028" height="406" key="GridCell.Tab.0.center" timestamp="1604264642770">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2560" height="417" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187725645" />
-    <state width="2560" height="417" key="GridCell.Tab.0.left" timestamp="1604187725645">
+    <state width="2028" height="406" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604264642770" />
+    <state width="2028" height="406" key="GridCell.Tab.0.left" timestamp="1604264642770">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2560" height="417" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187725645" />
-    <state width="2560" height="417" key="GridCell.Tab.0.right" timestamp="1604187725645">
+    <state width="2028" height="406" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604264642770" />
+    <state width="2028" height="406" key="GridCell.Tab.0.right" timestamp="1604264642770">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2560" height="417" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187725645" />
+    <state width="2028" height="406" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604264642770" />
     <state x="2704" y="365" key="SettingsEditor" timestamp="1604189547385">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state x="2704" y="365" key="SettingsEditor/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604189547385" />
+    <state x="2624" y="349" key="run.anything.popup" timestamp="1604263648962">
+      <screen x="1920" y="0" width="2560" height="1440" />
+    </state>
+    <state x="2624" y="349" key="run.anything.popup/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604263648962" />
+    <state x="2623" y="345" key="search.everywhere.popup" timestamp="1604263827163">
+      <screen x="1920" y="0" width="2560" height="1440" />
+    </state>
+    <state x="2623" y="345" key="search.everywhere.popup/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604263827163" />
   </component>
 </project>

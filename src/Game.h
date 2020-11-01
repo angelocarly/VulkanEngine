@@ -9,10 +9,11 @@
 #include <graphics/Window.h>
 #include <graphics/Vulkan.h>
 
-class Game
+class Game : vks::Renderable
 {
 public:
     Game();
+    ~Game();
     void run();
 
 private:
@@ -20,6 +21,7 @@ private:
     Vulkan vulkan;
     void update();
     void render();
+    void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout) override;
 };
 
 

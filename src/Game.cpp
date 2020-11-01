@@ -8,11 +8,20 @@
 #include <GLFW/glfw3.h>
 #include <iostream>
 
+vks::Buffer buffer;
+
 Game::Game() : window(Window(800, 600)),
                vulkan(Vulkan(this->window.getGLFWwindow()))
 {
-//    vulkan = Vulkan(this->window);
     this->vulkan.initVulkan();
+
+    vulkan.createVertexBuffer(&buffer);
+    vulkan.createCommandBuffers(this);
+}
+
+Game::~Game() {
+    buffer.cleanup();
+    vulkan.cleanup();
 }
 
 void Game::run()
@@ -38,5 +47,13 @@ void Game::render()
 {
 
 }
+
+void Game::draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout)
+{
+    VkBuffer vertexBuffers[] = {buffer.buffer};
+    VkDeviceSize offsets[] = {0};
+    vkCmdBindVertexBuffers(cmdbuffer, 0, 1, vertexBuffers, offsets);
+}
+
 
 

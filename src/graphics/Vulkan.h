@@ -9,6 +9,8 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include "Window.h"
+#include "VulkanBuffer.h"
+#include "VulkanRenderable.h"
 //#include <stdexcept>
 //#include <glm/glm.hpp>
 //#include <glm/gtc/matrix_transform.hpp>
@@ -46,6 +48,8 @@ public:
     void drawFrame();
 
     void cleanup();
+    void createVertexBuffer(vks::Buffer *buffer);
+    void createCommandBuffers(vks::Renderable *renderable);
 
 private:
     GLFWwindow *window;
@@ -83,8 +87,8 @@ private:
 
     bool framebufferResized = false;
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
+//    VkBuffer vertexBuffer;
+//    VkDeviceMemory vertexBufferMemory;
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
@@ -122,8 +126,6 @@ private:
 
     void createCommandPool();
 
-    void createCommandBuffers();
-
     void createSyncObjects();
 
     void updateUniformBuffer(uint32_t currentImage);
@@ -147,7 +149,6 @@ private:
     void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
                       VkDeviceMemory &bufferMemory);
 
-    void createVertexBuffer();
 
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
@@ -171,6 +172,7 @@ private:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
 };
 
 
