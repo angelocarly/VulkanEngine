@@ -4,13 +4,7 @@
 
 #include "VulkanBuffer.h"
 
-vks::Buffer::~Buffer()
-{
-    vkDestroyBuffer(device, buffer, nullptr);
-    vkFreeMemory(device, memory, nullptr);
-}
-
-void vks::Buffer::cleanup() {
+void vks::Buffer::destroy() {
     vkDestroyBuffer(device, buffer, nullptr);
     vkFreeMemory(device, memory, nullptr);
 }

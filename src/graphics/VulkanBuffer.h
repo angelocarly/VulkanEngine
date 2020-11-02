@@ -16,8 +16,7 @@ namespace vks
         VkDeviceMemory memory;
         VkDevice device;
 
-        ~Buffer();
-        void cleanup();
+        void destroy();
     };
 }
 
