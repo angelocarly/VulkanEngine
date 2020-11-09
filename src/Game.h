@@ -21,7 +21,7 @@ private:
     Vulkan vulkan;
     void update();
     void render();
-    void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout) override;
+    void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet) override;
 };
 
 

@@ -13,6 +13,10 @@
 vks::Buffer buffer;
 vks::Buffer indexBuffer;
 
+const std::vector<uint16_t> indices = {
+        0, 1, 2, 2, 3, 0
+};
+
 Game::Game() : window(Window(800, 600)),
                vulkan(Vulkan(this->window.getGLFWwindow()))
 {
@@ -27,9 +31,6 @@ Game::Game() : window(Window(800, 600)),
     };
     VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
 
-    const std::vector<uint16_t> indices = {
-            0, 1, 2, 2, 3, 0
-    };
     VkDeviceSize indexSize = sizeof(indices[0]) * indices.size();
 
     vks::Buffer stagingbuffer;
@@ -70,14 +71,15 @@ Game::Game() : window(Window(800, 600)),
 }
 
 Game::~Game() {
+
 }
 
 void Game::run()
 {
     while (!this->window.shouldClose())
     {
-        this->window.pollEvents();
         this->update();
+        this->window.pollEvents();
         this->render();
         this->vulkan.drawFrame();
     }
@@ -101,13 +103,19 @@ void Game::render()
 
 }
 
-void Game::draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout)
+void Game::draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet)
 {
     VkBuffer vertexBuffers[] = {buffer.buffer};
     VkDeviceSize offsets[] = {0};
     vkCmdBindVertexBuffers(cmdbuffer, 0, 1, vertexBuffers, offsets);
 
     vkCmdBindIndexBuffer(cmdbuffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16);
+
+    vkCmdBindDescriptorSets(cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+                            &descriptorSet, 0,
+                            nullptr);
+
+    vkCmdDrawIndexed(cmdbuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 }
 
 

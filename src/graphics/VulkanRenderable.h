@@ -13,6 +13,6 @@ namespace vks
 {
     struct Renderable
     {
-        virtual void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout) = 0;
+        virtual void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet) = 0;
     };
 }

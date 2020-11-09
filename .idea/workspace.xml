@@ -19,10 +19,9 @@
     <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Split vertex buffer">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/Game.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Vulkan.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanBuffer.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanBuffer.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanBuffer.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanBuffer.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanRenderable.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanRenderable.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,8 +54,9 @@
     <property name="aspect.path.notification.shown" value="true" />
     <property name="cf.first.check.clang-format" value="false" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
+    <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.pluginManager" />
+    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
@@ -67,11 +67,6 @@
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -97,6 +92,9 @@
       <workItem from="1604188065125" duration="672000" />
       <workItem from="1604189555550" duration="39000" />
       <workItem from="1604351258215" duration="2078000" />
+      <workItem from="1604663858051" duration="1984000" />
+      <workItem from="1604795977068" duration="5137000" />
+      <workItem from="1604959676522" duration="587000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -132,22 +130,22 @@
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state x="2983" y="488" width="424" height="454" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187977249" />
-    <state width="2514" height="406" key="GridCell.Tab.0.bottom" timestamp="1604356330786">
+    <state width="2514" height="406" key="GridCell.Tab.0.bottom" timestamp="1604960217606">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604356330786" />
-    <state width="2514" height="406" key="GridCell.Tab.0.center" timestamp="1604356330786">
+    <state width="2514" height="406" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
+    <state width="2514" height="406" key="GridCell.Tab.0.center" timestamp="1604960217606">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604356330786" />
-    <state width="2514" height="406" key="GridCell.Tab.0.left" timestamp="1604356330786">
+    <state width="2514" height="406" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
+    <state width="2514" height="406" key="GridCell.Tab.0.left" timestamp="1604960217606">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604356330786" />
-    <state width="2514" height="406" key="GridCell.Tab.0.right" timestamp="1604356330786">
+    <state width="2514" height="406" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
+    <state width="2514" height="406" key="GridCell.Tab.0.right" timestamp="1604960217606">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604356330786" />
+    <state width="2514" height="406" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
     <state width="2028" height="499" key="GridCell.Tab.1.bottom" timestamp="1604268650726">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
@@ -164,10 +162,10 @@
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state width="2028" height="499" key="GridCell.Tab.1.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604268650726" />
-    <state x="2704" y="365" key="SettingsEditor" timestamp="1604189547385">
+    <state x="2704" y="365" key="SettingsEditor" timestamp="1604801728839">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state x="2704" y="365" key="SettingsEditor/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604189547385" />
+    <state x="2704" y="365" key="SettingsEditor/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604801728839" />
     <state x="2622" y="416" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1604266257984">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>

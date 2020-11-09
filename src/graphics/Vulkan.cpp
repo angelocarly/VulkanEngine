@@ -70,9 +70,6 @@ struct UniformBufferObject {
     glm::mat4 view;
     glm::mat4 proj;
 };
-const std::vector<uint16_t> indices = {
-        0, 1, 2, 2, 3, 0
-};
 
 Vulkan::Vulkan(GLFWwindow *window) {
     this->window = window;
@@ -638,15 +635,9 @@ void Vulkan::createCommandBuffers(vks::Renderable *renderable) {
         vkCmdBindPipeline(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
 
         if (renderable != nullptr) {
-            renderable->draw(commandBuffers[i], pipelineLayout);
+            renderable->draw(commandBuffers[i], pipelineLayout, descriptorSets[i]);
         }
 
-
-        vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
-                                &descriptorSets[i], 0,
-                                nullptr);
-
-        vkCmdDrawIndexed(commandBuffers[i], static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 
         vkCmdEndRenderPass(commandBuffers[i]);
 
