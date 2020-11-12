@@ -22,6 +22,8 @@ public:
 
     GLFWwindow *getGLFWwindow();
 
+    int width;
+    int height;
 private:
     GLFWwindow *window_handle;
 };

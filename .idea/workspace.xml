@@ -16,12 +16,16 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Split vertex buffer">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Move uniforms out of Vulkan.cpp">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/Game.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/Game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Vulkan.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/VulkanRenderable.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanRenderable.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/Window.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Window.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/Window.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/Window.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,6 +68,11 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -94,7 +103,9 @@
       <workItem from="1604351258215" duration="2078000" />
       <workItem from="1604663858051" duration="1984000" />
       <workItem from="1604795977068" duration="5137000" />
-      <workItem from="1604959676522" duration="587000" />
+      <workItem from="1604959676522" duration="1500000" />
+      <workItem from="1605128360776" duration="2841000" />
+      <workItem from="1605212382228" duration="3437000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -103,7 +114,14 @@
       <option name="project" value="LOCAL" />
       <updated>1604264719568</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="Move indices out of Vulkan.cpp">
+      <created>1604960445459</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1604960445459</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -123,49 +141,55 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="Split vertex buffer" />
-    <option name="LAST_COMMIT_MESSAGE" value="Split vertex buffer" />
+    <MESSAGE value="Move indices out of Vulkan.cpp" />
+    <MESSAGE value="Move uniforms out of Vulkan.cpp" />
+    <option name="LAST_COMMIT_MESSAGE" value="Move uniforms out of Vulkan.cpp" />
   </component>
   <component name="WindowStateProjectService">
     <state x="2983" y="488" width="424" height="454" key="FileChooserDialogImpl" timestamp="1604187977249">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state x="2983" y="488" width="424" height="454" key="FileChooserDialogImpl/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604187977249" />
-    <state width="2514" height="406" key="GridCell.Tab.0.bottom" timestamp="1604960217606">
+    <state width="2514" height="406" key="GridCell.Tab.0.bottom" timestamp="1605216870276">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
-    <state width="2514" height="406" key="GridCell.Tab.0.center" timestamp="1604960217606">
+    <state width="2514" height="406" key="GridCell.Tab.0.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605216870276" />
+    <state width="2514" height="406" key="GridCell.Tab.0.center" timestamp="1605216870276">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
-    <state width="2514" height="406" key="GridCell.Tab.0.left" timestamp="1604960217606">
+    <state width="2514" height="406" key="GridCell.Tab.0.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605216870276" />
+    <state width="2514" height="406" key="GridCell.Tab.0.left" timestamp="1605216870276">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
-    <state width="2514" height="406" key="GridCell.Tab.0.right" timestamp="1604960217606">
+    <state width="2514" height="406" key="GridCell.Tab.0.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605216870276" />
+    <state width="2514" height="406" key="GridCell.Tab.0.right" timestamp="1605216870276">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2514" height="406" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960217606" />
-    <state width="2028" height="499" key="GridCell.Tab.1.bottom" timestamp="1604268650726">
+    <state width="2514" height="406" key="GridCell.Tab.0.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605216870276" />
+    <state width="2514" height="502" key="GridCell.Tab.1.bottom" timestamp="1605213445575">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2028" height="499" key="GridCell.Tab.1.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604268650726" />
-    <state width="2028" height="499" key="GridCell.Tab.1.center" timestamp="1604268650726">
+    <state width="2514" height="502" key="GridCell.Tab.1.bottom/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605213445575" />
+    <state width="2514" height="502" key="GridCell.Tab.1.center" timestamp="1605213445575">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2028" height="499" key="GridCell.Tab.1.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604268650726" />
-    <state width="2028" height="499" key="GridCell.Tab.1.left" timestamp="1604268650726">
+    <state width="2514" height="502" key="GridCell.Tab.1.center/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605213445575" />
+    <state width="2514" height="502" key="GridCell.Tab.1.left" timestamp="1605213445575">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2028" height="499" key="GridCell.Tab.1.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604268650726" />
-    <state width="2028" height="499" key="GridCell.Tab.1.right" timestamp="1604268650726">
+    <state width="2514" height="502" key="GridCell.Tab.1.left/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605213445575" />
+    <state width="2514" height="502" key="GridCell.Tab.1.right" timestamp="1605213445575">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state width="2028" height="499" key="GridCell.Tab.1.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604268650726" />
+    <state width="2514" height="502" key="GridCell.Tab.1.right/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605213445575" />
     <state x="2704" y="365" key="SettingsEditor" timestamp="1604801728839">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state x="2704" y="365" key="SettingsEditor/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604801728839" />
+    <state x="2795" y="466" width="800" height="498" key="Vcs.Push.Dialog.v2" timestamp="1604960798270">
+      <screen x="1920" y="0" width="2560" height="1440" />
+    </state>
+    <state x="2795" y="466" width="800" height="498" key="Vcs.Push.Dialog.v2/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604960798270" />
     <state x="2622" y="416" key="com.intellij.openapi.editor.actions.MultiplePasteAction$ClipboardContentChooser" timestamp="1604266257984">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
@@ -178,9 +202,9 @@
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
     <state x="2624" y="349" key="run.anything.popup/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604263648962" />
-    <state x="2623" y="345" key="search.everywhere.popup" timestamp="1604263827163">
+    <state x="2623" y="345" width="672" height="678" key="search.everywhere.popup" timestamp="1605130480183">
       <screen x="1920" y="0" width="2560" height="1440" />
     </state>
-    <state x="2623" y="345" key="search.everywhere.popup/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1604263827163" />
+    <state x="2623" y="345" width="672" height="678" key="search.everywhere.popup/0.0.1920.1080/1920.0.2560.1440@1920.0.2560.1440" timestamp="1605130480183" />
   </component>
 </project>

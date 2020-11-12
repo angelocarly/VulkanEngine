@@ -21,7 +21,21 @@ private:
     Vulkan vulkan;
     void update();
     void render();
-    void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, VkDescriptorSet descriptorSet) override;
+    void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, int index) override;
+
+    void createUniformBuffers();
+
+    void destroy();
+
+    void createDescriptorSets(int size);
+
+    void createDescriptorSetLayout();
+
+    void createDescriptorPool(int size);
+
+    void updateUniformBuffer(uint32_t currentImage);
+
+    void createUniformBuffers(int size);
 };
 
 

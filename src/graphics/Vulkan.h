@@ -49,10 +49,9 @@ public:
     void drawFrame();
 
     void cleanup();
-    void createVertexBuffer(vks::Buffer *buffer);
     void createCommandBuffers(vks::Renderable *renderable);
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-    VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, bool begin);
+
     struct Vertex
     {
         glm::vec2 pos;
@@ -84,7 +83,6 @@ public:
         }
     };
 
-    VkCommandBuffer createCommandBuffer();
     VkDevice device;
 
     void cleanupSwapChain();
@@ -98,6 +96,35 @@ public:
     createBuffer(VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, vks::Buffer &buffer, VkDeviceSize size,
                  void *data);
 
+    std::vector<VkImage> swapChainImages;
+
+    void initVulkan(VkDescriptorSetLayout *descriptorSetLayout);
+
+    void createInstance();
+
+    void setupDebugMessenger();
+
+    void createSurface();
+
+    void createLogicalDevice();
+
+    void createSwapChain();
+
+    void createImageViews();
+
+    void createRenderPass();
+
+    void pickPhysicalDevice();
+
+    void createGraphicsPipeline(VkDescriptorSetLayout *descriptorSetLayout);
+
+    void createFramebuffers();
+
+    void createCommandPool();
+
+    void createSyncObjects();
+
+    size_t currentFrame = 0;
 private:
     GLFWwindow *window;
 
@@ -111,14 +138,13 @@ private:
     VkQueue presentQueue;
 
     VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
     VkRenderPass renderPass;
-    VkDescriptorSetLayout descriptorSetLayout;
+//    VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
 
@@ -129,7 +155,6 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
     std::vector<VkFence> imagesInFlight;
-    size_t currentFrame = 0;
 
     bool framebufferResized = false;
 
@@ -138,42 +163,16 @@ private:
 //    VkBuffer indexBuffer;
 //    VkDeviceMemory indexBufferMemory;
 
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
+//    std::vector<VkBuffer> uniformBuffers;
+//    std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-    VkDescriptorPool descriptorPool;
-    std::vector<VkDescriptorSet> descriptorSets;
-
-    void createInstance();
+//    VkDescriptorPool descriptorPool;
+//    std::vector<VkDescriptorSet> descriptorSets;
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-    void setupDebugMessenger();
-
-    void pickPhysicalDevice();
-
-    void createSurface();
-
-    void createLogicalDevice();
-
-    void createSwapChain();
-
 
     void recreateSwapChain();
-
-    void createImageViews();
-
-    void createRenderPass();
-
-    void createGraphicsPipeline();
-
-    void createFramebuffers();
-
-    void createCommandPool();
-
-    void createSyncObjects();
-
-    void updateUniformBuffer(uint32_t currentImage);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
 
@@ -192,14 +191,6 @@ private:
     bool checkValidationLayerSupport();
 
     void createIndexBuffer();
-
-    void createDescriptorSetLayout();
-
-    void createUniformBuffers();
-
-    void createDescriptorPool();
-
-    void createDescriptorSets();
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
