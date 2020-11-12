@@ -9,15 +9,18 @@
 #include <vulkan/vulkan.h>
 #include <vector>
 #include "Window.h"
+#include "VulkanBuffer.h"
+#include "VulkanRenderable.h"
 //#include <stdexcept>
-//#include <glm/glm.hpp>
-//#include <glm/gtc/matrix_transform.hpp>
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 #include <iostream>
 #include <cstring>
 #include <cstdlib>
 #include <cstdint>
 #include <set>
+#include <array>
 
 class Vulkan
 {
@@ -46,7 +49,82 @@ public:
     void drawFrame();
 
     void cleanup();
+    void createCommandBuffers(vks::Renderable *renderable);
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
+    struct Vertex
+    {
+        glm::vec2 pos;
+        glm::vec3 color;
+
+        static VkVertexInputBindingDescription getBindingDescription()
+        {
+            VkVertexInputBindingDescription bindingDescription{};
+            bindingDescription.binding = 0;
+            bindingDescription.stride = sizeof(Vertex);
+            bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+            return bindingDescription;
+        }
+
+        static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions()
+        {
+            std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, pos);
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1;
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
+
+            return attributeDescriptions;
+        }
+    };
+
+    VkDevice device;
+
+    void cleanupSwapChain();
+
+    void
+    createBuffer(VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                 VkDeviceMemory &bufferMemory,
+                 VkDeviceSize size, void *data);
+
+    void
+    createBuffer(VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, vks::Buffer &buffer, VkDeviceSize size,
+                 void *data);
+
+    std::vector<VkImage> swapChainImages;
+
+    void initVulkan(VkDescriptorSetLayout *descriptorSetLayout);
+
+    void createInstance();
+
+    void setupDebugMessenger();
+
+    void createSurface();
+
+    void createLogicalDevice();
+
+    void createSwapChain();
+
+    void createImageViews();
+
+    void createRenderPass();
+
+    void pickPhysicalDevice();
+
+    void createGraphicsPipeline(VkDescriptorSetLayout *descriptorSetLayout);
+
+    void createFramebuffers();
+
+    void createCommandPool();
+
+    void createSyncObjects();
+
+    size_t currentFrame = 0;
 private:
     GLFWwindow *window;
 
@@ -55,20 +133,18 @@ private:
     VkSurfaceKHR surface;
 
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
-    VkDevice device;
 
     VkQueue graphicsQueue;
     VkQueue presentQueue;
 
     VkSwapchainKHR swapChain;
-    std::vector<VkImage> swapChainImages;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     std::vector<VkImageView> swapChainImageViews;
     std::vector<VkFramebuffer> swapChainFramebuffers;
 
     VkRenderPass renderPass;
-    VkDescriptorSetLayout descriptorSetLayout;
+//    VkDescriptorSetLayout descriptorSetLayout;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
 
@@ -79,54 +155,24 @@ private:
     std::vector<VkSemaphore> renderFinishedSemaphores;
     std::vector<VkFence> inFlightFences;
     std::vector<VkFence> imagesInFlight;
-    size_t currentFrame = 0;
 
     bool framebufferResized = false;
 
-    VkBuffer vertexBuffer;
-    VkDeviceMemory vertexBufferMemory;
-    VkBuffer indexBuffer;
-    VkDeviceMemory indexBufferMemory;
+//    VkBuffer vertexBuffer;
+//    VkDeviceMemory vertexBufferMemory;
+//    VkBuffer indexBuffer;
+//    VkDeviceMemory indexBufferMemory;
 
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
+//    std::vector<VkBuffer> uniformBuffers;
+//    std::vector<VkDeviceMemory> uniformBuffersMemory;
 
-    VkDescriptorPool descriptorPool;
-    std::vector<VkDescriptorSet> descriptorSets;
-
-    void createInstance();
+//    VkDescriptorPool descriptorPool;
+//    std::vector<VkDescriptorSet> descriptorSets;
 
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
 
-    void setupDebugMessenger();
-
-    void pickPhysicalDevice();
-
-    void createSurface();
-
-    void createLogicalDevice();
-
-    void createSwapChain();
-
-    void cleanupSwapChain();
 
     void recreateSwapChain();
-
-    void createImageViews();
-
-    void createRenderPass();
-
-    void createGraphicsPipeline();
-
-    void createFramebuffers();
-
-    void createCommandPool();
-
-    void createCommandBuffers();
-
-    void createSyncObjects();
-
-    void updateUniformBuffer(uint32_t currentImage);
 
     VkShaderModule createShaderModule(const std::vector<char> &code);
 
@@ -144,22 +190,7 @@ private:
 
     bool checkValidationLayerSupport();
 
-    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
-                      VkDeviceMemory &bufferMemory);
-
-    void createVertexBuffer();
-
-    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
     void createIndexBuffer();
-
-    void createDescriptorSetLayout();
-
-    void createUniformBuffers();
-
-    void createDescriptorPool();
-
-    void createDescriptorSets();
 
     uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
@@ -171,6 +202,7 @@ private:
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
 
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
+
 };
 
 

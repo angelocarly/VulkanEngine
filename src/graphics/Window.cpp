@@ -5,7 +5,9 @@
 #include "Window.h"
 #include <GLFW/glfw3.h>
 
-Window::Window(int width, int height)
+Window::Window(int width, int height) :
+width(width),
+height(height)
 {
     glfwInit();
 
