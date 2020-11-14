@@ -9,6 +9,7 @@
 #include <iostream>
 #include <vector>
 #include <chrono>
+#include <graphics/VulkanInitializers.h>
 
 
 vks::Buffer buffer;
@@ -25,7 +26,8 @@ std::vector<Vulkan::Vertex> vertices = {
         {{-0.5f, 0.5f},  {1.0f, 1.0f, 1.0f}}
 };
 
-struct UniformBufferObject {
+struct UniformBufferObject
+{
     glm::mat4 model;
     glm::mat4 view;
     glm::mat4 proj;
@@ -48,16 +50,14 @@ Game::Game() : window(Window(800, 600)),
     vulkan.createSwapChain();
     vulkan.createImageViews();
     vulkan.createRenderPass();
-    createDescriptorSetLayout();
-    vulkan.createGraphicsPipeline(&descriptorSetLayout);
     vulkan.createFramebuffers();
     vulkan.createCommandPool();
-//    createVertexBuffer();
-//    vulkan.createIndexBuffer();
-//    createUniformBuffers();
-//    createDescriptorPool();
-//    createDescriptorSets();
-//    createCommandBuffers();
+
+    // Descriptors
+    createDescriptorPool(4);
+    createDescriptorSetLayout();
+
+    vulkan.createGraphicsPipeline(&descriptorSetLayout);
 
     VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
 
@@ -68,28 +68,28 @@ Game::Game() : window(Window(800, 600)),
 
     // Create buffers with staging
     vulkan.createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                         stagingbuffer,
-                         size,
-                         vertices.data());
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                        stagingbuffer,
+                        size,
+                        vertices.data());
 
     vulkan.createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                         VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                         indexStagingbuffer,
-                         indexSize,
-                         (void *) indices.data());
+                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                        indexStagingbuffer,
+                        indexSize,
+                        (void *) indices.data());
 
     vulkan.createBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                         buffer,
-                         size,
-                         nullptr);
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        buffer,
+                        size,
+                        nullptr);
 
     vulkan.createBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                         VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                         indexBuffer,
-                         indexSize,
-                         nullptr);
+                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                        indexBuffer,
+                        indexSize,
+                        nullptr);
 
     vulkan.copyBuffer(stagingbuffer.buffer, buffer.buffer, size);
     vulkan.copyBuffer(indexStagingbuffer.buffer, indexBuffer.buffer, indexSize);
@@ -98,7 +98,6 @@ Game::Game() : window(Window(800, 600)),
     indexStagingbuffer.destroy();
 
     createUniformBuffers(4);
-    createDescriptorPool(4);
     createDescriptorSets(4);
 
     vulkan.createCommandBuffers(this);
@@ -106,42 +105,9 @@ Game::Game() : window(Window(800, 600)),
 
 }
 
-void Game::createDescriptorSetLayout() {
-    VkDescriptorSetLayoutBinding uboLayoutBinding{};
-    uboLayoutBinding.binding = 0;
-    uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    uboLayoutBinding.descriptorCount = 1;
-    uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-    uboLayoutBinding.pImmutableSamplers = nullptr;
 
-    VkDescriptorSetLayoutCreateInfo layoutInfo{};
-    layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    layoutInfo.bindingCount = 1;
-    layoutInfo.pBindings = &uboLayoutBinding;
-
-    if (vkCreateDescriptorSetLayout(vulkan.device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create descriptor set layout!");
-    }
-}
-
-void Game::createUniformBuffers(int size) {
-    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-    uniformBuffers.resize(size);
-    uniformBuffersMemory.resize(size);
-
-    for (size_t i = 0; i < size; i++) {
-        vulkan.createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                     uniformBuffers[i],
-                     uniformBuffersMemory[i],
-                     bufferSize,
-                     nullptr);
-    }
-
-}
-
-Game::~Game() {
+Game::~Game()
+{
 
 }
 
@@ -158,57 +124,103 @@ void Game::run()
     destroy();
 }
 
-void Game::createDescriptorPool(int size) {
-    VkDescriptorPoolSize poolSize{};
-    poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-    poolSize.descriptorCount = static_cast<uint32_t>(size);
+void Game::createDescriptorPool(int size)
+{
+    std::vector<VkDescriptorPoolSize> poolSize =
+    {
+            vks::initializers::descriptorPoolSize(
+                    VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                    static_cast<uint32_t>(size)
+            )
+    };
 
-    VkDescriptorPoolCreateInfo poolInfo{};
-    poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-    poolInfo.poolSizeCount = 1;
-    poolInfo.pPoolSizes = &poolSize;
-    poolInfo.maxSets = static_cast<uint32_t>(size);
+    VkDescriptorPoolCreateInfo poolInfo = vks::initializers::descriptorPoolCreateInfo(
+            poolSize,
+            size
+    );
 
-    if (vkCreateDescriptorPool(vulkan.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
+    if (vkCreateDescriptorPool(vulkan.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    {
         throw std::runtime_error("failed to create descriptor pool");
     }
 }
 
-void Game::createDescriptorSets(int size) {
+void Game::createDescriptorSets(int size)
+{
     std::vector<VkDescriptorSetLayout> layouts(size, descriptorSetLayout);
-    VkDescriptorSetAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-    allocInfo.descriptorPool = descriptorPool;
-    allocInfo.descriptorSetCount = static_cast<uint32_t>(size);
-    allocInfo.pSetLayouts = layouts.data();
+    VkDescriptorSetAllocateInfo allocInfo = vks::initializers::descriptorSetAllocateInfo(
+            descriptorPool,
+            layouts.data(),
+            static_cast<uint32_t>(size)
+            );
 
     descriptorSets.resize(size);
-    if (vkAllocateDescriptorSets(vulkan.device, &allocInfo, descriptorSets.data()) != VK_SUCCESS) {
+    if (vkAllocateDescriptorSets(vulkan.device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    {
         throw std::runtime_error("failed to allocate descriptor sets");
     }
 
-    for (size_t i = 0; i < size; i++) {
+    for (size_t i = 0; i < size; i++)
+    {
         VkDescriptorBufferInfo bufferInfo{};
         bufferInfo.buffer = uniformBuffers[i];
         bufferInfo.offset = 0;
         bufferInfo.range = sizeof(UniformBufferObject);
 
-        VkWriteDescriptorSet descriptorWrite{};
-        descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrite.dstSet = descriptorSets[i];
-        descriptorWrite.dstBinding = 0;
-        descriptorWrite.dstArrayElement = 0;
-        descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        descriptorWrite.descriptorCount = 1;
-        descriptorWrite.pBufferInfo = &bufferInfo;
-        descriptorWrite.pImageInfo = nullptr;
-        descriptorWrite.pTexelBufferView = nullptr;
+        VkWriteDescriptorSet descriptorWrite = vks::initializers::writeDescriptorSet(
+                descriptorSets[i],
+                VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                0,
+                &bufferInfo,
+                1
+                );
 
         vkUpdateDescriptorSets(vulkan.device, 1, &descriptorWrite, 0, nullptr);
     }
 }
 
-void Game::updateUniformBuffer(uint32_t currentImage) {
+void Game::createDescriptorSetLayout()
+{
+
+    VkDescriptorSetLayoutBinding uboLayoutBinding = vks::initializers::descriptorSetLayoutBinding(
+            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+            VK_SHADER_STAGE_VERTEX_BIT, // Bind to shader vertex
+            0, // Index
+            1 // Amount of descriptors in layout
+    );
+
+    VkDescriptorSetLayoutCreateInfo layoutInfo = vks::initializers::descriptorSetLayoutCreateInfo(
+            &uboLayoutBinding,
+            1
+    );
+
+    if (vkCreateDescriptorSetLayout(vulkan.device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    {
+        throw std::runtime_error("failed to create descriptor set layout!");
+    }
+}
+
+void Game::createUniformBuffers(int size)
+{
+    VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+
+    uniformBuffers.resize(size);
+    uniformBuffersMemory.resize(size);
+
+    for (size_t i = 0; i < size; i++)
+    {
+        vulkan.createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                            uniformBuffers[i],
+                            uniformBuffersMemory[i],
+                            bufferSize,
+                            nullptr);
+    }
+
+}
+
+void Game::updateUniformBuffer(uint32_t currentImage)
+{
     static auto startTime = std::chrono::high_resolution_clock::now();
 
     auto currentTime = std::chrono::high_resolution_clock::now();
@@ -237,7 +249,8 @@ void Game::destroy()
     vkDestroyDescriptorSetLayout(vulkan.device, descriptorSetLayout, nullptr);
     vkDestroyDescriptorPool(vulkan.device, descriptorPool, nullptr);
 
-    for (size_t i = 0; i < uniformBuffers.size(); i++) {
+    for (size_t i = 0; i < uniformBuffers.size(); i++)
+    {
         vkDestroyBuffer(vulkan.device, uniformBuffers[i], nullptr);
         vkFreeMemory(vulkan.device, uniformBuffersMemory[i], nullptr);
     }
