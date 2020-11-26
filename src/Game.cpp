@@ -2,15 +2,9 @@
 // Created by magnias on 20/10/20.
 //
 
-#include "Game.h"
-#include "graphics/Vulkan.h"
-#include <vulkan/vulkan.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
-#include <vector>
-#include <chrono>
 #include <graphics/VulkanInitializers.h>
-
+#include <chrono>
+#include "Game.h"
 
 vks::Buffer buffer;
 vks::Buffer indexBuffer;
@@ -39,25 +33,29 @@ VkDescriptorPool descriptorPool;
 std::vector<VkDescriptorSet> descriptorSets;
 VkDescriptorSetLayout descriptorSetLayout;
 
-Game::Game() : window(Window(800, 600)),
-               vulkan(Vulkan(this->window.getGLFWwindow()))
+void Game::run()
 {
-    vulkan.createInstance();
-    vulkan.setupDebugMessenger();
-    vulkan.createSurface();
-    vulkan.pickPhysicalDevice();
-    vulkan.createLogicalDevice();
-    vulkan.createSwapChain();
-    vulkan.createImageViews();
-    vulkan.createRenderPass();
-    vulkan.createFramebuffers();
-    vulkan.createCommandPool();
+    while (!this->renderManager.window.shouldClose())
+    {
+        this->update();
+        this->renderManager.window.pollEvents();
+//        this->render();
+        this->renderManager.vulkan.drawFrame();
+    }
+    update();
 
+    destroy();
+    renderManager.destroy();
+}
+
+Game::Game() : renderManager(RenderManager())
+{
+    //Setup local rendering shit
     // Descriptors
     createDescriptorPool(4);
     createDescriptorSetLayout();
 
-    vulkan.createGraphicsPipeline(&descriptorSetLayout);
+    renderManager.vulkan.createGraphicsPipeline(&descriptorSetLayout);
 
     VkDeviceSize size = sizeof(vertices[0]) * vertices.size();
 
@@ -67,32 +65,32 @@ Game::Game() : window(Window(800, 600)),
     vks::Buffer indexStagingbuffer;
 
     // Create buffers with staging
-    vulkan.createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                        stagingbuffer,
-                        size,
-                        vertices.data());
+    renderManager.vulkan.createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                      stagingbuffer,
+                                      size,
+                                      vertices.data());
 
-    vulkan.createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                        VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-                        indexStagingbuffer,
-                        indexSize,
-                        (void *) indices.data());
+    renderManager.vulkan.createBuffer(VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                                      VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
+                                      indexStagingbuffer,
+                                      indexSize,
+                                      (void *) indices.data());
 
-    vulkan.createBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        buffer,
-                        size,
-                        nullptr);
+    renderManager.vulkan.createBuffer(VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                      buffer,
+                                      size,
+                                      nullptr);
 
-    vulkan.createBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-                        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
-                        indexBuffer,
-                        indexSize,
-                        nullptr);
+    renderManager.vulkan.createBuffer(VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
+                                      VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT,
+                                      indexBuffer,
+                                      indexSize,
+                                      nullptr);
 
-    vulkan.copyBuffer(stagingbuffer.buffer, buffer.buffer, size);
-    vulkan.copyBuffer(indexStagingbuffer.buffer, indexBuffer.buffer, indexSize);
+    renderManager.vulkan.copyBuffer(stagingbuffer.buffer, buffer.buffer, size);
+    renderManager.vulkan.copyBuffer(indexStagingbuffer.buffer, indexBuffer.buffer, indexSize);
 
     stagingbuffer.destroy();
     indexStagingbuffer.destroy();
@@ -100,46 +98,26 @@ Game::Game() : window(Window(800, 600)),
     createUniformBuffers(4);
     createDescriptorSets(4);
 
-    vulkan.createCommandBuffers(this);
-    vulkan.createSyncObjects();
-
-}
-
-
-Game::~Game()
-{
-
-}
-
-void Game::run()
-{
-    while (!this->window.shouldClose())
-    {
-        this->update();
-        this->window.pollEvents();
-        this->render();
-        this->vulkan.drawFrame();
-    }
-
-    destroy();
+    renderManager.vulkan.createCommandBuffers(this);
+    renderManager.vulkan.createSyncObjects();
 }
 
 void Game::createDescriptorPool(int size)
 {
     std::vector<VkDescriptorPoolSize> poolSize =
-    {
-            vks::initializers::descriptorPoolSize(
-                    VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-                    static_cast<uint32_t>(size)
-            )
-    };
+            {
+                    vks::initializers::descriptorPoolSize(
+                            VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+                            static_cast<uint32_t>(size)
+                    )
+            };
 
     VkDescriptorPoolCreateInfo poolInfo = vks::initializers::descriptorPoolCreateInfo(
             poolSize,
             size
     );
 
-    if (vkCreateDescriptorPool(vulkan.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+    if (vkCreateDescriptorPool(renderManager.vulkan.device, &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor pool");
     }
@@ -152,10 +130,10 @@ void Game::createDescriptorSets(int size)
             descriptorPool,
             layouts.data(),
             static_cast<uint32_t>(size)
-            );
+    );
 
     descriptorSets.resize(size);
-    if (vkAllocateDescriptorSets(vulkan.device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
+    if (vkAllocateDescriptorSets(renderManager.vulkan.device, &allocInfo, descriptorSets.data()) != VK_SUCCESS)
     {
         throw std::runtime_error("failed to allocate descriptor sets");
     }
@@ -173,9 +151,9 @@ void Game::createDescriptorSets(int size)
                 0,
                 &bufferInfo,
                 1
-                );
+        );
 
-        vkUpdateDescriptorSets(vulkan.device, 1, &descriptorWrite, 0, nullptr);
+        vkUpdateDescriptorSets(renderManager.vulkan.device, 1, &descriptorWrite, 0, nullptr);
     }
 }
 
@@ -194,7 +172,8 @@ void Game::createDescriptorSetLayout()
             1
     );
 
-    if (vkCreateDescriptorSetLayout(vulkan.device, &layoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS)
+    if (vkCreateDescriptorSetLayout(renderManager.vulkan.device, &layoutInfo, nullptr, &descriptorSetLayout) !=
+        VK_SUCCESS)
     {
         throw std::runtime_error("failed to create descriptor set layout!");
     }
@@ -209,12 +188,12 @@ void Game::createUniformBuffers(int size)
 
     for (size_t i = 0; i < size; i++)
     {
-        vulkan.createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                            uniformBuffers[i],
-                            uniformBuffersMemory[i],
-                            bufferSize,
-                            nullptr);
+        renderManager.vulkan.createBuffer(VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+                                          VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                                          uniformBuffers[i],
+                                          uniformBuffersMemory[i],
+                                          bufferSize,
+                                          nullptr);
     }
 
 }
@@ -229,49 +208,44 @@ void Game::updateUniformBuffer(uint32_t currentImage)
     UniformBufferObject ubo{};
     ubo.model = glm::rotate(glm::mat4(1.0f), time * glm::radians(90.0f), glm::vec3(0.0f, 0.0f, 1.0f));
     ubo.view = glm::lookAt(glm::vec3(2.0f, 2.0f, 2.0f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-    ubo.proj = glm::perspective(glm::radians(45.0f), window.width / (float) window.height, 0.1f,
+    ubo.proj = glm::perspective(glm::radians(45.0f), 800 / (float) 600, 0.1f, // TODO dynamic ratio
                                 10.0f);
 
     ubo.proj[1][1] *= -1;
 
     void *data;
-    vkMapMemory(vulkan.device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
+    vkMapMemory(renderManager.vulkan.device, uniformBuffersMemory[currentImage], 0, sizeof(ubo), 0, &data);
     memcpy(data, &ubo, sizeof(ubo));
-    vkUnmapMemory(vulkan.device, uniformBuffersMemory[currentImage]);
+    vkUnmapMemory(renderManager.vulkan.device, uniformBuffersMemory[currentImage]);
 }
 
 void Game::destroy()
 {
     // Destroy objects
-    vkDeviceWaitIdle(vulkan.device);
-    vulkan.cleanupSwapChain();
+    vkDeviceWaitIdle(renderManager.vulkan.device);
+    renderManager.vulkan.cleanupSwapChain();
 
-    vkDestroyDescriptorSetLayout(vulkan.device, descriptorSetLayout, nullptr);
-    vkDestroyDescriptorPool(vulkan.device, descriptorPool, nullptr);
+    vkDestroyDescriptorSetLayout(renderManager.vulkan.device, descriptorSetLayout, nullptr);
+    vkDestroyDescriptorPool(renderManager.vulkan.device, descriptorPool, nullptr);
 
     for (size_t i = 0; i < uniformBuffers.size(); i++)
     {
-        vkDestroyBuffer(vulkan.device, uniformBuffers[i], nullptr);
-        vkFreeMemory(vulkan.device, uniformBuffersMemory[i], nullptr);
+        vkDestroyBuffer(renderManager.vulkan.device, uniformBuffers[i], nullptr);
+        vkFreeMemory(renderManager.vulkan.device, uniformBuffersMemory[i], nullptr);
     }
 
     buffer.destroy();
     indexBuffer.destroy();
-    vulkan.cleanup();
+    renderManager.vulkan.cleanup();
 
 
-    window.destroy();
+    renderManager.window.destroy();
 }
 
 void Game::update()
 {
 //    std::cout << "update";
-    updateUniformBuffer(vulkan.currentFrame);
-}
-
-void Game::render()
-{
-
+    updateUniformBuffer(renderManager.vulkan.currentFrame);
 }
 
 void Game::draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, int index)
@@ -285,11 +259,8 @@ void Game::draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, int 
     vkCmdBindIndexBuffer(cmdbuffer, indexBuffer.buffer, 0, VK_INDEX_TYPE_UINT16);
 
     vkCmdBindDescriptorSets(cmdbuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
-                            &descriptorSets[vulkan.currentFrame], 0,
+                            &descriptorSets[renderManager.vulkan.currentFrame], 0,
                             nullptr);
 
     vkCmdDrawIndexed(cmdbuffer, static_cast<uint32_t>(indices.size()), 1, 0, 0, 0);
 }
-
-
-

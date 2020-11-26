@@ -14,30 +14,25 @@ class Game : vks::Renderable
 {
 public:
     Game();
-    ~Game();
     void run();
 
 private:
-    Window window;
-    Vulkan vulkan;
-    RenderManager renderManager = RenderManager();
-    void update();
-    void render();
+    RenderManager renderManager;
     void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, int index) override;
 
-    void createUniformBuffers();
+    void update();
 
     void destroy();
+
+    void createDescriptorPool(int size);
 
     void createDescriptorSets(int size);
 
     void createDescriptorSetLayout();
 
-    void createDescriptorPool(int size);
+    void createUniformBuffers(int size);
 
     void updateUniformBuffer(uint32_t currentImage);
-
-    void createUniformBuffers(int size);
 };
 
 

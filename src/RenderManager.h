@@ -1,22 +1,30 @@
 //
-// Created by magnias on 14/11/20.
+// Created by magnias on 20/10/20.
 //
 
-#ifndef VULKANENGINE_RENDERMANAGER_H
-#define VULKANENGINE_RENDERMANAGER_H
-
-
+#include <graphics/Window.h>
 #include <graphics/Vulkan.h>
 
 class RenderManager
 {
 public:
     RenderManager();
+    ~RenderManager();
 
-//    Vulkan vulkan;
+    Window window;
+    Vulkan vulkan;
 
-    void setupVulkan();
+    void destroy();
+
+private:
+    VkInstance instance;
+    bool enableValidationLayers = true;
+
+    void createInstance();
+
+    static VkBool32
+    debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
+                  const VkDebugUtilsMessengerCallbackDataEXT *pCallbackData, void *pUserData);
+
 };
 
-
-#endif //VULKANENGINE_RENDERMANAGER_H

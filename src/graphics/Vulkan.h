@@ -100,8 +100,6 @@ public:
 
     void initVulkan(VkDescriptorSetLayout *descriptorSetLayout);
 
-    void createInstance();
-
     void setupDebugMessenger();
 
     void createSurface();
@@ -125,10 +123,15 @@ public:
     void createSyncObjects();
 
     size_t currentFrame = 0;
+
+    std::vector<const char *> getRequiredExtensions();
+
+    bool checkValidationLayerSupport();
+
+    VkInstance instance;
 private:
     GLFWwindow *window;
 
-    VkInstance instance;
     VkDebugUtilsMessengerEXT debugMessenger;
     VkSurfaceKHR surface;
 
@@ -185,10 +188,6 @@ private:
     bool isDeviceSuitable(VkPhysicalDevice device);
 
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
-
-    std::vector<const char *> getRequiredExtensions();
-
-    bool checkValidationLayerSupport();
 
     void createIndexBuffer();
 
