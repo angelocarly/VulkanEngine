@@ -8,6 +8,7 @@
 
 #include <graphics/Window.h>
 #include <graphics/Vulkan.h>
+#include "RenderManager.h"
 
 class Game : vks::Renderable
 {
@@ -19,6 +20,7 @@ public:
 private:
     Window window;
     Vulkan vulkan;
+    RenderManager renderManager = RenderManager();
     void update();
     void render();
     void draw(VkCommandBuffer cmdbuffer, VkPipelineLayout pipelineLayout, int index) override;
