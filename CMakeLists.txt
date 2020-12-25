@@ -7,7 +7,7 @@ project(VulkanEngine VERSION 0.1.0)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(SOURCES "${SRC_DIR}/main.cpp" src/Game.cpp src/Game.h src/graphics/Vulkan.cpp src/graphics/Vulkan.h src/graphics/Window.cpp src/graphics/Window.h src/graphics/VulkanDevice.cpp src/graphics/VulkanDevice.h src/graphics/VulkanBuffer.cpp src/graphics/VulkanBuffer.h src/graphics/VulkanRenderable.h src/graphics/VulkanInitializers.h src/graphics/VulkanSwapChain.cpp src/graphics/VulkanSwapChain.h src/RenderManager.cpp src/RenderManager.h)
+set(SOURCES "${SRC_DIR}/main.cpp" src/game/Entity.cpp src/game/Entity.h lib/stb/stb_image.h src/graphics/VulkanDevice.h src/graphics/VulkanInitializers.h)
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -51,3 +51,15 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
 
+# timyobj
+find_package(tinyobjloader REQUIRED)
+include_directories(${TINYOBJLOADER_INCLUDE_DIRS})
+link_directories(${TINYOBJELOADER_LIBRARY_DIRS})
+add_definitions(${TINYOBJLOADER_DEFINITIONS})
+
+# stb
+set(STB_DIR "${LIB_DIR}/stb")
+#add_library("glad" "${GLAD_DIR}/src/glad.c")
+include_directories(${STB_DIR})
+#link_directories(${STB_LIBRARY_DIRS})
+#add_definitions(${STB_DEFINITIONS})

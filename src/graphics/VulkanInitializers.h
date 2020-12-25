@@ -10,6 +10,7 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
+#include "VulkanDevice.h"
 
 #ifndef VULKANENGINE_VULKANINITIALIZERS_H
 #define VULKANENGINE_VULKANINITIALIZERS_H
@@ -49,14 +50,14 @@ namespace vks::initializers
             VkDescriptorType type,
             uint32_t descriptorCount)
     {
-        VkDescriptorPoolSize descriptorPoolSize {};
+        VkDescriptorPoolSize descriptorPoolSize{};
         descriptorPoolSize.type = type;
         descriptorPoolSize.descriptorCount = descriptorCount;
         return descriptorPoolSize;
     }
 
     inline VkDescriptorPoolCreateInfo descriptorPoolCreateInfo(
-            const std::vector<VkDescriptorPoolSize>& poolSizes,
+            const std::vector<VkDescriptorPoolSize> &poolSizes,
             uint32_t maxSets)
     {
         VkDescriptorPoolCreateInfo descriptorPoolInfo{};
@@ -69,10 +70,10 @@ namespace vks::initializers
 
     inline VkDescriptorSetAllocateInfo descriptorSetAllocateInfo(
             VkDescriptorPool descriptorPool,
-            const VkDescriptorSetLayout* pSetLayouts,
+            const VkDescriptorSetLayout *pSetLayouts,
             uint32_t descriptorSetCount)
     {
-        VkDescriptorSetAllocateInfo descriptorSetAllocateInfo {};
+        VkDescriptorSetAllocateInfo descriptorSetAllocateInfo{};
         descriptorSetAllocateInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         descriptorSetAllocateInfo.descriptorPool = descriptorPool;
         descriptorSetAllocateInfo.pSetLayouts = pSetLayouts;
@@ -84,10 +85,10 @@ namespace vks::initializers
             VkDescriptorSet dstSet,
             VkDescriptorType type,
             uint32_t binding,
-            VkDescriptorBufferInfo* bufferInfo,
+            VkDescriptorBufferInfo *bufferInfo,
             uint32_t descriptorCount = 1)
     {
-        VkWriteDescriptorSet writeDescriptorSet {};
+        VkWriteDescriptorSet writeDescriptorSet{};
         writeDescriptorSet.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
         writeDescriptorSet.dstSet = dstSet;
         writeDescriptorSet.descriptorType = type;
@@ -95,5 +96,20 @@ namespace vks::initializers
         writeDescriptorSet.pBufferInfo = bufferInfo;
         writeDescriptorSet.descriptorCount = descriptorCount;
         return writeDescriptorSet;
+    }
+
+    inline VulkanDevice vulkanDevice(
+            VkInstance instance,
+            VkSurfaceKHR surface,
+            std::vector<const char *> validationLayers,
+            std::vector<const char *> deviceExtensions
+    )
+    {
+        VulkanDevice device{};
+        device.instance = instance;
+        device.surface = surface;
+        device.validationLayers = validationLayers;
+        device.deviceExtensions = deviceExtensions;
+        return device;
     }
 }
