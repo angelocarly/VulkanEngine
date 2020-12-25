@@ -16,36 +16,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add initializers">
-      <change afterPath="$PROJECT_DIR$/data/models/viking_room.png" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/lib/stb/stb_image.h" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/Entity.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/game/Entity.h" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Update code from vulkan-tutorial">
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Game.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Game.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RenderManager.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/RenderManager.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/Vulkan.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanBuffer.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanBuffer.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanDevice.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanInitializers.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanRenderable.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanSwapChain.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanSwapChain.h" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/Window.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/Window.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/frag.spv" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/frag.spv" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/shader.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/shader.frag" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/shader.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/shader.vert" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/shaders/vert.spv" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/vert.spv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -82,7 +57,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="preferences.lookFeel" />
+    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -148,7 +123,10 @@
       <workItem from="1606072921977" duration="2002000" />
       <workItem from="1606340925424" duration="2390000" />
       <workItem from="1606406133390" duration="7297000" />
-      <workItem from="1608150946535" duration="3578000" />
+      <workItem from="1608150946535" duration="3613000" />
+      <workItem from="1608205833802" duration="1482000" />
+      <workItem from="1608668657959" duration="1933000" />
+      <workItem from="1608888446765" duration="6717000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -178,7 +156,14 @@
       <option name="project" value="LOCAL" />
       <updated>1605314263608</updated>
     </task>
-    <option name="localTasksCounter" value="5" />
+    <task id="LOCAL-00005" summary="Update code from vulkan-tutorial">
+      <created>1608154531465</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1608154531465</updated>
+    </task>
+    <option name="localTasksCounter" value="6" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -202,6 +187,7 @@
     <MESSAGE value="Move indices out of Vulkan.cpp" />
     <MESSAGE value="Move uniforms out of Vulkan.cpp" />
     <MESSAGE value="Add initializers" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add initializers" />
+    <MESSAGE value="Update code from vulkan-tutorial" />
+    <option name="LAST_COMMIT_MESSAGE" value="Update code from vulkan-tutorial" />
   </component>
 </project>
