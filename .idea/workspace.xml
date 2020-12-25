@@ -16,8 +16,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Move device out of Vulkan">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Move logical device out of Vulkan">
+      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanInitializers.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
@@ -125,7 +127,7 @@
       <workItem from="1608150946535" duration="3613000" />
       <workItem from="1608205833802" duration="1482000" />
       <workItem from="1608668657959" duration="1933000" />
-      <workItem from="1608888446765" duration="9189000" />
+      <workItem from="1608888446765" duration="12878000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -169,7 +171,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608898029596</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="Move logical device out of Vulkan">
+      <created>1608900521548</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1608900521548</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -195,6 +204,7 @@
     <MESSAGE value="Add initializers" />
     <MESSAGE value="Update code from vulkan-tutorial" />
     <MESSAGE value="Move device out of Vulkan" />
-    <option name="LAST_COMMIT_MESSAGE" value="Move device out of Vulkan" />
+    <MESSAGE value="Move logical device out of Vulkan" />
+    <option name="LAST_COMMIT_MESSAGE" value="Move logical device out of Vulkan" />
   </component>
 </project>
