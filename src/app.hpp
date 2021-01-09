@@ -145,7 +145,7 @@ struct UniformBufferObject
     alignas(16) glm::mat4 proj;
 };
 
-class Legacy
+class App
 {
 public:
 
@@ -228,7 +228,7 @@ private:
 
     static void framebufferResizeCallback(GLFWwindow *window, int width, int height)
     {
-        auto app = reinterpret_cast<Legacy *>(glfwGetWindowUserPointer(window));
+        auto app = reinterpret_cast<App *>(glfwGetWindowUserPointer(window));
         app->framebufferResized = true;
     }
 

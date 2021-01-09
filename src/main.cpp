@@ -3,11 +3,11 @@
 #include <iostream>
 #include <cstdlib>
 #include <optional>
-#include "legacy.hpp"
+#include "app.hpp"
 
 int main()
 {
-    Legacy app;
+    App app;
 
     try
     {
