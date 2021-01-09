@@ -16,11 +16,15 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Rename app class">
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_window.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_window.h" afterDir="false" />
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add window">
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_window.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_window.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,7 +38,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$" value="debug_messenger" />
+        <entry key="$PROJECT_DIR$" value="restructuring" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
@@ -132,7 +136,7 @@
       <workItem from="1608888446765" duration="13591000" />
       <workItem from="1608925342979" duration="2009000" />
       <workItem from="1608927413397" duration="65000" />
-      <workItem from="1610220161283" duration="4750000" />
+      <workItem from="1610220161283" duration="6266000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -204,7 +208,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610228232492</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Add window">
+      <created>1610228922372</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1610228922372</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -237,6 +248,7 @@
     <MESSAGE value="- Change VulkanDevice to a struct&#10;- Add initializers" />
     <MESSAGE value="Move main class" />
     <MESSAGE value="Rename app class" />
-    <option name="LAST_COMMIT_MESSAGE" value="Rename app class" />
+    <MESSAGE value="Add window" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add window" />
   </component>
 </project>

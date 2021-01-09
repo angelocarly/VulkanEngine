@@ -7,7 +7,7 @@ project(VulkanEngine VERSION 0.1.0)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(SOURCES "${SRC_DIR}/main.cpp" src/game/Entity.cpp src/game/Entity.h lib/stb/stb_image.h src/graphics/VulkanDevice.h src/graphics/VulkanInitializers.h src/game/Game.h src/app.hpp src/graphics/vks_window.cpp src/graphics/vks_window.h)
+set(SOURCES "${SRC_DIR}/main.cpp" src/game/Entity.cpp src/game/Entity.h lib/stb/stb_image.h src/graphics/VulkanDevice.h src/graphics/VulkanInitializers.h src/game/Game.h src/app.hpp src/graphics/vks_window.cpp src/graphics/vks_window.h src/graphics/vks_device.cpp src/graphics/vks_device.h)
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})

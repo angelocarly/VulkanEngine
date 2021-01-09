@@ -7,7 +7,7 @@
 
 int main()
 {
-    App app;
+    vks::App app;
 
     try
     {

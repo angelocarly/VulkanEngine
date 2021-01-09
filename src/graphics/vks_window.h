@@ -16,9 +16,9 @@ namespace vks
 
         ~VksWindow();
 
-        VksWindow(const LveWindow &) = delete;
+        VksWindow(const VksWindow &) = delete;
 
-        VksWindow &operator=(const LveWindow &) = delete;
+        VksWindow &operator=(const VksWindow &) = delete;
 
         bool shouldClose()
         { return glfwWindowShouldClose(window); }

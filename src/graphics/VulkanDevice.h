@@ -30,8 +30,9 @@ namespace vks
                 VkSurfaceKHR surface,
                 std::vector<const char *> validationLayers,
                 std::vector<const char *> deviceExtensions
-                )
-                :instance(instance), surface(surface), validationLayers(validationLayers), deviceExtensions(deviceExtensions)
+        )
+                : instance(instance), surface(surface), validationLayers(validationLayers),
+                  deviceExtensions(deviceExtensions)
         {
 
         }
@@ -83,7 +84,7 @@ namespace vks
             for (const auto &device : devices)
             {
                 vks::VulkanDevice vDevice = VulkanDevice(instance, surface, validationLayers,
-                                                                       deviceExtensions);
+                                                         deviceExtensions);
                 vDevice.physicalDevice = device;
                 if (vDevice.isDeviceSuitable())
                 {
