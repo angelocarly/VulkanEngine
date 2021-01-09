@@ -16,12 +16,11 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Move main class">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Rename app class">
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_window.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_window.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/legacy.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -133,7 +132,7 @@
       <workItem from="1608888446765" duration="13591000" />
       <workItem from="1608925342979" duration="2009000" />
       <workItem from="1608927413397" duration="65000" />
-      <workItem from="1610220161283" duration="4182000" />
+      <workItem from="1610220161283" duration="4750000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -198,7 +197,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610227976065</updated>
     </task>
-    <option name="localTasksCounter" value="10" />
+    <task id="LOCAL-00010" summary="Rename app class">
+      <created>1610228232492</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1610228232492</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -230,6 +236,7 @@
     <MESSAGE value="Move logical device out of Vulkan" />
     <MESSAGE value="- Change VulkanDevice to a struct&#10;- Add initializers" />
     <MESSAGE value="Move main class" />
-    <option name="LAST_COMMIT_MESSAGE" value="Move main class" />
+    <MESSAGE value="Rename app class" />
+    <option name="LAST_COMMIT_MESSAGE" value="Rename app class" />
   </component>
 </project>
