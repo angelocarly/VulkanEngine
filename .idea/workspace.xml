@@ -16,11 +16,14 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Move logical device out of Vulkan">
-      <change afterPath="$PROJECT_DIR$/src/graphics/VulkanInitializers.h" afterDir="false" />
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="- Change VulkanDevice to a struct&#10;- Add initializers">
+      <change afterPath="$PROJECT_DIR$/data/models/sphere.mtl" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/game/Game.h" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/legacy.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/modules.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/main.cpp" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -39,6 +42,9 @@
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="MacroExpansionManager">
+    <option name="directoryName" value="lu2i4ifs" />
   </component>
   <component name="ProjectId" id="1jfG4ZHIlJN4RcVkDeoRDz78ljt" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true">
@@ -70,12 +76,12 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
-    <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+    <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -127,7 +133,10 @@
       <workItem from="1608150946535" duration="3613000" />
       <workItem from="1608205833802" duration="1482000" />
       <workItem from="1608668657959" duration="1933000" />
-      <workItem from="1608888446765" duration="12878000" />
+      <workItem from="1608888446765" duration="13591000" />
+      <workItem from="1608925342979" duration="2009000" />
+      <workItem from="1608927413397" duration="65000" />
+      <workItem from="1610220161283" duration="3921000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -178,7 +187,14 @@
       <option name="project" value="LOCAL" />
       <updated>1608900521548</updated>
     </task>
-    <option name="localTasksCounter" value="8" />
+    <task id="LOCAL-00008" summary="- Change VulkanDevice to a struct&#10;- Add initializers">
+      <created>1608908919076</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1608908919076</updated>
+    </task>
+    <option name="localTasksCounter" value="9" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -198,6 +214,9 @@
   </component>
   <component name="VcsManagerConfiguration">
     <option name="ADD_EXTERNAL_FILES_SILENTLY" value="true" />
+    <ignored-roots>
+      <path value="$PROJECT_DIR$/lib/tinyobjloader" />
+    </ignored-roots>
     <MESSAGE value="Split vertex buffer" />
     <MESSAGE value="Move indices out of Vulkan.cpp" />
     <MESSAGE value="Move uniforms out of Vulkan.cpp" />
@@ -205,6 +224,7 @@
     <MESSAGE value="Update code from vulkan-tutorial" />
     <MESSAGE value="Move device out of Vulkan" />
     <MESSAGE value="Move logical device out of Vulkan" />
-    <option name="LAST_COMMIT_MESSAGE" value="Move logical device out of Vulkan" />
+    <MESSAGE value="- Change VulkanDevice to a struct&#10;- Add initializers" />
+    <option name="LAST_COMMIT_MESSAGE" value="- Change VulkanDevice to a struct&#10;- Add initializers" />
   </component>
 </project>
