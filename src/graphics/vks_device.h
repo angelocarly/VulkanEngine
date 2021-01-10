@@ -25,8 +25,10 @@ namespace vks
         VkInstance instance;
 
         VkDebugUtilsMessengerEXT debugMessenger;
-
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
+
+        VkDevice device;
+        VkQueue graphicsQueue;
 
         // ####################### Validation / debug ########################
         const std::vector<const char *> validationLayers = {
@@ -49,6 +51,8 @@ namespace vks
         void pickPhysicalDevice();
 
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
+        void createLogicalDevice();
     };
 
 }

@@ -16,7 +16,7 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add device">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add physical device">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
@@ -79,11 +79,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
@@ -139,7 +134,8 @@
       <workItem from="1608888446765" duration="13591000" />
       <workItem from="1608925342979" duration="2009000" />
       <workItem from="1608927413397" duration="65000" />
-      <workItem from="1610220161283" duration="9408000" />
+      <workItem from="1610220161283" duration="9413000" />
+      <workItem from="1610302436693" duration="2890000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -225,7 +221,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610230314848</updated>
     </task>
-    <option name="localTasksCounter" value="13" />
+    <task id="LOCAL-00013" summary="Add physical device">
+      <created>1610235597288</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1610235597288</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -260,6 +263,7 @@
     <MESSAGE value="Rename app class" />
     <MESSAGE value="Add window" />
     <MESSAGE value="Add device" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add device" />
+    <MESSAGE value="Add physical device" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add physical device" />
   </component>
 </project>
