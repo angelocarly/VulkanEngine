@@ -3,9 +3,7 @@
 This is my try at learning C++ and Vulkan at the same time. Do not expect much from this project.
 
 ## TODO
-- Uniform buffer size
-- Split swapchain
-- Create initializers
+- Move Vulkan code out of app.hpp
 
 ## Notes
 **Descriptors**  
