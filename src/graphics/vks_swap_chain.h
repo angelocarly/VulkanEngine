@@ -24,6 +24,13 @@ namespace vks
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
 
+        std::vector<VkImageView> swapChainImageViews;
+
+        // Instancing
+        void init();
+        void createSwapChain();
+        void createImageViews();
+
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
 
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);

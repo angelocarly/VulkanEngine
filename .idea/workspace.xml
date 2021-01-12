@@ -16,15 +16,10 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add surface">
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add swapchain">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -151,7 +146,7 @@
       <workItem from="1610302436693" duration="5177000" />
       <workItem from="1610382423712" duration="973000" />
       <workItem from="1610384415156" duration="3843000" />
-      <workItem from="1610480696944" duration="1911000" />
+      <workItem from="1610480696944" duration="3552000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -258,7 +253,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610314830747</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Add swapchain">
+      <created>1610483878883</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1610483878883</updated>
+    </task>
+    <option name="localTasksCounter" value="17" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -296,7 +298,8 @@
     <MESSAGE value="Add physical device" />
     <MESSAGE value="Add logical device" />
     <MESSAGE value="Add surface" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add surface" />
+    <MESSAGE value="Add swapchain" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add swapchain" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
