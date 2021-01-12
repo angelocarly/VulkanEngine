@@ -7,6 +7,7 @@
 #include <cstdlib>
 #include <graphics/vks_window.h>
 #include <graphics/vks_device.h>
+#include <graphics/vks_swap_chain.h>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -24,6 +25,7 @@ namespace vks
     private:
         VksWindow window = VksWindow(WIDTH, HEIGHT, "test");
         VksDevice device = VksDevice(window);
+        VksSwapChain swapChain = VksSwapChain(window, device);
 
         void mainLoop()
         {

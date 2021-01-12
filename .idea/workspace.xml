@@ -16,8 +16,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add logical device">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add surface">
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
     </list>
@@ -67,7 +72,7 @@
     <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
-    <property name="settings.editor.selected.configurable" value="project.propVCSSupport.Mappings" />
+    <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
@@ -79,7 +84,15 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
+    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
+      </method>
+    </configuration>
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
+      <envs>
+        <env name="__NV_PRIME_RENDER_OFFLOAD" value="1 __GLX_VENDOR_LIBRARY_NAME=&quot;nvidia&quot; __VK_LAYER_NV_optimus=&quot;NVIDIA_only&quot;" />
+      </envs>
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -92,11 +105,6 @@
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <list>
@@ -140,7 +148,10 @@
       <workItem from="1608925342979" duration="2009000" />
       <workItem from="1608927413397" duration="65000" />
       <workItem from="1610220161283" duration="9413000" />
-      <workItem from="1610302436693" duration="4274000" />
+      <workItem from="1610302436693" duration="5177000" />
+      <workItem from="1610382423712" duration="973000" />
+      <workItem from="1610384415156" duration="3843000" />
+      <workItem from="1610480696944" duration="1911000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -240,7 +251,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610313511681</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Add surface">
+      <created>1610314830747</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1610314830747</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -277,6 +295,18 @@
     <MESSAGE value="Add device" />
     <MESSAGE value="Add physical device" />
     <MESSAGE value="Add logical device" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add logical device" />
+    <MESSAGE value="Add surface" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add surface" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/graphics/vks_device.cpp</url>
+          <line>280</line>
+          <option name="timeStamp" value="2" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>
