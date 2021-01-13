@@ -15,6 +15,8 @@ namespace vks
 
         ~VksSwapChain();
 
+        VkExtent2D getSwapChainExtent() { return swapChainExtent; }
+
     private:
         VksWindow &window;
         VksDevice &device;
@@ -23,6 +25,13 @@ namespace vks
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
+
+        std::vector<VkImageView> swapChainImageViews;
+
+        // Instancing
+        void init();
+        void createSwapChain();
+        void createImageViews();
 
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
 

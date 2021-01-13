@@ -3,8 +3,8 @@
 This is my try at learning C++ and Vulkan at the same time. Do not expect much from this project.
 
 ## TODO
+- Fix cmakelists
 - Use initializers
-- Add swapchains
 - Add render pipeline
 
 ## Notes

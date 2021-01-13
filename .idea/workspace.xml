@@ -16,15 +16,13 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add surface">
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add Shader modules">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -84,11 +82,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <envs>
         <env name="__NV_PRIME_RENDER_OFFLOAD" value="1 __GLX_VENDOR_LIBRARY_NAME=&quot;nvidia&quot; __VK_LAYER_NV_optimus=&quot;NVIDIA_only&quot;" />
@@ -107,10 +100,34 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="compile.sh" type="ShConfigurationType" temporary="true">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/src/shaders/compile.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/src/shaders" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/usr/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="CMake Application.VulkanEngine" />
       <item itemvalue="CMake Application.glad" />
+      <item itemvalue="Shell Script.compile.sh" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Shell Script.compile.sh" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -151,7 +168,8 @@
       <workItem from="1610302436693" duration="5177000" />
       <workItem from="1610382423712" duration="973000" />
       <workItem from="1610384415156" duration="3843000" />
-      <workItem from="1610480696944" duration="1911000" />
+      <workItem from="1610480696944" duration="4510000" />
+      <workItem from="1610567246271" duration="5150000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -258,7 +276,28 @@
       <option name="project" value="LOCAL" />
       <updated>1610314830747</updated>
     </task>
-    <option name="localTasksCounter" value="16" />
+    <task id="LOCAL-00016" summary="Add swapchain">
+      <created>1610483878883</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1610483878883</updated>
+    </task>
+    <task id="LOCAL-00017" summary="Add image views">
+      <created>1610487189157</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1610487189157</updated>
+    </task>
+    <task id="LOCAL-00018" summary="Add Shader modules">
+      <created>1610569026019</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1610569026020</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -296,7 +335,10 @@
     <MESSAGE value="Add physical device" />
     <MESSAGE value="Add logical device" />
     <MESSAGE value="Add surface" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add surface" />
+    <MESSAGE value="Add swapchain" />
+    <MESSAGE value="Add image views" />
+    <MESSAGE value="Add Shader modules" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add Shader modules" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
