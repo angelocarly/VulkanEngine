@@ -34,7 +34,7 @@ namespace vks
 
         SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
         VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
-        VkDevice getDevice() { return device; }
+        VkDevice getVkDevice() { return device; }
         VkSurfaceKHR getSurface() { return surface; }
         QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); };
 

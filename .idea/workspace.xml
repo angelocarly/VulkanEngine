@@ -16,10 +16,19 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add swapchain">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add image views">
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/VulkanDevice.h" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/frag.spv" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/frag.spv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/shader.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/shader.frag" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/shader.vert" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/shader.vert" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/vert.spv" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/vert.spv" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -79,11 +88,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <envs>
         <env name="__NV_PRIME_RENDER_OFFLOAD" value="1 __GLX_VENDOR_LIBRARY_NAME=&quot;nvidia&quot; __VK_LAYER_NV_optimus=&quot;NVIDIA_only&quot;" />
@@ -102,10 +106,34 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="compile.sh" type="ShConfigurationType" temporary="true">
+      <option name="INDEPENDENT_SCRIPT_PATH" value="true" />
+      <option name="SCRIPT_PATH" value="$PROJECT_DIR$/src/shaders/compile.sh" />
+      <option name="SCRIPT_OPTIONS" value="" />
+      <option name="INDEPENDENT_SCRIPT_WORKING_DIRECTORY" value="true" />
+      <option name="SCRIPT_WORKING_DIRECTORY" value="$PROJECT_DIR$/src/shaders" />
+      <option name="INDEPENDENT_INTERPRETER_PATH" value="true" />
+      <option name="INTERPRETER_PATH" value="/usr/bin/zsh" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="EXECUTE_IN_TERMINAL" value="true" />
+      <envs />
+      <method v="2" />
+    </configuration>
     <list>
       <item itemvalue="CMake Application.VulkanEngine" />
       <item itemvalue="CMake Application.glad" />
+      <item itemvalue="Shell Script.compile.sh" />
     </list>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Shell Script.compile.sh" />
+      </list>
+    </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
@@ -146,7 +174,8 @@
       <workItem from="1610302436693" duration="5177000" />
       <workItem from="1610382423712" duration="973000" />
       <workItem from="1610384415156" duration="3843000" />
-      <workItem from="1610480696944" duration="3552000" />
+      <workItem from="1610480696944" duration="4510000" />
+      <workItem from="1610567246271" duration="1763000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -260,7 +289,14 @@
       <option name="project" value="LOCAL" />
       <updated>1610483878883</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Add image views">
+      <created>1610487189157</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1610487189157</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -299,7 +335,8 @@
     <MESSAGE value="Add logical device" />
     <MESSAGE value="Add surface" />
     <MESSAGE value="Add swapchain" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add swapchain" />
+    <MESSAGE value="Add image views" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add image views" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

@@ -15,10 +15,10 @@ namespace vks
     {
         for (auto imageView : swapChainImageViews)
         {
-            vkDestroyImageView(device.getDevice(), imageView, nullptr);
+            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
         }
 
-        vkDestroySwapchainKHR(device.getDevice(), swapChain, nullptr);
+        vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
     }
 
     void VksSwapChain::init()
@@ -69,13 +69,13 @@ namespace vks
 
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device.getDevice(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
+        if (vkCreateSwapchainKHR(device.getVkDevice(), &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
             throw std::runtime_error("failed to create swap chain!");
         }
 
-        vkGetSwapchainImagesKHR(device.getDevice(), swapChain, &imageCount, nullptr);
+        vkGetSwapchainImagesKHR(device.getVkDevice(), swapChain, &imageCount, nullptr);
         swapChainImages.resize(imageCount);
-        vkGetSwapchainImagesKHR(device.getDevice(), swapChain, &imageCount, swapChainImages.data());
+        vkGetSwapchainImagesKHR(device.getVkDevice(), swapChain, &imageCount, swapChainImages.data());
 
         swapChainImageFormat = surfaceFormat.format;
         swapChainExtent = extent;
@@ -102,7 +102,7 @@ namespace vks
             createInfo.subresourceRange.baseArrayLayer = 0;
             createInfo.subresourceRange.layerCount = 1;
 
-            if (vkCreateImageView(device.getDevice(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
+            if (vkCreateImageView(device.getVkDevice(), &createInfo, nullptr, &swapChainImageViews[i]) != VK_SUCCESS) {
                 throw std::runtime_error("failed to create image views!");
             }
         }
