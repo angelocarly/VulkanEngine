@@ -15,6 +15,8 @@ namespace vks
 
         ~VksSwapChain();
 
+        VkExtent2D getSwapChainExtent() { return swapChainExtent; }
+
     private:
         VksWindow &window;
         VksDevice &device;

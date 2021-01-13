@@ -4,6 +4,7 @@
 #include <vector>
 #include <string>
 #include "vks_device.h"
+#include "vks_swap_chain.h"
 
 namespace vks
 {
@@ -11,9 +12,15 @@ namespace vks
     class VksPipeline
     {
     public:
-        VksPipeline();
+        VksPipeline(VksDevice &device, vks::VksSwapChain &swapChain);
 
-        VksPipeline(vks::VksDevice &device);
+        ~VksPipeline();
+
+
+    private:
+        VksDevice &device;
+        VksSwapChain &swapchain;
+        VkPipelineLayout pipelineLayout;
 
         static std::vector<char> readFile(const std::__cxx11::basic_string<char> &filename);
 
@@ -21,7 +28,6 @@ namespace vks
 
         VkShaderModule_T *createShaderModule(const std::vector<char> &code);
 
-        VksDevice &device;
     };
 
 }
