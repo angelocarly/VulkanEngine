@@ -16,6 +16,7 @@ namespace vks
         ~VksSwapChain();
 
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
+        VkRenderPass getRenderPass() { return renderPass; }
 
     private:
         VksWindow &window;
