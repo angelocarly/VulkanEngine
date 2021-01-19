@@ -16,9 +16,8 @@
     </configurations>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add Shader modules">
+    <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add render passes">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" afterDir="false" />
@@ -67,7 +66,7 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../dwl" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
@@ -90,19 +89,9 @@
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
-    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="compile.sh" type="ShConfigurationType" temporary="true">
@@ -169,7 +158,13 @@
       <workItem from="1610382423712" duration="973000" />
       <workItem from="1610384415156" duration="3843000" />
       <workItem from="1610480696944" duration="4510000" />
-      <workItem from="1610567246271" duration="5150000" />
+      <workItem from="1610567246271" duration="5485000" />
+      <workItem from="1610765267198" duration="540000" />
+      <workItem from="1610802442300" duration="4662000" />
+      <workItem from="1610899243366" duration="1212000" />
+      <workItem from="1610966487823" duration="5400000" />
+      <workItem from="1611091801502" duration="93000" />
+      <workItem from="1611092035473" duration="5578000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -297,7 +292,21 @@
       <option name="project" value="LOCAL" />
       <updated>1610569026020</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="Add pipeline fixed functions">
+      <created>1610576181611</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1610576181611</updated>
+    </task>
+    <task id="LOCAL-00020" summary="Add render passes">
+      <created>1611094293418</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1611094293418</updated>
+    </task>
+    <option name="localTasksCounter" value="21" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -338,7 +347,9 @@
     <MESSAGE value="Add swapchain" />
     <MESSAGE value="Add image views" />
     <MESSAGE value="Add Shader modules" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add Shader modules" />
+    <MESSAGE value="Add pipeline fixed functions" />
+    <MESSAGE value="Add render passes" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add render passes" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>

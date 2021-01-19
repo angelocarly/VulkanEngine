@@ -9,25 +9,45 @@
 namespace vks
 {
 
+    struct PipelineConfigInfo {
+        VkViewport viewport;
+        VkRect2D scissor;
+        VkPipelineViewportStateCreateInfo viewportInfo;
+        VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
+        VkPipelineRasterizationStateCreateInfo rasterizationInfo;
+        VkPipelineMultisampleStateCreateInfo multisampleInfo;
+        VkPipelineColorBlendAttachmentState colorBlendAttachment;
+        VkPipelineColorBlendStateCreateInfo colorBlendInfo;
+        VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+        VkPipelineLayout pipelineLayout = nullptr;
+        VkRenderPass renderPass = nullptr;
+        uint32_t subpass = 0;
+    };
+
     class VksPipeline
     {
     public:
-        VksPipeline(VksDevice &device, vks::VksSwapChain &swapChain);
+
+        VksPipeline(VksDevice &device, vks::VksSwapChain &swapChain, const PipelineConfigInfo& configInfo);
 
         ~VksPipeline();
 
+        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+
+        VksPipeline(const VksPipeline&) = delete;
+        void operator=(const VksPipeline&) = delete;
 
     private:
         VksDevice &device;
         VksSwapChain &swapchain;
-        VkPipelineLayout pipelineLayout;
+
+        VkPipeline graphicsPipeline;
 
         static std::vector<char> readFile(const std::__cxx11::basic_string<char> &filename);
 
-        void createGraphicsPipeline();
-
         VkShaderModule_T *createShaderModule(const std::vector<char> &code);
 
+        void createGraphicsPipeline(const PipelineConfigInfo &configInfo);
     };
 
 }

@@ -16,6 +16,7 @@ namespace vks
         ~VksSwapChain();
 
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
+        VkRenderPass getRenderPass() { return renderPass; }
 
     private:
         VksWindow &window;
@@ -28,16 +29,20 @@ namespace vks
 
         std::vector<VkImageView> swapChainImageViews;
 
+        VkRenderPass renderPass;
+
         // Instancing
         void init();
         void createSwapChain();
         void createImageViews();
+        void createRenderPass();
 
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
 
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
 
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+
     };
 
 }
