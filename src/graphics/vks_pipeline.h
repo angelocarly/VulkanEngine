@@ -20,7 +20,6 @@ namespace vks
     private:
         VksDevice &device;
         VksSwapChain &swapchain;
-        VkPipelineLayout pipelineLayout;
 
         static std::vector<char> readFile(const std::__cxx11::basic_string<char> &filename);
 

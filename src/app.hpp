@@ -28,6 +28,7 @@ namespace vks
         VksDevice device = VksDevice(window);
         VksSwapChain swapChain = VksSwapChain(window, device);
         VksPipeline pipeline = VksPipeline(device, swapChain);
+        VkPipelineLayout pipelineLayout;
 
         void mainLoop()
         {
