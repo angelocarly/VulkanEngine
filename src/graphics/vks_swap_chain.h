@@ -28,6 +28,7 @@ namespace vks
         VkExtent2D swapChainExtent;
 
         std::vector<VkImageView> swapChainImageViews;
+        std::vector<VkFramebuffer> swapChainFramebuffers;
 
         VkRenderPass renderPass;
 
@@ -43,6 +44,7 @@ namespace vks
 
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
 
+        void createFramebuffers();
     };
 
 }

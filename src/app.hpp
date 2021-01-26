@@ -10,6 +10,7 @@
 #include <graphics/vks_swap_chain.h>
 #include <graphics/vks_pipeline.h>
 #include <memory>
+#include <game/Game.h>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -40,6 +41,8 @@ namespace vks
 
         void mainLoop()
         {
+            new Game();
+
             while (!window.shouldClose())
             {
                 glfwPollEvents();
