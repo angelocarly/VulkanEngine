@@ -17,15 +17,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add pipeline layout">
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_framebuffer.cpp" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/graphics/vks_framebuffer.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/Entity.cpp" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/Entity.h" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/src/game/Game.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
     </list>
@@ -72,13 +70,14 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/../dwl" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/imgui" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/src/imgui" />
       <recent name="$PROJECT_DIR$/src" />
     </key>
     <key name="MoveFile.RECENT_KEYS">
@@ -89,11 +88,6 @@
     </key>
   </component>
   <component name="RunManager" selected="CMake Application.VulkanEngine">
-    <configuration default="true" type="CLionExternalRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="CLION.EXTERNAL.BUILD" enabled="true" />
-      </method>
-    </configuration>
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <envs>
         <env name="__NV_PRIME_RENDER_OFFLOAD" value="1 __GLX_VENDOR_LIBRARY_NAME=&quot;nvidia&quot; __VK_LAYER_NV_optimus=&quot;NVIDIA_only&quot;" />
@@ -105,11 +99,6 @@
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
-      <method v="2">
-        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="compile.sh" type="ShConfigurationType" temporary="true">
@@ -185,6 +174,13 @@
       <workItem from="1611092035473" duration="6405000" />
       <workItem from="1611353550500" duration="162000" />
       <workItem from="1611653604014" duration="10031000" />
+      <workItem from="1611745870559" duration="6057000" />
+      <workItem from="1611865392276" duration="622000" />
+      <workItem from="1611938376850" duration="633000" />
+      <workItem from="1612022437147" duration="1915000" />
+      <workItem from="1612042151326" duration="1280000" />
+      <workItem from="1612121502840" duration="600000" />
+      <workItem from="1612302598884" duration="2518000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -333,7 +329,21 @@
       <option name="project" value="LOCAL" />
       <updated>1611097867845</updated>
     </task>
-    <option name="localTasksCounter" value="22" />
+    <task id="LOCAL-00022" summary="Add imgui sources">
+      <created>1612024176280</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1612024176281</updated>
+    </task>
+    <task id="LOCAL-00023" summary="Add imgui">
+      <created>1612042507741</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1612042507741</updated>
+    </task>
+    <option name="localTasksCounter" value="24" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -377,6 +387,8 @@
     <MESSAGE value="Add pipeline fixed functions" />
     <MESSAGE value="Add render passes" />
     <MESSAGE value="Add pipeline layout" />
-    <option name="LAST_COMMIT_MESSAGE" value="Add pipeline layout" />
+    <MESSAGE value="Add imgui sources" />
+    <MESSAGE value="Add imgui" />
+    <option name="LAST_COMMIT_MESSAGE" value="Add imgui" />
   </component>
 </project>

@@ -37,6 +37,9 @@ namespace vks
         VkDevice getVkDevice() { return device; }
         VkSurfaceKHR getSurface() { return surface; }
         QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); };
+        VkCommandPool getCommandPool() { return commandPool; };
+        VkQueue getGraphicsQueue() { return graphicsQueue; }
+        VkQueue getPresentQueue() { return presentQueue; }
 
     private:
 
@@ -50,6 +53,7 @@ namespace vks
         VkQueue graphicsQueue;
         VkQueue presentQueue;
         VkSurfaceKHR surface;
+        VkCommandPool commandPool;
 
         const std::vector<const char *> validationLayers = {
                 "VK_LAYER_KHRONOS_validation"
@@ -64,10 +68,9 @@ namespace vks
         void createSurface();
         void pickPhysicalDevice();
         void createLogicalDevice();
+        void createCommandPool();
 
-        //
-
-        // ####################### helper ########################
+        // Helper functions
         std::vector<const char *> getRequiredExtensions();
         bool checkValidationLayerSupport();
         VkResult

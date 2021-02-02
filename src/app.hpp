@@ -127,7 +127,16 @@ namespace vks
 
         void drawFrame()
         {
+            uint32_t imageIndex;
+            auto result = swapChain.acquireNextImage(&imageIndex);
+            if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
+                throw std::runtime_error("failed to acquire swap chain image!");
+            }
 
+            result = swapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+            if (result != VK_SUCCESS) {
+                throw std::runtime_error("failed to present swap chain image!");
+            }
         }
 
     };
