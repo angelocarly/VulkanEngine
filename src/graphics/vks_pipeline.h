@@ -37,6 +37,8 @@ namespace vks
         VksPipeline(const VksPipeline&) = delete;
         void operator=(const VksPipeline&) = delete;
 
+        void bind(VkCommandBuffer commandBuffer);
+
     private:
         VksDevice &device;
         VksSwapChain &swapchain;
@@ -48,6 +50,7 @@ namespace vks
         VkShaderModule_T *createShaderModule(const std::vector<char> &code);
 
         void createGraphicsPipeline(const PipelineConfigInfo &configInfo);
+
     };
 
 }

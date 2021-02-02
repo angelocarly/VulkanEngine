@@ -34,7 +34,7 @@ class Game
 public:
     Game()
     {
-        std::map<int, Node> nodes = readFile();
+//        std::map<int, Node> nodes = readFile();
     }
 
     std::map<int, Node> readFile()
@@ -48,6 +48,8 @@ public:
         // Store all nodes
         while(getline(infile, line))
         {
+            if ( line.empty() || line.rfind('#', 0) == 0 ) continue;
+
             Node n;
             std::vector<std::string> data;
             boost::split(data, line, boost::is_any_of(","));
