@@ -30,6 +30,7 @@ namespace vks
 
         ~App()
         {
+//            vkDestroyCommandPool(device.getVkDevice(), command)
             vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
         }
 
@@ -50,6 +51,9 @@ namespace vks
                 glfwPollEvents();
                 drawFrame();
             }
+
+            // Wait until all command buffers are cleared or other operations
+            vkDeviceWaitIdle(device.getVkDevice());
         }
 
         void createPipelineLayout()
@@ -117,6 +121,7 @@ namespace vks
 
 //                lveModel.bind(commandBuffers[i]);
 //                lveModel.draw(commandBuffers[i]);
+                vkCmdDraw(commandBuffers[i], 3, 1, 0 ,0);
 
                 vkCmdEndRenderPass(commandBuffers[i]);
                 if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {

@@ -30,7 +30,8 @@ namespace vks
     {
     public:
         VksDevice(VksWindow &window);
-        ~VksDevice();
+        ~VksDevice() { destroy(); }
+        void destroy();
 
         SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
         VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
@@ -40,6 +41,11 @@ namespace vks
         VkCommandPool getCommandPool() { return commandPool; };
         VkQueue getGraphicsQueue() { return graphicsQueue; }
         VkQueue getPresentQueue() { return presentQueue; }
+        void
+        createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
+                     VkDeviceMemory &bufferMemory);
+
+        void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
     private:
 
@@ -87,6 +93,11 @@ namespace vks
         // Swapchain
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
+        uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        VkCommandBuffer beginSingleTimeCommands();
+
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
     };
 
 }

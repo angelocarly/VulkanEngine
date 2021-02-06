@@ -17,15 +17,19 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="b9d48883-e1af-4e59-93dc-315775843c61" name="Default Changelist" comment="Add pipeline layout">
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_model.cpp" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/graphics/vks_model.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/CMakeLists.txt" beforeDir="false" afterPath="$PROJECT_DIR$/CMakeLists.txt" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/app.hpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/app.hpp" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/game/Game.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/game/Game.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_device.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_device.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_pipeline.h" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.cpp" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" beforeDir="false" afterPath="$PROJECT_DIR$/src/graphics/vks_swap_chain.h" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/frag.spv" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/frag.spv" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/shaders/shader.frag" beforeDir="false" afterPath="$PROJECT_DIR$/src/shaders/shader.frag" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,13 +74,14 @@
     <property name="WebServerToolWindowFactoryState" value="false" />
     <property name="aspect.path.notification.shown" value="true" />
     <property name="cf.first.check.clang-format" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/imgui" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/cmake-build-debug/shaders" />
     <property name="nodejs_package_manager_path" value="npm" />
     <property name="restartRequiresConfirmation" value="false" />
     <property name="settings.editor.selected.configurable" value="preferences.keymap" />
   </component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/cmake-build-debug/shaders" />
       <recent name="$PROJECT_DIR$/src/imgui" />
       <recent name="$PROJECT_DIR$/src" />
     </key>
@@ -90,8 +95,13 @@
   <component name="RunManager" selected="CMake Application.VulkanEngine">
     <configuration name="VulkanEngine" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="VulkanEngine" CONFIG_NAME="Debug" RUN_TARGET_PROJECT_NAME="VulkanEngine" RUN_TARGET_NAME="VulkanEngine">
       <envs>
-        <env name="__NV_PRIME_RENDER_OFFLOAD" value="1 __GLX_VENDOR_LIBRARY_NAME=&quot;nvidia&quot; __VK_LAYER_NV_optimus=&quot;NVIDIA_only&quot;" />
+        <env name="__NV_PRIME_RENDER_OFFLOAD" value="1 __GLX_VENDOR_LIBRARY_NAME=&quot;nvidia&quot; __VK_LAYER_NV_optimus=&quot;NVIDIA_only&quot; MANGOHUD=1" />
       </envs>
+      <method v="2">
+        <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
@@ -99,6 +109,11 @@
     <configuration name="glad" type="CMakeRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true" PROJECT_NAME="VulkanEngine" TARGET_NAME="glad" CONFIG_NAME="Debug">
       <method v="2">
         <option name="com.jetbrains.cidr.execution.CidrBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="GradleAppRunConfiguration" factoryName="Application" REDIRECT_INPUT="false" ELEVATE="false" PASS_PARENT_ENVS_2="true">
+      <method v="2">
+        <option name="com.jetbrains.cidr.cpp.gradle.execution.GradleNativeBuildBeforeRunTaskProvider$BuildBeforeRunTask" enabled="true" />
       </method>
     </configuration>
     <configuration name="compile.sh" type="ShConfigurationType" temporary="true">
@@ -181,6 +196,9 @@
       <workItem from="1612042151326" duration="1280000" />
       <workItem from="1612121502840" duration="600000" />
       <workItem from="1612302598884" duration="2518000" />
+      <workItem from="1612368096058" duration="2755000" />
+      <workItem from="1612474909067" duration="3660000" />
+      <workItem from="1612623225236" duration="1142000" />
     </task>
     <task id="LOCAL-00001" summary="Split vertex buffer">
       <created>1604264719568</created>
@@ -390,5 +408,16 @@
     <MESSAGE value="Add imgui sources" />
     <MESSAGE value="Add imgui" />
     <option name="LAST_COMMIT_MESSAGE" value="Add imgui" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" type="com.jetbrains.cidr.execution.debugger.OCBreakpointType">
+          <url>file://$PROJECT_DIR$/src/graphics/vks_pipeline.cpp</url>
+          <line>120</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
   </component>
 </project>

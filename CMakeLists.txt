@@ -19,7 +19,7 @@ set(SOURCES "${SRC_DIR}/main.cpp" lib/stb/stb_image.h src/graphics/VulkanInitial
         src/imgui/imstb_rectpack.h
         src/imgui/imstb_textedit.h
         src/imgui/imstb_truetype.h
-        )
+        src/graphics/vks_model.cpp src/graphics/vks_model.h)
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
