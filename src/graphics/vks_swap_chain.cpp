@@ -12,21 +12,29 @@ namespace vks
         init();
     }
 
-    VksSwapChain::~VksSwapChain()
+    void VksSwapChain::destroy()
     {
+        for (auto imageView : swapChainImageViews) {
+            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
+        }
+        swapChainImageViews.clear();
+
+        if (swapChain != nullptr) {
+            vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
+            swapChain = nullptr;
+        }
+
+//        for (int i = 0; i < depthImages.size(); i++) {
+//            vkDestroyImageView(device.getVkDevice(), depthImageViews[i], nullptr);
+//            vkDestroyImage(device.getVkDevice(), depthImages[i], nullptr);
+//            vkFreeMemory(device.getVkDevice(), depthImageMemorys[i], nullptr);
+//        }
 
         for (auto framebuffer : swapChainFramebuffers) {
             vkDestroyFramebuffer(device.getVkDevice(), framebuffer, nullptr);
         }
 
         vkDestroyRenderPass(device.getVkDevice(), renderPass, nullptr);
-
-        for (auto imageView : swapChainImageViews)
-        {
-            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
-        }
-
-        vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
 
         // cleanup synchronization objects
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
@@ -334,5 +342,6 @@ namespace vks
 
         return result;
     }
+
 
 }

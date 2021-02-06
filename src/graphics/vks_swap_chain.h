@@ -13,7 +13,8 @@ namespace vks
     public:
         VksSwapChain(VksWindow &window, VksDevice &device);
 
-        ~VksSwapChain();
+        ~VksSwapChain() { destroy(); }
+        void destroy();
 
         VkExtent2D getSwapChainExtent() { return swapChainExtent; }
         VkRenderPass getRenderPass() { return renderPass; }

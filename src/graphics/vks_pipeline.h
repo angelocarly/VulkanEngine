@@ -30,7 +30,8 @@ namespace vks
 
         VksPipeline(VksDevice &device, vks::VksSwapChain &swapChain, const PipelineConfigInfo& configInfo);
 
-        ~VksPipeline();
+        ~VksPipeline() { destroy(); }
+        void destroy();
 
         static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
 
