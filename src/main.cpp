@@ -1,16 +1,17 @@
-#include "Game.h"
+#define STB_IMAGE_IMPLEMENTATION
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+#include <iostream>
+#include <cstdlib>
+#include <optional>
+#include "app.hpp"
 
 int main()
 {
-//    HelloTriangleApplication app;
-    Game game;
+    vks::App app;
 
     try
     {
-        game.run();
+        app.run();
     } catch (const std::exception &e)
     {
         std::cerr << e.what() << std::endl;
