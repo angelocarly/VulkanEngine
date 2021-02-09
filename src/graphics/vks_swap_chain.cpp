@@ -343,5 +343,10 @@ namespace vks
         return result;
     }
 
+    VkFormat VksSwapChain::getImagesFormat()
+    {
+        return swapChainImageFormat;
+    }
+
 
 }

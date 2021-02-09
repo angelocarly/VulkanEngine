@@ -23,8 +23,12 @@ namespace vks
         VkFramebuffer getFrameBuffer(size_t i) { return swapChainFramebuffers.at(i); };
         VkResult acquireNextImage(uint32_t *imageIndex);
         VkResult submitCommandBuffers(VkCommandBuffer const *buffers, uint32_t *imageIndex);
+        int getCurrentFrame() { return currentFrame; }
+        std::vector<VkFence> getInFlightFences() { return inFlightFences; }
 
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+
+        VkFormat getImagesFormat();
 
     private:
         VksWindow &window;

@@ -41,11 +41,13 @@ namespace vks
         VkCommandPool getCommandPool() { return commandPool; };
         VkQueue getGraphicsQueue() { return graphicsQueue; }
         VkQueue getPresentQueue() { return presentQueue; }
+        VkInstance getInstance();
         void
         createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
                      VkDeviceMemory &bufferMemory);
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
 
     private:
 

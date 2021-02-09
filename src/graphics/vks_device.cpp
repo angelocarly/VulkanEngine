@@ -500,5 +500,10 @@ namespace vks
         endSingleTimeCommands(commandBuffer);
     }
 
+    VkInstance VksDevice::getInstance()
+    {
+        return instance;
+    }
+
 }
 
