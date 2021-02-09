@@ -3,9 +3,8 @@
 This is my try at learning C++ and Vulkan at the same time. Do not expect much from this project.
 
 ## TODO
-- Fix cmakelists
+- Clean up cmakelists
 - Use initializers
-- Add render pipeline
 
 ## Notes
 **Descriptors**  
@@ -24,6 +23,7 @@ Pipeline layout: contain list of descriptor set layouts
 Required dependencies
 - `yay -S vulkan-devel boost tinyobjloader glm glfw-x11`
 
+Build:
 1. `$ cd build`
 2. `$ cmake ..`
 3. `$ make`

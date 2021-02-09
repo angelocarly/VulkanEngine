@@ -25,6 +25,8 @@ namespace vks
 
         void createWindowSurface(VkInstance instance, VkSurfaceKHR *surface);
 
+        GLFWwindow* getWindow() { return window; }
+
         int getWidth()
         { return width; }
 
