@@ -27,7 +27,6 @@ namespace vks
         {
             createPipelineLayout();
             createPipeline();
-//            setupImgui();
             createCommandBuffers();
             initImGui();
             mainLoop();
@@ -46,11 +45,7 @@ namespace vks
         std::unique_ptr<VksPipeline> pipeline;
         VkPipelineLayout pipelineLayout;
         std::vector<VkCommandBuffer> commandBuffers;
-        VkCommandPool imGuiCommandPool;
-        std::vector<VkCommandBuffer> imGuiCommandBuffers;
-        std::vector<VkFramebuffer> imGuiFramebuffers;
         VkDescriptorPool descriptorPool;
-        VkRenderPass imGuiRenderPass;
         bool imguiwindowcreated = false;
 
         void mainLoop()
