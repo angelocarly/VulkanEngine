@@ -55,6 +55,7 @@ namespace vks
         VkInstance instance;
 
         VkDebugUtilsMessengerEXT debugMessenger;
+
         VkPhysicalDevice physicalDevice = VK_NULL_HANDLE;
 
         VkDevice device;

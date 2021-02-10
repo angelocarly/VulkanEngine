@@ -30,6 +30,8 @@ namespace vks
 
         VkFormat getImagesFormat();
 
+        void waitForImageInFlight();
+
     private:
         VksWindow &window;
         VksDevice &device;

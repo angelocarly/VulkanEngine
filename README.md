@@ -4,6 +4,7 @@ This is my try at learning C++ and Vulkan at the same time. Do not expect much f
 
 ## TODO
 - Safely delete ImGUI objects on cleanup
+- Add descriptor sets/pools + move imgui pool uit of main => swapchain?
 - Remove unused code
 - Implement resizing without crashing  
 - Clean up cmakelists

@@ -35,10 +35,22 @@ namespace vks
         ~App()
         {
 //            vkDestroyCommandPool(device.getVkDevice(), command)
+
+            vkDestroyPipeline(device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
+            vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
             vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
+            swapChain.destroy();
+
+            ImGui_ImplVulkan_Shutdown();
+            ImGui_ImplGlfw_Shutdown();
+            ImGui::DestroyContext();
+
+            device.destroy();
         }
 
     private:
+
+        // Vulkan properties
         VksWindow window = VksWindow(WIDTH, HEIGHT, "test");
         VksDevice device = VksDevice(window);
         VksSwapChain swapChain = VksSwapChain(window, device);
@@ -47,6 +59,7 @@ namespace vks
         std::vector<VkCommandBuffer> commandBuffers;
         VkDescriptorPool descriptorPool;
         bool imguiwindowcreated = false;
+        VkResult err;
 
         void mainLoop()
         {
@@ -70,12 +83,13 @@ namespace vks
                     imGuiSetupWindow();
                     imguiwindowcreated = true;
                 }
+
                 createCommandBuffers();
 
                 drawFrame();
             }
 
-            // Wait until all command buffers are cleared or other operations
+            // Wait until all command buffers are cleared in order to safely destroy
             vkDeviceWaitIdle(device.getVkDevice());
         }
 
@@ -91,6 +105,7 @@ namespace vks
         void initImGui()
         {
             {
+                // Todo: Move descriptorpool out of imgui setup
                 VkDescriptorPoolSize pool_sizes[] =
                         {
                                 {VK_DESCRIPTOR_TYPE_SAMPLER,                1000},
@@ -234,6 +249,11 @@ namespace vks
 
         void createCommandBuffers()
         {
+            // Before recreating the command buffers, wait until they are no longer in use
+            // Might be a reason for slowdowns in the future
+            swapChain.waitForImageInFlight();
+
+            // Allocate new commandbuffers
             commandBuffers.resize(swapChain.getImageCount());
             VkCommandBufferAllocateInfo allocInfo{};
             allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -280,6 +300,7 @@ namespace vks
 //                lveModel.draw(commandBuffers[i]);
                 vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
 
+                // Render imgui data
                 if (imguiwindowcreated)
                 {
                     ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffers[i]);
@@ -310,19 +331,6 @@ namespace vks
             }
         }
 
-        void createCommandPool(VkCommandPool *commandPool, VkCommandPoolCreateFlags flags)
-        {
-            VkCommandPoolCreateInfo commandPoolCreateInfo = {};
-            commandPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
-            commandPoolCreateInfo.queueFamilyIndex = device.findPhysicalQueueFamilies().graphicsFamily.value();
-            commandPoolCreateInfo.flags = flags;
-
-            if (vkCreateCommandPool(device.getVkDevice(), &commandPoolCreateInfo, nullptr, commandPool) != VK_SUCCESS)
-            {
-                throw std::runtime_error("Could not create graphics command pool");
-            }
-        }
-
         void
         createCommandBuffers(VkCommandBuffer *commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool)
         {
@@ -349,7 +357,8 @@ namespace vks
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
             beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
 
-            vkBeginCommandBuffer(commandBuffer, &beginInfo);
+            err = vkBeginCommandBuffer(commandBuffer, &beginInfo);
+            check_vk_result(err);
 
             return commandBuffer;
         }

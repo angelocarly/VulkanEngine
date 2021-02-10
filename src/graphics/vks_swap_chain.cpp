@@ -14,12 +14,14 @@ namespace vks
 
     void VksSwapChain::destroy()
     {
-        for (auto imageView : swapChainImageViews) {
+        for (auto imageView : swapChainImageViews)
+        {
             vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
         }
         swapChainImageViews.clear();
 
-        if (swapChain != nullptr) {
+        if (swapChain != nullptr)
+        {
             vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
             swapChain = nullptr;
         }
@@ -30,14 +32,16 @@ namespace vks
 //            vkFreeMemory(device.getVkDevice(), depthImageMemorys[i], nullptr);
 //        }
 
-        for (auto framebuffer : swapChainFramebuffers) {
+        for (auto framebuffer : swapChainFramebuffers)
+        {
             vkDestroyFramebuffer(device.getVkDevice(), framebuffer, nullptr);
         }
 
         vkDestroyRenderPass(device.getVkDevice(), renderPass, nullptr);
 
         // cleanup synchronization objects
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        {
             vkDestroySemaphore(device.getVkDevice(), renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(device.getVkDevice(), imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(device.getVkDevice(), inFlightFences[i], nullptr);
@@ -222,7 +226,8 @@ namespace vks
         renderPassInfo.subpassCount = 1;
         renderPassInfo.pSubpasses = &subpass;
 
-        if (vkCreateRenderPass(device.getVkDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
+        if (vkCreateRenderPass(device.getVkDevice(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create render pass!");
         }
     }
@@ -231,7 +236,8 @@ namespace vks
     {
         swapChainFramebuffers.resize(swapChainImageViews.size());
 
-        for (size_t i = 0; i < swapChainImageViews.size(); i++) {
+        for (size_t i = 0; i < swapChainImageViews.size(); i++)
+        {
             VkImageView attachments[] = {
                     swapChainImageViews[i]
             };
@@ -245,7 +251,9 @@ namespace vks
             framebufferInfo.height = swapChainExtent.height;
             framebufferInfo.layers = 1;
 
-            if (vkCreateFramebuffer(device.getVkDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) != VK_SUCCESS) {
+            if (vkCreateFramebuffer(device.getVkDevice(), &framebufferInfo, nullptr, &swapChainFramebuffers[i]) !=
+                VK_SUCCESS)
+            {
                 throw std::runtime_error("failed to create framebuffer!");
             }
         }
@@ -265,20 +273,24 @@ namespace vks
         fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
         fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
+        {
             if (vkCreateSemaphore(device.getVkDevice(), &semaphoreInfo, nullptr, &imageAvailableSemaphores[i]) !=
                 VK_SUCCESS ||
                 vkCreateSemaphore(device.getVkDevice(), &semaphoreInfo, nullptr, &renderFinishedSemaphores[i]) !=
                 VK_SUCCESS
                 || vkCreateFence(device.getVkDevice(), &fenceInfo, nullptr, &inFlightFences[i]) != VK_SUCCESS
-                    ){
+                    )
+            {
                 throw std::runtime_error("failed to create synchronization objects for a frame!");
             }
         }
     }
 
-    VkResult VksSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex) {
-        if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE) {
+    VkResult VksSwapChain::submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex)
+    {
+        if (imagesInFlight[*imageIndex] != VK_NULL_HANDLE)
+        {
             vkWaitForFences(device.getVkDevice(), 1, &imagesInFlight[*imageIndex], VK_TRUE, UINT64_MAX);
         }
         imagesInFlight[*imageIndex] = inFlightFences[currentFrame];
@@ -301,7 +313,8 @@ namespace vks
 
         vkResetFences(device.getVkDevice(), 1, &inFlightFences[currentFrame]);
         if (vkQueueSubmit(device.getGraphicsQueue(), 1, &submitInfo, inFlightFences[currentFrame]) !=
-            VK_SUCCESS) {
+            VK_SUCCESS)
+        {
             throw std::runtime_error("failed to submit draw command buffer!");
         }
 
@@ -324,7 +337,8 @@ namespace vks
         return result;
     }
 
-    VkResult VksSwapChain::acquireNextImage(uint32_t *imageIndex) {
+    VkResult VksSwapChain::acquireNextImage(uint32_t *imageIndex)
+    {
         vkWaitForFences(
                 device.getVkDevice(),
                 1,
@@ -348,5 +362,32 @@ namespace vks
         return swapChainImageFormat;
     }
 
+    void VksSwapChain::waitForImageInFlight()
+    {
+        bool anyfencesnull = false;
+        for (auto & i : imagesInFlight)
+        {
+            if (i == VK_NULL_HANDLE)
+            {
+                anyfencesnull = true;
+                break;
+            }
+        }
+
+        if (anyfencesnull)
+        {
+            for (auto & i : imagesInFlight)
+            {
+                if (i != VK_NULL_HANDLE)
+                {
+                    vkWaitForFences(device.getVkDevice(), 1, &i, VK_TRUE, UINT64_MAX);
+                }
+            }
+        }
+        else
+        {
+            vkWaitForFences(device.getVkDevice(), imagesInFlight.size(), imagesInFlight.data(), VK_TRUE, UINT16_MAX);
+        }
+    }
 
 }

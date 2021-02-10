@@ -39,6 +39,7 @@ namespace vks
         void operator=(const VksPipeline&) = delete;
 
         void bind(VkCommandBuffer commandBuffer);
+        VkPipeline getPipeline() { return graphicsPipeline; }
 
     private:
         VksDevice &device;
