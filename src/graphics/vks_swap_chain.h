@@ -68,6 +68,7 @@ namespace vks
 
         void createSyncObject();
 
+        void recreateSwapChain();
     };
 
 }

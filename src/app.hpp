@@ -36,16 +36,16 @@ namespace vks
         {
 //            vkDestroyCommandPool(device.getVkDevice(), command)
 
-            vkDestroyPipeline(device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
+//            vkDestroyPipeline(device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
             vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
             vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
-            swapChain.destroy();
+//            swapChain.destroy();
 
             ImGui_ImplVulkan_Shutdown();
             ImGui_ImplGlfw_Shutdown();
             ImGui::DestroyContext();
 
-            device.destroy();
+//            device.destroy();
         }
 
     private:
@@ -319,13 +319,24 @@ namespace vks
         {
             uint32_t imageIndex;
             auto result = swapChain.acquireNextImage(&imageIndex);
-            if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+            {
+                throw std::runtime_error("swapchain out of date");
+                // TODO: recreate swap chain
+            }
+            else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             {
                 throw std::runtime_error("failed to acquire swap chain image!");
             }
 
             result = swapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
-            if (result != VK_SUCCESS)
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+            {
+                // Swapchain size is out of date
+                throw std::runtime_error("swapchain out of date!");
+                // TODO: recreate swap chain
+            }
+            else if (result != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to present swap chain image!");
             }

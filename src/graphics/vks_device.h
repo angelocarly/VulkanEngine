@@ -48,6 +48,7 @@ namespace vks
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
+        void waitIdle();
 
     private:
 
@@ -101,6 +102,7 @@ namespace vks
         VkCommandBuffer beginSingleTimeCommands();
 
         void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
     };
 
 }

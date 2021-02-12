@@ -117,6 +117,16 @@ namespace vks
 
     }
 
+    void VksSwapChain::recreateSwapChain()
+    {
+        device.waitIdle();
+
+        createSwapChain();
+        createImageViews();
+        createRenderPass();
+
+    }
+
     void VksSwapChain::createImageViews()
     {
         swapChainImageViews.resize(swapChainImages.size());

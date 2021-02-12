@@ -2,21 +2,20 @@
 
 This is my try at learning C++ and Vulkan at the same time. Do not expect much from this project.
 
-## TODO
-- Safely delete ImGUI objects on cleanup
-- Add descriptor sets/pools + move imgui pool uit of main => swapchain?
-- Remove unused code
-- Implement resizing without crashing  
-- Clean up cmakelists
-- Use initializers
+## status
+- [ ] Implement Vulkan
+  - [x] Basic rendering setup
+  - [x] Vulkan code splitted up (device, swapchain, pipeline)
+  - [ ] Implement resizing without crashing  
+  - [ ] Add descriptor sets/pools + move imgui pool uit of main => swapchain?
+  - [ ] Use initializers to clean up vulkan code
+- [ ]  Refactoring
+  - [ ] Remove unused code
+  - [ ] Clean up cmakelists
+- [ ] Add logging library (spdlog)
 
 ## Notes
-**Descriptors**  
-- Descriptor: special opaque shader variable to access buffer and image resources indirectly.
-- Descriptor set: Array of homogenous resources with same layout binding
-- Descriptor pool: a pool of useable descriptor sets 
-- Descriptor set layout: describes descriptor set
-- Pipeline layout: contain list of descriptor set layouts
+[notes](./NOTES.md)
 
 ## Installation
 

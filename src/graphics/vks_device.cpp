@@ -505,5 +505,10 @@ namespace vks
         return instance;
     }
 
+    void VksDevice::waitIdle()
+    {
+        vkDeviceWaitIdle(device);
+    }
+
 }
 
