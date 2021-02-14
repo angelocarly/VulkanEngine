@@ -4,6 +4,7 @@
 #include "vks_window.h"
 #include <vector>
 #include <optional>
+#include <spdlog/logger.h>
 
 namespace vks
 {

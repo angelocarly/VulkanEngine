@@ -6,11 +6,12 @@
 #include <set>
 #include <cstring>
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
-const bool enableValidationLayers = true;
+const bool enableValidationLayers = false;
 #endif
 
 namespace vks
@@ -56,6 +57,8 @@ namespace vks
 
     void VksDevice::createInstance()
     {
+        spdlog::get("vulkan")->debug("Creating instance..");
+
         if (enableValidationLayers && !checkValidationLayerSupport())
         {
             throw std::runtime_error("validation layers requested, but not available!");
@@ -96,6 +99,7 @@ namespace vks
         {
             throw std::runtime_error("failed to create instance!");
         }
+
     }
 
 
@@ -204,6 +208,7 @@ namespace vks
 
     void VksDevice::createSurface()
     {
+        spdlog::get("vulkan")->debug("Creating window surface..");
         window.createWindowSurface(instance, &surface);
     }
 
@@ -211,6 +216,8 @@ namespace vks
 
     void VksDevice::pickPhysicalDevice()
     {
+        spdlog::get("vulkan")->debug("Select physical device..");
+
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
 
@@ -313,6 +320,8 @@ namespace vks
     // Instantiate logical device and graphics queue
     void VksDevice::createLogicalDevice()
     {
+        spdlog::get("vulkan")->debug("Creating logical device..");
+
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
         std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
@@ -394,6 +403,8 @@ namespace vks
     // ####################################### Command Pool ##################################
     void VksDevice::createCommandPool()
     {
+        spdlog::get("vulkan")->debug("Creating command pool..");
+
         QueueFamilyIndices queueFamilyIndices = findQueueFamilies(physicalDevice);
 
         VkCommandPoolCreateInfo poolInfo{};
@@ -404,6 +415,7 @@ namespace vks
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
             throw std::runtime_error("failed to create command pool!");
         }
+
     }
 
     // ####################################### Util #########################3
@@ -509,6 +521,7 @@ namespace vks
     {
         vkDeviceWaitIdle(device);
     }
+
 
 }
 
