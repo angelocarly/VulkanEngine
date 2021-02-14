@@ -26,6 +26,8 @@ namespace vks
 
     void VksPipeline::createGraphicsPipeline(const PipelineConfigInfo& configInfo)
     {
+        _configInfo = configInfo;
+
         auto vertShaderCode = readFile("shaders/vert.spv");
         auto fragShaderCode = readFile("shaders/frag.spv");
 
@@ -189,5 +191,15 @@ namespace vks
 
     void VksPipeline::bind(VkCommandBuffer commandBuffer) {
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    }
+
+    void VksPipeline::recreate(uint32_t width, uint32_t height)
+    {
+        _configInfo.viewport.width = width;
+        _configInfo.viewport.height = height;
+        _configInfo.scissor.extent = {width, height};
+//        _configInfo.viewportInfo.pViewports = &_configInfo.viewport;
+//        _configInfo.viewportInfo.pScissors = &_configInfo.scissor;
+        createGraphicsPipeline(_configInfo);
     }
 }

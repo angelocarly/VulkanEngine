@@ -41,10 +41,15 @@ namespace vks
         void bind(VkCommandBuffer commandBuffer);
         VkPipeline getPipeline() { return graphicsPipeline; }
 
+        void recreate();
+
+        void recreate(uint32_t width, uint32_t height);
+
     private:
         VksDevice &device;
         VksSwapChain &swapchain;
 
+        PipelineConfigInfo _configInfo;
         VkPipeline graphicsPipeline;
 
         static std::vector<char> readFile(const std::__cxx11::basic_string<char> &filename);

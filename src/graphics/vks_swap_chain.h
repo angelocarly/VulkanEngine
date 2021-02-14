@@ -32,6 +32,8 @@ namespace vks
 
         void waitForImageInFlight();
 
+        void recreate();
+
     private:
         VksWindow &window;
         VksDevice &device;
@@ -69,6 +71,8 @@ namespace vks
         void createSyncObject();
 
         void recreateSwapChain();
+
+        void cleanupSwapChain();
     };
 
 }

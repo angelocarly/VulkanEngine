@@ -264,7 +264,7 @@ namespace vks
         {
             spdlog::get("vulkan")->debug("Creating pipeline..");
 
-            auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT);
+            auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(window.getWidth(), window.getHeight());
             pipelineConfig.renderPass = swapChain.getRenderPass();
             pipelineConfig.pipelineLayout = pipelineLayout;
             pipeline = std::make_unique<VksPipeline>(device, swapChain, pipelineConfig);
@@ -344,9 +344,11 @@ namespace vks
             auto result = swapChain.acquireNextImage(&imageIndex);
             if (result == VK_ERROR_OUT_OF_DATE_KHR)
             {
-                spdlog::get("vulkan")->error("Swapchain image is out of date");
-                throw std::runtime_error("swapchain out of date");
-                // TODO: recreate swap chain
+                spdlog::get("vulkan")->warn("Swapchain image is out of date");
+                swapChain.recreate();
+//                pipeline->recreate(window.getWidth(), window.getHeight());
+                createPipeline();
+                return;
             } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             {
                 spdlog::get("vulkan")->warn("Swapchain image is not optimal");
@@ -356,7 +358,9 @@ namespace vks
             if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
             {
                 spdlog::get("vulkan")->warn("Swapchain is out of date");
-                throw std::runtime_error("Swapchain recreation not implemented");
+                swapChain.recreate();
+                createPipeline();
+//                pipeline->recreate(window.getWidth(), window.getHeight());
 
             } else if (result != VK_SUCCESS)
             {
