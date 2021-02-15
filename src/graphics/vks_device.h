@@ -31,18 +31,38 @@ namespace vks
     {
     public:
         VksDevice(VksWindow &window);
-        ~VksDevice() { destroy(); }
+
+        ~VksDevice()
+        { destroy(); }
+
         void destroy();
 
-        SwapChainSupportDetails getSwapChainSupport() { return querySwapChainSupport(physicalDevice); }
-        VkPhysicalDevice getPhysicalDevice() { return physicalDevice; }
-        VkDevice getVkDevice() { return device; }
-        VkSurfaceKHR getSurface() { return surface; }
-        QueueFamilyIndices findPhysicalQueueFamilies() { return findQueueFamilies(physicalDevice); };
-        VkCommandPool getCommandPool() { return commandPool; };
-        VkQueue getGraphicsQueue() { return graphicsQueue; }
-        VkQueue getPresentQueue() { return presentQueue; }
+        SwapChainSupportDetails getSwapChainSupport()
+        { return querySwapChainSupport(physicalDevice); }
+
+        VkPhysicalDevice getPhysicalDevice()
+        { return physicalDevice; }
+
+        VkDevice getVkDevice()
+        { return device; }
+
+        VkSurfaceKHR getSurface()
+        { return surface; }
+
+        QueueFamilyIndices findPhysicalQueueFamilies()
+        { return findQueueFamilies(physicalDevice); };
+
+        VkCommandPool getCommandPool()
+        { return commandPool; };
+
+        VkQueue getGraphicsQueue()
+        { return graphicsQueue; }
+
+        VkQueue getPresentQueue()
+        { return presentQueue; }
+
         VkInstance getInstance();
+
         void
         createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, VkBuffer &buffer,
                      VkDeviceMemory &bufferMemory);
@@ -75,24 +95,36 @@ namespace vks
 
         // Instancing
         void createInstance();
+
         void setupDebugMessenger();
+
         void createSurface();
+
         void pickPhysicalDevice();
+
         void createLogicalDevice();
+
         void createCommandPool();
 
         // Helper functions
         std::vector<const char *> getRequiredExtensions();
+
         bool checkValidationLayerSupport();
+
         VkResult
         CreateDebugUtilsMessengerEXT(VkInstance instance, const VkDebugUtilsMessengerCreateInfoEXT *pCreateInfo,
                                      const VkAllocationCallbacks *pAllocator,
                                      VkDebugUtilsMessengerEXT *pDebugMessenger);
+
         void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                            const VkAllocationCallbacks *pAllocator);
+
         void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT &createInfo);
+
         bool isDeviceSuitable(VkPhysicalDevice device);
+
         QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+
         bool checkDeviceExtensionSupport(VkPhysicalDevice device);
 
         // Swapchain

@@ -11,7 +11,7 @@
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
-const bool enableValidationLayers = false;
+const bool enableValidationLayers = true;
 #endif
 
 namespace vks
@@ -412,7 +412,8 @@ namespace vks
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
         poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT; // Often recreate the pool
 
-        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS) {
+        if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create command pool!");
         }
 
@@ -420,12 +421,15 @@ namespace vks
 
     // ####################################### Util #########################3
 
-    uint32_t VksDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties) {
+    uint32_t VksDevice::findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties)
+    {
         VkPhysicalDeviceMemoryProperties memProperties;
         vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memProperties);
-        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {
+        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++)
+        {
             if ((typeFilter & (1 << i)) &&
-                (memProperties.memoryTypes[i].propertyFlags & properties) == properties) {
+                (memProperties.memoryTypes[i].propertyFlags & properties) == properties)
+            {
                 return i;
             }
         }
@@ -438,14 +442,16 @@ namespace vks
             VkBufferUsageFlags usage,
             VkMemoryPropertyFlags properties,
             VkBuffer &buffer,
-            VkDeviceMemory &bufferMemory) {
+            VkDeviceMemory &bufferMemory)
+    {
         VkBufferCreateInfo bufferInfo{};
         bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
         bufferInfo.size = size;
         bufferInfo.usage = usage;
         bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 
-        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS) {
+        if (vkCreateBuffer(device, &bufferInfo, nullptr, &buffer) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create vertex buffer!");
         }
 
@@ -461,14 +467,16 @@ namespace vks
         // maxMemoryAllocationCount for a physical device. Should create a custom
         // allocator that batches together a large number of objects at once. See
         // https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
-        if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS) {
+        if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to allocate vertex buffer memory!");
         }
 
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
 
-    VkCommandBuffer VksDevice::beginSingleTimeCommands() {
+    VkCommandBuffer VksDevice::beginSingleTimeCommands()
+    {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -486,7 +494,8 @@ namespace vks
         return commandBuffer;
     }
 
-    void VksDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer) {
+    void VksDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+    {
         vkEndCommandBuffer(commandBuffer);
 
         VkSubmitInfo submitInfo{};
@@ -500,7 +509,8 @@ namespace vks
         vkFreeCommandBuffers(device, commandPool, 1, &commandBuffer);
     }
 
-    void VksDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size) {
+    void VksDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
+    {
         VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};

@@ -17,6 +17,11 @@ namespace vks
         glfwTerminate();
     }
 
+    void VksWindow::framebufferResizeCallback(GLFWwindow* window, int width, int height) {
+        auto app = reinterpret_cast<VksWindow*>(glfwGetWindowUserPointer(window));
+        app->framebufferResized = true;
+    }
+
     void VksWindow::initWindow()
     {
         glfwInit();
@@ -24,7 +29,10 @@ namespace vks
         glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 
         window = glfwCreateWindow(width, height, windowName.c_str(), nullptr, nullptr);
+        glfwSetWindowUserPointer(window, this);
+        glfwSetFramebufferSizeCallback(window, framebufferResizeCallback);
     }
+
 
     void VksWindow::createWindowSurface(VkInstance instance, VkSurfaceKHR *surface)
     {
@@ -33,4 +41,5 @@ namespace vks
             throw std::runtime_error("failed to create window surface!");
         }
     }
+
 }  // namespace vks
