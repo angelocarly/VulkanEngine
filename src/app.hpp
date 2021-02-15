@@ -26,7 +26,6 @@ namespace vks
     public:
         App()
         {
-
         }
 
         void run()
@@ -54,6 +53,7 @@ namespace vks
 
 //            device.destroy();
         }
+
 
     private:
 
@@ -262,9 +262,10 @@ namespace vks
 
         void createPipeline()
         {
+//            pipeline->destroy();
             spdlog::get("vulkan")->debug("Creating pipeline..");
 
-            auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(window.getWidth(), window.getHeight());
+            auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(swapChain.getSwapChainExtent().width, swapChain.getSwapChainExtent().height);
             pipelineConfig.renderPass = swapChain.getRenderPass();
             pipelineConfig.pipelineLayout = pipelineLayout;
             pipeline = std::make_unique<VksPipeline>(device, swapChain, pipelineConfig);
@@ -340,9 +341,10 @@ namespace vks
 
         void drawFrame()
         {
+
             uint32_t imageIndex;
             auto result = swapChain.acquireNextImage(&imageIndex);
-            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+            if (result == VK_ERROR_OUT_OF_DATE_KHR || window.pollFrameBufferResized())
             {
                 spdlog::get("vulkan")->warn("Swapchain image is out of date");
                 swapChain.recreate();
@@ -414,6 +416,7 @@ namespace vks
 
             vkFreeCommandBuffers(device.getVkDevice(), device.getCommandPool(), 1, &commandBuffer);
         }
+
 
     };
 

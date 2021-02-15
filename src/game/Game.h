@@ -26,8 +26,8 @@ class Game
     struct Link
     {
         int id;
-        Node* a;
-        Node* b;
+        Node *a;
+        Node *b;
         float weight;
     };
 
@@ -46,9 +46,9 @@ public:
         std::string line;
 
         // Store all nodes
-        while(getline(infile, line))
+        while (getline(infile, line))
         {
-            if ( line.empty() || line.rfind('#', 0) == 0 ) continue;
+            if (line.empty() || line.rfind('#', 0) == 0) continue;
 
             Node n;
             std::vector<std::string> data;
@@ -60,17 +60,16 @@ public:
             // Store links
             std::vector<std::string> linkids;
             boost::split(linkids, data[3], boost::is_any_of("|"));
-            for ( std::string i : linkids)
+            for (std::string i : linkids)
             {
-                if (i.empty() ) continue;
+                if (i.empty()) continue;
                 int lid = std::stoi(i);
 
                 Link l;
-                if(nodes.count(lid))
+                if (nodes.count(lid))
                 {
                     l.a = &nodes.at(lid);
-                }
-                else
+                } else
                 {
                     nodes[lid] = Node{};
                     l.a = &nodes.at(lid);
@@ -88,6 +87,7 @@ public:
 
         return nodes;
     }
+
 private:
 };
 

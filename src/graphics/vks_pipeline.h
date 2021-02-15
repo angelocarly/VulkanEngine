@@ -9,7 +9,8 @@
 namespace vks
 {
 
-    struct PipelineConfigInfo {
+    struct PipelineConfigInfo
+    {
         VkViewport viewport;
         VkRect2D scissor;
         VkPipelineViewportStateCreateInfo viewportInfo;
@@ -28,18 +29,23 @@ namespace vks
     {
     public:
 
-        VksPipeline(VksDevice &device, vks::VksSwapChain &swapChain, const PipelineConfigInfo& configInfo);
+        VksPipeline(VksDevice &device, vks::VksSwapChain &swapChain, const PipelineConfigInfo &configInfo);
 
-        ~VksPipeline() { destroy(); }
+        ~VksPipeline()
+        { destroy(); }
+
         void destroy();
 
         static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
 
-        VksPipeline(const VksPipeline&) = delete;
-        void operator=(const VksPipeline&) = delete;
+        VksPipeline(const VksPipeline &) = delete;
+
+        void operator=(const VksPipeline &) = delete;
 
         void bind(VkCommandBuffer commandBuffer);
-        VkPipeline getPipeline() { return graphicsPipeline; }
+
+        VkPipeline getPipeline()
+        { return graphicsPipeline; }
 
         void recreate();
 
