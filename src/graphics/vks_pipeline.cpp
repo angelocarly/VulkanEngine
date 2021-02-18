@@ -12,8 +12,8 @@ namespace vks
 {
 
 
-    VksPipeline::VksPipeline(VksDevice &device, VksSwapChain &swapChain, const PipelineConfigInfo& configInfo)
-    :device(device), swapchain(swapChain)
+    VksPipeline::VksPipeline(VksDevice &device, VksSwapChain &swapChain, const PipelineConfigInfo &configInfo)
+            : device(device), swapchain(swapChain)
     {
         createGraphicsPipeline(configInfo);
     }
@@ -24,8 +24,10 @@ namespace vks
         vkDestroyPipeline(device.getVkDevice(), graphicsPipeline, nullptr);
     }
 
-    void VksPipeline::createGraphicsPipeline(const PipelineConfigInfo& configInfo)
+    void VksPipeline::createGraphicsPipeline(const PipelineConfigInfo &configInfo)
     {
+        _configInfo = configInfo;
+
         auto vertShaderCode = readFile("shaders/vert.spv");
         auto fragShaderCode = readFile("shaders/frag.spv");
 
@@ -67,7 +69,9 @@ namespace vks
         pipelineInfo.basePipelineIndex = -1;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-        if (vkCreateGraphicsPipelines(device.getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS) {
+        if (vkCreateGraphicsPipelines(device.getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
+                                      &graphicsPipeline) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create graphics pipeline!");
         }
 
@@ -76,25 +80,28 @@ namespace vks
 
     }
 
-    VkShaderModule VksPipeline::createShaderModule(const std::vector<char>& code)
+    VkShaderModule VksPipeline::createShaderModule(const std::vector<char> &code)
     {
         VkShaderModuleCreateInfo createInfo{};
         createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
         createInfo.codeSize = code.size();
-        createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+        createInfo.pCode = reinterpret_cast<const uint32_t *>(code.data());
 
         VkShaderModule shaderModule;
-        if (vkCreateShaderModule(device.getVkDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+        if (vkCreateShaderModule(device.getVkDevice(), &createInfo, nullptr, &shaderModule) != VK_SUCCESS)
+        {
             throw std::runtime_error("failed to create shader module!");
         }
 
         return shaderModule;
     }
 
-    std::vector<char> VksPipeline::readFile(const std::string& filename) {
+    std::vector<char> VksPipeline::readFile(const std::string &filename)
+    {
         std::ifstream file(filename, std::ios::ate | std::ios::binary);
 
-        if (!file.is_open()) {
+        if (!file.is_open())
+        {
             throw std::runtime_error("failed to open file!");
         }
 
@@ -109,7 +116,8 @@ namespace vks
         return buffer;
     }
 
-    PipelineConfigInfo VksPipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height) {
+    PipelineConfigInfo VksPipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height)
+    {
         PipelineConfigInfo configInfo{};
 
         configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -187,7 +195,22 @@ namespace vks
         return configInfo;
     }
 
-    void VksPipeline::bind(VkCommandBuffer commandBuffer) {
+    void VksPipeline::bind(VkCommandBuffer commandBuffer)
+    {
         vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, graphicsPipeline);
+    }
+
+    void VksPipeline::recreate(uint32_t width, uint32_t height)
+    {
+        _configInfo.viewport.width = swapchain.getSwapChainExtent().width;
+        _configInfo.viewport.height = swapchain.getSwapChainExtent().height;
+        _configInfo.scissor.extent = swapchain.getSwapChainExtent();
+
+//        _configInfo.viewport.width = width;
+//        _configInfo.viewport.height = height;
+//        _configInfo.scissor.extent = {width, height};
+//        _configInfo.viewportInfo.pViewports = &_configInfo.viewport;
+//        _configInfo.viewportInfo.pScissors = &_configInfo.scissor;
+        createGraphicsPipeline(_configInfo);
     }
 }

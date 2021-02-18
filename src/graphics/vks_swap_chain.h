@@ -13,24 +13,40 @@ namespace vks
     public:
         VksSwapChain(VksWindow &window, VksDevice &device);
 
-        ~VksSwapChain() { destroy(); }
+        ~VksSwapChain()
+        { destroy(); }
+
         void destroy();
 
-        VkExtent2D getSwapChainExtent() { return swapChainExtent; }
-        VkRenderPass getRenderPass() { return renderPass; }
+        VkExtent2D getSwapChainExtent()
+        { return swapChainExtent; }
 
-        int getImageCount() { return swapChainImages.size(); };
-        VkFramebuffer getFrameBuffer(size_t i) { return swapChainFramebuffers.at(i); };
+        VkRenderPass getRenderPass()
+        { return renderPass; }
+
+        int getImageCount()
+        { return swapChainImages.size(); };
+
+        VkFramebuffer getFrameBuffer(size_t i)
+        { return swapChainFramebuffers.at(i); };
+
         VkResult acquireNextImage(uint32_t *imageIndex);
+
         VkResult submitCommandBuffers(VkCommandBuffer const *buffers, uint32_t *imageIndex);
-        int getCurrentFrame() { return currentFrame; }
-        std::vector<VkFence> getInFlightFences() { return inFlightFences; }
+
+        int getCurrentFrame()
+        { return currentFrame; }
+
+        std::vector<VkFence> getInFlightFences()
+        { return inFlightFences; }
 
         static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
         VkFormat getImagesFormat();
 
         void waitForImageInFlight();
+
+        void recreate();
 
     private:
         VksWindow &window;
@@ -54,8 +70,11 @@ namespace vks
 
         // Instancing
         void init();
+
         void createSwapChain();
+
         void createImageViews();
+
         void createRenderPass();
 
         VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR> &availableFormats);
@@ -69,6 +88,8 @@ namespace vks
         void createSyncObject();
 
         void recreateSwapChain();
+
+        void cleanupSwapChain();
     };
 
 }

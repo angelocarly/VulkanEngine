@@ -3,6 +3,7 @@
 #include <vulkan/vulkan.h>
 #include <stdexcept>
 #include <limits>
+#include <spdlog/spdlog.h>
 
 namespace vks
 {
@@ -14,30 +15,13 @@ namespace vks
 
     void VksSwapChain::destroy()
     {
-        for (auto imageView : swapChainImageViews)
-        {
-            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
-        }
-        swapChainImageViews.clear();
-
-        if (swapChain != nullptr)
-        {
-            vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
-            swapChain = nullptr;
-        }
+        cleanupSwapChain();
 
 //        for (int i = 0; i < depthImages.size(); i++) {
 //            vkDestroyImageView(device.getVkDevice(), depthImageViews[i], nullptr);
 //            vkDestroyImage(device.getVkDevice(), depthImages[i], nullptr);
 //            vkFreeMemory(device.getVkDevice(), depthImageMemorys[i], nullptr);
 //        }
-
-        for (auto framebuffer : swapChainFramebuffers)
-        {
-            vkDestroyFramebuffer(device.getVkDevice(), framebuffer, nullptr);
-        }
-
-        vkDestroyRenderPass(device.getVkDevice(), renderPass, nullptr);
 
         // cleanup synchronization objects
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
@@ -66,7 +50,8 @@ namespace vks
         VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
 
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-        if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount)
+        if (swapChainSupport.capabilities.maxImageCount > 0 &&
+            imageCount > swapChainSupport.capabilities.maxImageCount)
         {
             imageCount = swapChainSupport.capabilities.maxImageCount;
         }
@@ -102,7 +87,8 @@ namespace vks
 
         createInfo.oldSwapchain = VK_NULL_HANDLE;
 
-        if (vkCreateSwapchainKHR(device.getVkDevice(), &createInfo, nullptr, &swapChain) != VK_SUCCESS)
+        VkResult swap = vkCreateSwapchainKHR(device.getVkDevice(), &createInfo, nullptr, &swapChain);
+        if ( swap != VK_SUCCESS)
         {
             throw std::runtime_error("failed to create swap chain!");
         }
@@ -114,16 +100,6 @@ namespace vks
         swapChainImageFormat = surfaceFormat.format;
         swapChainExtent = extent;
 
-
-    }
-
-    void VksSwapChain::recreateSwapChain()
-    {
-        device.waitIdle();
-
-        createSwapChain();
-        createImageViews();
-        createRenderPass();
 
     }
 
@@ -375,7 +351,7 @@ namespace vks
     void VksSwapChain::waitForImageInFlight()
     {
         bool anyfencesnull = false;
-        for (auto & i : imagesInFlight)
+        for (auto &i : imagesInFlight)
         {
             if (i == VK_NULL_HANDLE)
             {
@@ -386,18 +362,69 @@ namespace vks
 
         if (anyfencesnull)
         {
-            for (auto & i : imagesInFlight)
+            for (auto &i : imagesInFlight)
             {
                 if (i != VK_NULL_HANDLE)
                 {
                     vkWaitForFences(device.getVkDevice(), 1, &i, VK_TRUE, UINT64_MAX);
                 }
             }
-        }
-        else
+        } else
         {
             vkWaitForFences(device.getVkDevice(), imagesInFlight.size(), imagesInFlight.data(), VK_TRUE, UINT16_MAX);
         }
+    }
+
+    void VksSwapChain::cleanupSwapChain()
+    {
+        for (auto imageView : swapChainImageViews)
+        {
+            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
+        }
+        swapChainImageViews.clear();
+
+        if (swapChain != nullptr)
+        {
+            vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
+            swapChain = nullptr;
+        }
+
+//        for (int i = 0; i < depthImages.size(); i++) {
+//            vkDestroyImageView(device.getVkDevice(), depthImageViews[i], nullptr);
+//            vkDestroyImage(device.getVkDevice(), depthImages[i], nullptr);
+//            vkFreeMemory(device.getVkDevice(), depthImageMemorys[i], nullptr);
+//        }
+
+        for (auto framebuffer : swapChainFramebuffers)
+        {
+            vkDestroyFramebuffer(device.getVkDevice(), framebuffer, nullptr);
+        }
+
+        vkDestroyRenderPass(device.getVkDevice(), renderPass, nullptr);
+
+    }
+
+    void VksSwapChain::recreate()
+    {
+
+//        VkExtent2D extent = device.getSwapChainSupport().capabilities.currentExtent;
+//        spdlog::debug("extent: " + std::to_string(extent.width) + " " + std::to_string(extent.height));
+//        spdlog::debug(std::to_string(width) + " " + std::to_string(height));
+        device.waitIdle();
+
+        cleanupSwapChain();
+
+        int width = 0, height = 0;
+        glfwGetFramebufferSize(window.getWindow(), &width, &height);
+        while (width == 0 || height == 0) {
+            glfwGetFramebufferSize(window.getWindow(), &width, &height);
+            glfwWaitEvents();
+        }
+
+        createSwapChain();
+        createImageViews();
+        createRenderPass();
+        createFramebuffers();
     }
 
 }

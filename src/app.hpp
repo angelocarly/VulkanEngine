@@ -20,9 +20,14 @@ const uint32_t HEIGHT = 600;
 
 namespace vks
 {
+
     class App
     {
     public:
+        App()
+        {
+        }
+
         void run()
         {
             createPipelineLayout();
@@ -34,6 +39,7 @@ namespace vks
 
         ~App()
         {
+
 //            vkDestroyCommandPool(device.getVkDevice(), command)
 
 //            vkDestroyPipeline(device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
@@ -48,6 +54,7 @@ namespace vks
 //            device.destroy();
         }
 
+
     private:
 
         // Vulkan properties
@@ -61,9 +68,14 @@ namespace vks
         bool imguiwindowcreated = false;
         VkResult err;
 
+        // ImGui
+        float gui_red;
+
         void mainLoop()
         {
             new Game();
+
+            spdlog::info("Game initialized");
 
             while (!window.shouldClose())
             {
@@ -88,6 +100,9 @@ namespace vks
 
                 drawFrame();
             }
+
+            spdlog::info("Shutting down");
+
 
             // Wait until all command buffers are cleared in order to safely destroy
             vkDeviceWaitIdle(device.getVkDevice());
@@ -187,8 +202,11 @@ namespace vks
             ImGui::NewFrame();
 
             // render your GUI
-            ImGui::Begin("Thr34d5");
-            ImGui::Text(std::to_string(10 * 1000.0).c_str());
+            ImGui::Begin("Field");
+            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
+//            ImGui::Text(std::to_string(10 * 1000.0).c_str());
+//            ImGui::Text(std::to_string(10 * 1000.0).c_str());
+//            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            bool inputImage = ImGui::InputText("Path to Image", &imageName);
 //            bool logoImage = ImGui::InputText("Path to Logo", &logoImageName);
 //            if (ImGui::Button("Reload")) {
@@ -226,6 +244,8 @@ namespace vks
 
         void createPipelineLayout()
         {
+            spdlog::get("vulkan")->debug("Creating pipeline layout..");
+
             VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
             pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
             pipelineLayoutInfo.setLayoutCount = 0;
@@ -237,11 +257,16 @@ namespace vks
             {
                 throw std::runtime_error("failed to create pipeline layout!");
             }
+
         }
 
         void createPipeline()
         {
-            auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT);
+//            pipeline->destroy();
+            spdlog::get("vulkan")->debug("Creating pipeline..");
+
+            auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(swapChain.getSwapChainExtent().width,
+                                                                         swapChain.getSwapChainExtent().height);
             pipelineConfig.renderPass = swapChain.getRenderPass();
             pipelineConfig.pipelineLayout = pipelineLayout;
             pipeline = std::make_unique<VksPipeline>(device, swapChain, pipelineConfig);
@@ -317,26 +342,40 @@ namespace vks
 
         void drawFrame()
         {
+
+            if (window.pollFrameBufferResized()) {
+                spdlog::get("vulkan")->warn("Swapchain image is out of date");
+                swapChain.recreate();
+//                pipeline->recreate(window.getWidth(), window.getHeight());
+                createPipeline();
+                return;
+
+            }
+
             uint32_t imageIndex;
             auto result = swapChain.acquireNextImage(&imageIndex);
-            if (result == VK_ERROR_OUT_OF_DATE_KHR)
+//            if (result == VK_ERROR_OUT_OF_DATE_KHR || window.pollFrameBufferResized())
+            if (result == VK_ERROR_OUT_OF_DATE_KHR )
             {
-                throw std::runtime_error("swapchain out of date");
-                // TODO: recreate swap chain
-            }
-            else if(result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+                spdlog::get("vulkan")->warn("Swapchain image is out of date");
+                swapChain.recreate();
+//                pipeline->recreate(window.getWidth(), window.getHeight());
+                createPipeline();
+                return;
+            } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
             {
-                throw std::runtime_error("failed to acquire swap chain image!");
+                spdlog::get("vulkan")->warn("Swapchain image is not optimal");
             }
 
             result = swapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
-            if (result == VK_ERROR_OUT_OF_DATE_KHR || result == VK_SUBOPTIMAL_KHR)
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)// || result == VK_SUBOPTIMAL_KHR
             {
-                // Swapchain size is out of date
-                throw std::runtime_error("swapchain out of date!");
-                // TODO: recreate swap chain
-            }
-            else if (result != VK_SUCCESS)
+                spdlog::get("vulkan")->warn("Swapchain is out of date");
+                swapChain.recreate();
+                createPipeline();
+//                pipeline->recreate(window.getWidth(), window.getHeight());
+
+            } else if (result != VK_SUCCESS)
             {
                 throw std::runtime_error("failed to present swap chain image!");
             }
@@ -388,6 +427,7 @@ namespace vks
 
             vkFreeCommandBuffers(device.getVkDevice(), device.getCommandPool(), 1, &commandBuffer);
         }
+
 
     };
 

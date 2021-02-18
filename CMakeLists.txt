@@ -39,7 +39,7 @@ target_link_libraries(VulkanEngine Vulkan::Vulkan)
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
-target_link_libraries(VulkanEngine glfw)
+target_link_libraries(${PROJECT_NAME} glfw)
 #set(GLFW_DIR "${LIB_DIR}/glfw")
 #set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
 #set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
@@ -63,7 +63,7 @@ include_directories(${GLM_INCLUDE_DIRS})
 link_directories(${GLM_LIBRARY_DIRS})
 add_definitions(${GLM_DEFINITIONS})
 
-# timyobj
+# tinyobj
 find_package(tinyobjloader REQUIRED)
 include_directories(${TINYOBJLOADER_INCLUDE_DIRS})
 link_directories(${TINYOBJELOADER_LIBRARY_DIRS})
@@ -75,3 +75,7 @@ set(STB_DIR "${LIB_DIR}/stb")
 include_directories(${STB_DIR})
 #link_directories(${STB_LIBRARY_DIRS})
 #add_definitions(${STB_DEFINITIONS})
+
+# spdlog
+find_package(spdlog REQUIRED)
+target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
