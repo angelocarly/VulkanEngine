@@ -24,9 +24,6 @@ namespace vks
     class App
     {
     public:
-        App()
-        {
-        }
 
         void run()
         {
@@ -70,13 +67,21 @@ namespace vks
 
         // ImGui
         float gui_red;
+        std::string fps;
 
+        /*
+         * Main game loop, polls and updates the window and executes the game logic
+         */
         void mainLoop()
         {
             new Game();
 
             spdlog::info("Game initialized");
 
+            int fpsCounter = 0;
+            std::chrono::milliseconds lastFpsUpdate = std::chrono::duration_cast< std::chrono::milliseconds >(
+                    std::chrono::system_clock::now().time_since_epoch()
+            );
             while (!window.shouldClose())
             {
                 glfwPollEvents();
@@ -99,6 +104,19 @@ namespace vks
                 createCommandBuffers();
 
                 drawFrame();
+
+                fpsCounter++;
+                std::chrono::milliseconds newFpsUpdate = std::chrono::duration_cast< std::chrono::milliseconds >(
+                        std::chrono::system_clock::now().time_since_epoch()
+                );
+                if ( newFpsUpdate - lastFpsUpdate >= std::chrono::milliseconds(1000))
+                {
+                    fps = std::to_string(fpsCounter);
+                    spdlog::info("Fps: " + fps);
+                    lastFpsUpdate = newFpsUpdate;
+                    fpsCounter = 0;
+                }
+
             }
 
             spdlog::info("Shutting down");
@@ -108,6 +126,10 @@ namespace vks
             vkDeviceWaitIdle(device.getVkDevice());
         }
 
+        /**
+         * Handle vulkan error
+         * @param err
+         */
         static void check_vk_result(VkResult err)
         {
             if (err == 0)
@@ -117,6 +139,9 @@ namespace vks
                 abort();
         }
 
+        /**
+         * Setup the ImGui GUI bindings
+         */
         void initImGui()
         {
             {
@@ -183,12 +208,15 @@ namespace vks
             // Setup Dear ImGui style
             ImGui::StyleColorsDark();
 
-            VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+            VkCommandBuffer commandBuffer = device.beginCommandBuffer();
             ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-            endSingleTimeCommands(commandBuffer);
+            device.endCommandBuffer(commandBuffer);
             ImGui_ImplVulkan_DestroyFontUploadObjects();
         }
 
+        /**
+         * Draw an ImGUI GUI window in the commandbuffer
+         */
         void imGuiSetupWindow()
         {
             ImGuiIO &io = ImGui::GetIO();
@@ -196,14 +224,14 @@ namespace vks
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
 
-            auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight()); // TODO use swapchainextent
+            auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight());
             ImGui::SetNextWindowSize(WindowSize, ImGuiCond_::ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_::ImGuiCond_FirstUseEver);
             ImGui::NewFrame();
 
             // render your GUI
-            ImGui::Begin("Field");
-            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
+            ImGui::Begin("Stats");
+//            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
@@ -223,7 +251,8 @@ namespace vks
 //            bool outputImage = ImGui::InputText("Save As (No file type at the end, only the name)", &outputImageName);
 //            ImGui::ListBox("File format\n(single select)", &fileFormat, listbox_items, 5, 4);
 //            tempOutImageName = outputImageName + listbox_items[fileFormat];
-            ImGui::Text("fdsaf");
+            std::string fpsLabel = "Fps: " + fps;
+            ImGui::Text("%s", fpsLabel.data());
 //            if (ImGui::Button("Save")) {
 //                writeImage = true;
 //            }
@@ -242,6 +271,9 @@ namespace vks
 //            }
         }
 
+        /**
+         * Create a pipeline layout in order to pass values to our shaders
+         */
         void createPipelineLayout()
         {
             spdlog::get("vulkan")->debug("Creating pipeline layout..");
@@ -260,6 +292,9 @@ namespace vks
 
         }
 
+        /**
+         * Create the actual pipeline
+         */
         void createPipeline()
         {
 //            pipeline->destroy();
@@ -272,6 +307,9 @@ namespace vks
             pipeline = std::make_unique<VksPipeline>(device, swapChain, pipelineConfig);
         }
 
+        /**
+         * Create the command buffers used to render our scene
+         */
         void createCommandBuffers()
         {
             // Before recreating the command buffers, wait until they are no longer in use
@@ -286,11 +324,8 @@ namespace vks
             allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
             allocInfo.commandBufferCount = static_cast<uint32_t>(commandBuffers.size());
 
-            if (vkAllocateCommandBuffers(device.getVkDevice(), &allocInfo, commandBuffers.data()) !=
-                VK_SUCCESS)
-            {
-                throw std::runtime_error("failed to allocate command buffers!");
-            }
+            err = vkAllocateCommandBuffers(device.getVkDevice(), &allocInfo, commandBuffers.data());
+            check_vk_result(err);
 
             for (size_t i = 0; i < commandBuffers.size(); i++)
             {
@@ -340,26 +375,28 @@ namespace vks
             imguiwindowcreated = false;
         }
 
+        /**
+         * Render our command buffers to the swapchain
+         */
         void drawFrame()
         {
 
+            // Recreate the swapchain if GLFW emits a resized event
             if (window.pollFrameBufferResized()) {
                 spdlog::get("vulkan")->warn("Swapchain image is out of date");
                 swapChain.recreate();
-//                pipeline->recreate(window.getWidth(), window.getHeight());
                 createPipeline();
                 return;
-
             }
 
+            // Load the next image in the swapchain
             uint32_t imageIndex;
             auto result = swapChain.acquireNextImage(&imageIndex);
-//            if (result == VK_ERROR_OUT_OF_DATE_KHR || window.pollFrameBufferResized())
             if (result == VK_ERROR_OUT_OF_DATE_KHR )
             {
+                // When the swapchain is out of date, recreate a new one
                 spdlog::get("vulkan")->warn("Swapchain image is out of date");
                 swapChain.recreate();
-//                pipeline->recreate(window.getWidth(), window.getHeight());
                 createPipeline();
                 return;
             } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
@@ -367,13 +404,14 @@ namespace vks
                 spdlog::get("vulkan")->warn("Swapchain image is not optimal");
             }
 
+            // Submit our command buffer to be drawed on the new image
             result = swapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
             if (result == VK_ERROR_OUT_OF_DATE_KHR)// || result == VK_SUBOPTIMAL_KHR
             {
+                // When the swapchain is out of date, recreate a new one
                 spdlog::get("vulkan")->warn("Swapchain is out of date");
                 swapChain.recreate();
                 createPipeline();
-//                pipeline->recreate(window.getWidth(), window.getHeight());
 
             } else if (result != VK_SUCCESS)
             {
@@ -381,57 +419,6 @@ namespace vks
             }
         }
 
-        void
-        createCommandBuffers(VkCommandBuffer *commandBuffer, uint32_t commandBufferCount, VkCommandPool &commandPool)
-        {
-            VkCommandBufferAllocateInfo commandBufferAllocateInfo = {};
-            commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            commandBufferAllocateInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            commandBufferAllocateInfo.commandPool = commandPool;
-            commandBufferAllocateInfo.commandBufferCount = commandBufferCount;
-            vkAllocateCommandBuffers(device.getVkDevice(), &commandBufferAllocateInfo, commandBuffer);
-        }
-
-        VkCommandBuffer beginSingleTimeCommands()
-        {
-            VkCommandBufferAllocateInfo allocInfo = {};
-            allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-            allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-            allocInfo.commandPool = device.getCommandPool();
-            allocInfo.commandBufferCount = 1;
-
-            VkCommandBuffer commandBuffer;
-            vkAllocateCommandBuffers(device.getVkDevice(), &allocInfo, &commandBuffer);
-
-            VkCommandBufferBeginInfo beginInfo = {};
-            beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-            beginInfo.flags |= VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-            err = vkBeginCommandBuffer(commandBuffer, &beginInfo);
-            check_vk_result(err);
-
-            return commandBuffer;
-        }
-
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer)
-        {
-            vkEndCommandBuffer(commandBuffer);
-
-            VkSubmitInfo submitInfo = {};
-            submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-            submitInfo.commandBufferCount = 1;
-            submitInfo.pCommandBuffers = &commandBuffer;
-
-            vkQueueSubmit(device.getGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-            vkQueueWaitIdle(device.getGraphicsQueue());
-
-            vkFreeCommandBuffers(device.getVkDevice(), device.getCommandPool(), 1, &commandBuffer);
-        }
-
-
     };
-
-    VkInstance getInstance();
-
 
 }

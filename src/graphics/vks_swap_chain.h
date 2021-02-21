@@ -40,7 +40,7 @@ namespace vks
         std::vector<VkFence> getInFlightFences()
         { return inFlightFences; }
 
-        static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+        static constexpr int MAX_FRAMES_IN_FLIGHT = 8;
 
         VkFormat getImagesFormat();
 
