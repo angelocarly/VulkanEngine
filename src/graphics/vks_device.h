@@ -71,8 +71,8 @@ namespace vks
 
         void waitIdle();
 
-        VkCommandBuffer beginCommandBuffer();
-        void endCommandBuffer(VkCommandBuffer commandBuffer);
+        VkCommandBuffer beginSingleTimeCommands();
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     private:
 
