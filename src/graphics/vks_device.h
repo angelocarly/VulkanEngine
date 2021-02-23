@@ -69,6 +69,8 @@ namespace vks
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
+        VkCommandBuffer beginCommandBuffer();
+        void endCommandBuffer(VkCommandBuffer commandBuffer);
         void waitIdle();
 
     private:
@@ -132,9 +134,6 @@ namespace vks
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
-        VkCommandBuffer beginSingleTimeCommands();
-
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     };
 

@@ -67,7 +67,6 @@ namespace vks
 
         // ImGui
         float gui_red;
-        std::string fps;
 
         /*
          * Main game loop, polls and updates the window and executes the game logic
@@ -78,10 +77,6 @@ namespace vks
 
             spdlog::info("Game initialized");
 
-            int fpsCounter = 0;
-            std::chrono::milliseconds lastFpsUpdate = std::chrono::duration_cast< std::chrono::milliseconds >(
-                    std::chrono::system_clock::now().time_since_epoch()
-            );
             while (!window.shouldClose())
             {
                 glfwPollEvents();
@@ -104,19 +99,6 @@ namespace vks
                 createCommandBuffers();
 
                 drawFrame();
-
-                fpsCounter++;
-                std::chrono::milliseconds newFpsUpdate = std::chrono::duration_cast< std::chrono::milliseconds >(
-                        std::chrono::system_clock::now().time_since_epoch()
-                );
-                if ( newFpsUpdate - lastFpsUpdate >= std::chrono::milliseconds(1000))
-                {
-                    fps = std::to_string(fpsCounter);
-                    spdlog::info("Fps: " + fps);
-                    lastFpsUpdate = newFpsUpdate;
-                    fpsCounter = 0;
-                }
-
             }
 
             spdlog::info("Shutting down");
@@ -208,9 +190,9 @@ namespace vks
             // Setup Dear ImGui style
             ImGui::StyleColorsDark();
 
-            VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
+            VkCommandBuffer commandBuffer = device.beginCommandBuffer();
             ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-            device.endSingleTimeCommands(commandBuffer);
+            device.endCommandBuffer(commandBuffer);
             ImGui_ImplVulkan_DestroyFontUploadObjects();
         }
 
@@ -224,14 +206,14 @@ namespace vks
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
 
-            auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight());
+            auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight()); // TODO use swapchainextent
             ImGui::SetNextWindowSize(WindowSize, ImGuiCond_::ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_::ImGuiCond_FirstUseEver);
             ImGui::NewFrame();
 
             // render your GUI
-            ImGui::Begin("Stats");
-//            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
+            ImGui::Begin("Field");
+            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
@@ -251,8 +233,7 @@ namespace vks
 //            bool outputImage = ImGui::InputText("Save As (No file type at the end, only the name)", &outputImageName);
 //            ImGui::ListBox("File format\n(single select)", &fileFormat, listbox_items, 5, 4);
 //            tempOutImageName = outputImageName + listbox_items[fileFormat];
-            std::string fpsLabel = "Fps: " + fps;
-            ImGui::Text("%s", fpsLabel.data());
+            ImGui::Text("fdsaf");
 //            if (ImGui::Button("Save")) {
 //                writeImage = true;
 //            }

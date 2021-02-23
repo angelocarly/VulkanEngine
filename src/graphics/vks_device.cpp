@@ -475,7 +475,7 @@ namespace vks
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
 
-    VkCommandBuffer VksDevice::beginSingleTimeCommands()
+    VkCommandBuffer VksDevice::beginCommandBuffer()
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -494,7 +494,7 @@ namespace vks
         return commandBuffer;
     }
 
-    void VksDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+    void VksDevice::endCommandBuffer(VkCommandBuffer commandBuffer)
     {
         vkEndCommandBuffer(commandBuffer);
 
@@ -511,7 +511,7 @@ namespace vks
 
     void VksDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = beginCommandBuffer();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0;  // Optional
@@ -519,7 +519,7 @@ namespace vks
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-        endSingleTimeCommands(commandBuffer);
+        endCommandBuffer(commandBuffer);
     }
 
     VkInstance VksDevice::getInstance()
