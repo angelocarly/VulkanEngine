@@ -71,9 +71,6 @@ namespace vks
 
         void waitIdle();
 
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
-
     private:
 
         VksWindow &window;
@@ -134,6 +131,10 @@ namespace vks
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
+        VkCommandBuffer beginSingleTimeCommands();
+
+        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     };
 

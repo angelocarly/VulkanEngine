@@ -11,7 +11,7 @@
 #ifdef NDEBUG
 const bool enableValidationLayers = false;
 #else
-const bool enableValidationLayers = false;
+const bool enableValidationLayers = true;
 #endif
 
 namespace vks
@@ -475,11 +475,7 @@ namespace vks
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
 
-    /**
-     * Create a new command buffer to begin rendering to
-     * @return Newly bound commandbuffer
-     */
-    VkCommandBuffer VksDevice::beginCommandBuffer()
+    VkCommandBuffer VksDevice::beginSingleTimeCommands()
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -498,11 +494,7 @@ namespace vks
         return commandBuffer;
     }
 
-    /**
-     * Finish rendering to a commandbuffer
-     * @param commandBuffer
-     */
-    void VksDevice::endCommandBuffer(VkCommandBuffer commandBuffer)
+    void VksDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer)
     {
         vkEndCommandBuffer(commandBuffer);
 
@@ -519,7 +511,7 @@ namespace vks
 
     void VksDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = beginCommandBuffer();
+        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0;  // Optional
@@ -527,7 +519,7 @@ namespace vks
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-        endCommandBuffer(commandBuffer);
+        endSingleTimeCommands(commandBuffer);
     }
 
     VkInstance VksDevice::getInstance()
