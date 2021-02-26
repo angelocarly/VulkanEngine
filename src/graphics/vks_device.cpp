@@ -475,6 +475,10 @@ namespace vks
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
 
+    /**
+     * Create a new command buffer to begin rendering to
+     * @return Newly bound commandbuffer
+     */
     VkCommandBuffer VksDevice::beginCommandBuffer()
     {
         VkCommandBufferAllocateInfo allocInfo{};
@@ -494,6 +498,10 @@ namespace vks
         return commandBuffer;
     }
 
+    /**
+     * Finish rendering to a commandbuffer
+     * @param commandBuffer
+     */
     void VksDevice::endCommandBuffer(VkCommandBuffer commandBuffer)
     {
         vkEndCommandBuffer(commandBuffer);

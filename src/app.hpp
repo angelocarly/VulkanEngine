@@ -29,8 +29,8 @@ namespace vks
         {
             createPipelineLayout();
             createPipeline();
-            createCommandBuffers();
             initImGui();
+            createCommandBuffers();
             mainLoop();
         }
 
@@ -63,32 +63,43 @@ namespace vks
         std::vector<VkCommandBuffer> commandBuffers;
         VkDescriptorPool descriptorPool;
         bool imguiwindowcreated = false;
+        bool imguirebuildswapchain = false;
         VkResult err;
 
         // ImGui
-        float gui_red;
+        int fps = 1;
+
 
         /*
          * Main game loop, polls and updates the window and executes the game logic
          */
+        int loopc = 0;
+
         void mainLoop()
         {
             new Game();
 
             spdlog::info("Game initialized");
 
+            int fpsCounter = 0;
+            fps = 0;
+            std::chrono::milliseconds lastFpsUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(
+                    std::chrono::system_clock::now().time_since_epoch()
+            );
+
             while (!window.shouldClose())
             {
                 glfwPollEvents();
 
-//                if (g_SwapChainRebuild)
+//                if (imguirebuildswapchain)
 //                {
-//                    g_SwapChainRebuild = false;
+//                    imguirebuildswapchain = false;
 //                    ImGui_ImplVulkan_SetMinImageCount(g_MinImageCount);
 //                    ImGui_ImplVulkanH_CreateWindow(g_Instance, g_PhysicalDevice, g_Device, &g_MainWindowData,
 //                                                   g_QueueFamily, g_Allocator, g_SwapChainResizeWidth, g_SwapChainResizeHeight, g_MinImageCount);
-//                    g_MainWindowData.FrameIndex = 0;
+//                    imguirebuildswapchain.FrameIndex = 0;
 //                }
+
 
                 if (!imguiwindowcreated)
                 {
@@ -99,10 +110,24 @@ namespace vks
                 createCommandBuffers();
 
                 drawFrame();
+
+                fpsCounter++;
+                std::chrono::milliseconds newFpsUpdate = std::chrono::duration_cast<std::chrono::milliseconds>(
+                        std::chrono::system_clock::now().time_since_epoch()
+                );
+                if (newFpsUpdate - lastFpsUpdate >= std::chrono::milliseconds(1000))
+                {
+                    fps = fpsCounter;
+                    spdlog::info("Fps: {}", fps);
+                    lastFpsUpdate = newFpsUpdate;
+                    fpsCounter = 0;
+                    loopc++;
+
+//                    fps *= 10;
+                }
             }
 
             spdlog::info("Shutting down");
-
 
             // Wait until all command buffers are cleared in order to safely destroy
             vkDeviceWaitIdle(device.getVkDevice());
@@ -206,15 +231,15 @@ namespace vks
             ImGui_ImplVulkan_NewFrame();
             ImGui_ImplGlfw_NewFrame();
 
-            auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight()); // TODO use swapchainextent
+            auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight());
             ImGui::SetNextWindowSize(WindowSize, ImGuiCond_::ImGuiCond_FirstUseEver);
             ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_::ImGuiCond_FirstUseEver);
             ImGui::NewFrame();
 
             // render your GUI
-            ImGui::Begin("Field");
-            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
-//            ImGui::Text(std::to_string(10 * 1000.0).c_str());
+            ImGui::Begin("Stats");
+//            ImGui::SliderFloat("red", &gui_red, 0, 1, "%.2f");
+            ImGui::Text("%d", fps);
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
 //            bool inputImage = ImGui::InputText("Path to Image", &imageName);
@@ -233,7 +258,6 @@ namespace vks
 //            bool outputImage = ImGui::InputText("Save As (No file type at the end, only the name)", &outputImageName);
 //            ImGui::ListBox("File format\n(single select)", &fileFormat, listbox_items, 5, 4);
 //            tempOutImageName = outputImageName + listbox_items[fileFormat];
-            ImGui::Text("fdsaf");
 //            if (ImGui::Button("Save")) {
 //                writeImage = true;
 //            }
@@ -296,6 +320,7 @@ namespace vks
             // Before recreating the command buffers, wait until they are no longer in use
             // Might be a reason for slowdowns in the future
             swapChain.waitForImageInFlight();
+            device.waitIdle();
 
             // Allocate new commandbuffers
             commandBuffers.resize(swapChain.getImageCount());
@@ -363,7 +388,8 @@ namespace vks
         {
 
             // Recreate the swapchain if GLFW emits a resized event
-            if (window.pollFrameBufferResized()) {
+            if (window.pollFrameBufferResized())
+            {
                 spdlog::get("vulkan")->warn("Swapchain image is out of date");
                 swapChain.recreate();
                 createPipeline();
@@ -373,7 +399,7 @@ namespace vks
             // Load the next image in the swapchain
             uint32_t imageIndex;
             auto result = swapChain.acquireNextImage(&imageIndex);
-            if (result == VK_ERROR_OUT_OF_DATE_KHR )
+            if (result == VK_ERROR_OUT_OF_DATE_KHR)
             {
                 // When the swapchain is out of date, recreate a new one
                 spdlog::get("vulkan")->warn("Swapchain image is out of date");
