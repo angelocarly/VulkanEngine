@@ -18,9 +18,9 @@ namespace vks
         cleanupSwapChain();
 
 //        for (int i = 0; i < depthImages.size(); i++) {
-//            vkDestroyImageView(device.getVkDevice(), depthImageViews[i], nullptr);
-//            vkDestroyImage(device.getVkDevice(), depthImages[i], nullptr);
-//            vkFreeMemory(device.getVkDevice(), depthImageMemorys[i], nullptr);
+//            vkDestroyImageView(_device.getVkDevice(), depthImageViews[i], nullptr);
+//            vkDestroyImage(_device.getVkDevice(), depthImages[i], nullptr);
+//            vkFreeMemory(_device.getVkDevice(), depthImageMemorys[i], nullptr);
 //        }
 
         // cleanup synchronization objects
@@ -392,9 +392,9 @@ namespace vks
         }
 
 //        for (int i = 0; i < depthImages.size(); i++) {
-//            vkDestroyImageView(device.getVkDevice(), depthImageViews[i], nullptr);
-//            vkDestroyImage(device.getVkDevice(), depthImages[i], nullptr);
-//            vkFreeMemory(device.getVkDevice(), depthImageMemorys[i], nullptr);
+//            vkDestroyImageView(_device.getVkDevice(), depthImageViews[i], nullptr);
+//            vkDestroyImage(_device.getVkDevice(), depthImages[i], nullptr);
+//            vkFreeMemory(_device.getVkDevice(), depthImageMemorys[i], nullptr);
 //        }
 
         for (auto framebuffer : swapChainFramebuffers)
@@ -409,7 +409,7 @@ namespace vks
     void VksSwapChain::recreate()
     {
 
-//        VkExtent2D extent = device.getSwapChainSupport().capabilities.currentExtent;
+//        VkExtent2D extent = _device.getSwapChainSupport().capabilities.currentExtent;
 //        spdlog::debug("extent: " + std::to_string(extent.width) + " " + std::to_string(extent.height));
 //        spdlog::debug(std::to_string(width) + " " + std::to_string(height));
         device.waitIdle();

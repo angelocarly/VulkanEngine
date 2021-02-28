@@ -1,3 +1,8 @@
+#ifndef VULKANENGINE_APP_H
+#define VULKANENGINE_APP_H
+
+#pragma once
+
 #define GLFW_INCLUDE_VULKAN
 
 #include <GLFW/glfw3.h>
@@ -14,6 +19,8 @@
 #include <imgui/imgui.h>
 #include <imgui/imgui_impl_glfw.h>
 #include <imgui/imgui_impl_vulkan.h>
+#include <graphics/vks_model.h>
+#include <spdlog/spdlog.h>
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -27,6 +34,7 @@ namespace vks
 
         void run()
         {
+            loadModel();
             createPipelineLayout();
             createPipeline();
             initImGui();
@@ -37,9 +45,9 @@ namespace vks
         ~App()
         {
 
-//            vkDestroyCommandPool(device.getVkDevice(), command)
+//            vkDestroyCommandPool(_device.getVkDevice(), command)
 
-//            vkDestroyPipeline(device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
+//            vkDestroyPipeline(_device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
             vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
             vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
 //            swapChain.destroy();
@@ -48,7 +56,7 @@ namespace vks
             ImGui_ImplGlfw_Shutdown();
             ImGui::DestroyContext();
 
-//            device.destroy();
+//            _device.destroy();
         }
 
 
@@ -64,11 +72,13 @@ namespace vks
         VkDescriptorPool descriptorPool;
         bool imguiwindowcreated = false;
         bool imguirebuildswapchain = false;
+        std::unique_ptr<VksModel> vksModel;
         VkResult err;
 
         // ImGui
         int fps = 1;
 
+        void loadModel();
 
         /*
          * Main game loop, polls and updates the window and executes the game logic
@@ -361,10 +371,8 @@ namespace vks
                 vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
                 pipeline->bind(commandBuffers[i]);
-
-//                lveModel.bind(commandBuffers[i]);
-//                lveModel.draw(commandBuffers[i]);
-                vkCmdDraw(commandBuffers[i], 3, 1, 0, 0);
+                vksModel->bind(commandBuffers[i]);
+                vksModel->draw(commandBuffers[i]);
 
                 // Render imgui data
                 if (imguiwindowcreated)
@@ -429,3 +437,5 @@ namespace vks
     };
 
 }
+
+#endif //VULKANENGINE_APP_H

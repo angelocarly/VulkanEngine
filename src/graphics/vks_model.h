@@ -35,76 +35,89 @@ namespace vks
     public:
         enum class VertexAttribute
         {
-            POSITION, NORMAL, COLOR, UV, TANGENT
+            POSITION
         };
 
         struct Vertex
         {
-            glm::vec3 position;
-            glm::vec3 normal;
-            glm::vec4 color;
-            glm::vec2 uv;
-            glm::vec4 tangent;  // w component is -1 or 1 and indicates handedness of the tangent basis
+            glm::vec2 position;
+//            glm::vec3 normal;
+//            glm::vec4 color;
+//            glm::vec2 uv;
+//            glm::vec4 tangent;  // w component is -1 or 1 and indicates handedness of the tangent basis
 
-            static VkVertexInputBindingDescription getBindingDescription()
+            static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
             {
-                VkVertexInputBindingDescription bindingDescription{};
-                bindingDescription.binding = 0;
-                bindingDescription.stride = sizeof(Vertex);
-                bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-                return bindingDescription;
+                std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+                bindingDescriptions[0].binding = 0;
+                bindingDescriptions[0].stride = sizeof(Vertex); // Bytes to advance per vertex
+                bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+                return bindingDescriptions;
             }
 
-            static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
-
-            bool operator==(const Vertex &other) const
+        static std::vector<VkVertexInputAttributeDescription> getAttributesDescriptions()
             {
-                return position == other.position && color == other.color && uv == other.uv &&
-                       normal == other.normal && tangent == other.tangent;
+                std::vector<VkVertexInputAttributeDescription> attributeDescriptions(1);
+                attributeDescriptions[0].binding = 0;
+                attributeDescriptions[0].location = 0; // Location in the shader
+                attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+                attributeDescriptions[0].offset = 0;
+                return attributeDescriptions;
             }
+
+//            bool operator==(const Vertex &other) const
+//            {
+//                return position == other.position && color == other.color && uv == other.uv &&
+//                       normal == other.normal && tangent == other.tangent;
+//            }
         };
 
-        class Builder
-        {
-        public:
-            std::vector<Vertex> vertices{};
-            std::vector<uint32_t> indices{};
+//        class Builder
+//        {
+//        public:
+//            std::vector<Vertex> vertices{};
+//            std::vector<uint32_t> indices{};
+//
+//            void loadModel(std::string filepath);
+//        };
 
-            void loadModel(std::string filepath);
-        };
-
-        VksModel(VksDevice &device, Builder &builder);
+//        VksModel(VksDevice &_device, Builder &builder);
+        VksModel(VksDevice &device, std::vector<Vertex> &vertices);
 
         ~VksModel()
         { cleanup(); }
 
-        VksModel(const VksModel &) = delete;
+//        VksModel(const VksModel &) = delete;
+//
+//        void operator=(const VksModel &) = delete;
+//
+//        void draw(VkCommandBuffer commandBuffer);
+//
+//        void bind(VkCommandBuffer commandBuffer);
 
-        void operator=(const VksModel &) = delete;
-
-        void draw(VkCommandBuffer commandBuffer);
+//        void swapChainReset()
+//        {};
 
         void bind(VkCommandBuffer commandBuffer);
+        void draw(VkCommandBuffer commandBuffer);
 
-        void swapChainReset()
-        {};
-
-        static std::unique_ptr<VksModel> loadModelFromFile(VksDevice &device, std::string filepath);
+//        static std::unique_ptr<VksModel> loadModelFromFile(VksDevice &_device, std::string filepath);
 
     private:
-        VksDevice &device_;
+        VksDevice &_device;
 
-        VkBuffer vertexBuffer_;
-        VkDeviceMemory vertexBufferMemory_;
-        uint32_t vertexCount_;
+        VkBuffer _vertexBuffer;
+        VkDeviceMemory _vertexBufferMemory;
+        uint32_t _vertexCount;
 
-        VkBuffer indexBuffer_;
-        VkDeviceMemory indexBufferMemory_;
-        uint32_t indexCount_;
+//        VkBuffer indexBuffer;
+//        VkDeviceMemory indexBufferMemory;
+        uint32_t indexCount;
 
-        void createVertexBuffer(Builder &builder);
+//        void createVertexBuffer(Builder &builder);
+        void createVertexBuffer(const std::vector<Vertex> &vertices);
 
-        void createIndexBuffer(Builder &builder);
+//        void createIndexBuffer(Builder &builder);
 
         void cleanup();
     };

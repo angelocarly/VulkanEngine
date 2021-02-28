@@ -5,7 +5,7 @@ This is my try at learning C++ and Vulkan at the same time. Do not expect much f
 ## status
 - [ ] Implement Vulkan
   - [x] ~~Basic rendering setup~~
-  - [x] ~~Vulkan code splitted up (device, swapchain, pipeline)~~
+  - [x] ~~Vulkan code splitted up (_device, swapchain, pipeline)~~
   - [ ] Implement resizing without crashing  
   - [ ] Add descriptor sets/pools + move imgui pool uit of main => swapchain?
   - [ ] Use initializers to clean up vulkan code

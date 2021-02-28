@@ -20,7 +20,7 @@ namespace vks
 
     void VksPipeline::destroy()
     {
-//        vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
+//        vkDestroyPipelineLayout(_device.getVkDevice(), pipelineLayout, nullptr);
         vkDestroyPipeline(device.getVkDevice(), graphicsPipeline, nullptr);
     }
 
@@ -48,10 +48,15 @@ namespace vks
 
         VkPipelineShaderStageCreateInfo shaderStages[] = {vertShaderStageInfo, fragShaderStageInfo};
 
+        // Load model descriptions
+        auto bindingDescriptions = VksModel::Vertex::getBindingDescriptions();
+        auto attributeDescriptions = VksModel::Vertex::getAttributesDescriptions();
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
-        vertexInputInfo.vertexBindingDescriptionCount = 0;
-        vertexInputInfo.vertexAttributeDescriptionCount = 0;
+        vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());
+        vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
+        vertexInputInfo.pVertexBindingDescriptions = bindingDescriptions.data();
+        vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
 
         VkGraphicsPipelineCreateInfo pipelineInfo{};
         pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
