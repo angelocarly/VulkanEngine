@@ -16,5 +16,4 @@ namespace vks
 
         vksModel = std::make_unique<VksModel>(device, vertices);
     }
-
 }

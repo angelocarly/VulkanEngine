@@ -21,20 +21,6 @@
 #include <unordered_map>
 #include <unordered_set>
 
-//namespace std
-//{
-//    template<>
-//    struct hash<vks::VksModel::Vertex>
-//    {
-//        size_t operator()(vks::VksModel::Vertex const &vertex) const
-//        {
-//            return ((hash<glm::vec3>()(vertex.position) ^ (hash<glm::vec3>()(vertex.color) << 1)) >> 1) ^
-//                   (hash<glm::vec2>()(vertex.uv) << 1) ^ (hash<glm::vec3>()(vertex.normal) << 1) ^
-//                   (hash<glm::vec3>()(vertex.tangent) << 1);
-//        }
-//    };
-//}  // namespace std
-
 namespace vks
 {
 //    VksModel::VksModel(VksDevice &_device, Builder &builder) : device_{_device}
@@ -53,8 +39,8 @@ namespace vks
         vkDestroyBuffer(_device.getVkDevice(), _vertexBuffer, nullptr);
         vkFreeMemory(_device.getVkDevice(), _vertexBufferMemory, nullptr);
 
-//        vkDestroyBuffer(device_.getVkDevice(), indexBuffer_, nullptr);
-//        vkFreeMemory(device_.getVkDevice(), indexBufferMemory_, nullptr);
+        vkDestroyBuffer(_device.getVkDevice(), _indexBuffer, nullptr);
+        vkFreeMemory(_device.getVkDevice(), _indexBufferMemory, nullptr);
     }
 
     void VksModel::createVertexBuffer(const std::vector<Vertex> &vertices)
