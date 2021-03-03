@@ -50,7 +50,7 @@ namespace vks
 
         // Load model descriptions
         auto bindingDescriptions = VksModel::Vertex::getBindingDescriptions();
-        auto attributeDescriptions = VksModel::Vertex::getAttributesDescriptions();
+        auto attributeDescriptions = VksModel::Vertex::getAttributeDescriptions();
         VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
         vertexInputInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
         vertexInputInfo.vertexBindingDescriptionCount = static_cast<uint32_t>(bindingDescriptions.size());

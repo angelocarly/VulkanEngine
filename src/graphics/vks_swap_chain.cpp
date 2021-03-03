@@ -148,7 +148,7 @@ namespace vks
 
     VkPresentModeKHR VksSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes)
     {
-        return VK_PRESENT_MODE_IMMEDIATE_KHR;
+        //return VK_PRESENT_MODE_IMMEDIATE_KHR;
 
         for (const auto &availablePresentMode : availablePresentModes)
         {

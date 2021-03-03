@@ -39,8 +39,8 @@ namespace vks
         vkDestroyBuffer(_device.getVkDevice(), _vertexBuffer, nullptr);
         vkFreeMemory(_device.getVkDevice(), _vertexBufferMemory, nullptr);
 
-        vkDestroyBuffer(_device.getVkDevice(), _indexBuffer, nullptr);
-        vkFreeMemory(_device.getVkDevice(), _indexBufferMemory, nullptr);
+        //vkDestroyBuffer(_device.getVkDevice(), _indexBuffer, nullptr);
+        //vkFreeMemory(_device.getVkDevice(), _indexBufferMemory, nullptr);
     }
 
     void VksModel::createVertexBuffer(const std::vector<Vertex> &vertices)

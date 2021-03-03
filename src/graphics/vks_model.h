@@ -13,6 +13,7 @@
 #define VULKANENGINE_VKS_MODEL_H
 
 
+#include <cstddef>
 #pragma once
 
 #include "vks_device.h"
@@ -41,7 +42,7 @@ public:
     struct Vertex
     {
         glm::vec2 position;
-        //            glm::vec3 normal;
+        glm::vec3 color;
         //            glm::vec4 color;
         //            glm::vec2 uv;
         //            glm::vec4 tangent;  // w component is -1 or 1 and indicates handedness of the tangent basis
@@ -55,33 +56,23 @@ public:
             return bindingDescriptions;
         }
 
-        static std::vector<VkVertexInputAttributeDescription> getAttributesDescriptions()
+        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
         {
-            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(1);
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0; // Location in the shader
             attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
-            attributeDescriptions[0].offset = 0;
+            attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1; // Location in the shader
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
             return attributeDescriptions;
         }
 
-        //            bool operator==(const Vertex &other) const
-        //            {
-        //                return position == other.position && color == other.color && uv == other.uv &&
-        //                       normal == other.normal && tangent == other.tangent;
-        //            }
     };
 
-    //        class Builder
-    //        {
-    //        public:
-    //            std::vector<Vertex> vertices{};
-    //            std::vector<uint32_t> indices{};
-    //
-    //            void loadModel(std::string filepath);
-    //        };
-
-    //        VksModel(VksDevice &_device, Builder &builder);
     VksModel(VksDevice &device, std::vector<Vertex> &vertices);
 
     ~VksModel()
@@ -116,6 +107,7 @@ private:
 
     //        void createVertexBuffer(Builder &builder);
     void createVertexBuffer(const std::vector<Vertex> &vertices);
+    void createIndexBuffer(const std::vector<Vertex> &vertices);
 
     //void createIndexBuffer(Builder &builder);
     //void createIndexBuffer(const std::
