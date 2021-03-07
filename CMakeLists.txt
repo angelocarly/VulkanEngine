@@ -1,4 +1,4 @@
-# Config taken from https://github.com/aaronmjacobs/InitGL
+### Project
 
 # Project definition
 cmake_minimum_required(VERSION 3.1)
@@ -7,29 +7,19 @@ project(VulkanEngine VERSION 0.1.0)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
-set(SOURCES "${SRC_DIR}/main.cpp" lib/stb/stb_image.h src/graphics/VulkanInitializers.h src/game/Game.h src/app.hpp src/graphics/vks_window.cpp src/graphics/vks_window.h src/graphics/vks_device.cpp src/graphics/vks_device.h src/graphics/vks_swap_chain.cpp src/graphics/vks_swap_chain.h src/graphics/vks_pipeline.cpp src/graphics/vks_pipeline.h src/graphics/vks_framebuffer.cpp src/graphics/vks_framebuffer.h
-        src/imgui/imconfig.h
-        src/imgui/imgui.cpp
-        src/imgui/imgui.h
-        src/imgui/imgui_demo.cpp
-        src/imgui/imgui_draw.cpp
-        src/imgui/imgui_internal.h
-        src/imgui/imgui_tables.cpp
-        src/imgui/imgui_widgets.cpp
-        src/imgui/imstb_rectpack.h
-        src/imgui/imstb_textedit.h
-        src/imgui/imstb_truetype.h
-        src/graphics/vks_model.cpp src/graphics/vks_model.h src/imgui/imgui_impl_vulkan.h src/imgui/imgui_impl_vulkan.cpp src/imgui/imgui_impl_glfw.cpp src/imgui/imgui_impl_glfw.h src/app.cpp
+file(GLOB_RECURSE SOURCE_FILES
+        "src/*"
         )
+set(SOURCES ${SOURCE_FILES})
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
+### Shaders
 
-# Shaders
+# Copy and compile shaders
 if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
     set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/usr/bin/glslangValidator")
 else()
@@ -66,6 +56,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
         "$<TARGET_FILE_DIR:VulkanEngine>/shaders"
         )
 
+### External dependencies
 
 # Vulkan
 find_package(Vulkan REQUIRED)
