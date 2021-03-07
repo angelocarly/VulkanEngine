@@ -23,7 +23,7 @@ namespace vks
             void *pUserData)
     {
 
-        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+        spdlog::get("vulkan")->warn("VALIDATION: {}" , pCallbackData->pMessage);
 
         return VK_FALSE;
     }
