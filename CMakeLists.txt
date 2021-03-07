@@ -7,7 +7,7 @@ project(VulkanEngine VERSION 0.1.0)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
 set(SOURCES "${SRC_DIR}/main.cpp" lib/stb/stb_image.h src/graphics/VulkanInitializers.h src/game/Game.h src/app.hpp src/graphics/vks_window.cpp src/graphics/vks_window.h src/graphics/vks_device.cpp src/graphics/vks_device.h src/graphics/vks_swap_chain.cpp src/graphics/vks_swap_chain.h src/graphics/vks_pipeline.cpp src/graphics/vks_pipeline.h src/graphics/vks_framebuffer.cpp src/graphics/vks_framebuffer.h
         src/imgui/imconfig.h
         src/imgui/imgui.cpp
@@ -20,27 +20,51 @@ set(SOURCES "${SRC_DIR}/main.cpp" lib/stb/stb_image.h src/graphics/VulkanInitial
         src/imgui/imstb_rectpack.h
         src/imgui/imstb_textedit.h
         src/imgui/imstb_truetype.h
-        src/graphics/vks_model.cpp src/graphics/vks_model.h src/imgui/imgui_impl_vulkan.h src/imgui/imgui_impl_vulkan.cpp src/imgui/imgui_impl_glfw.cpp src/imgui/imgui_impl_glfw.h src/app.cpp)
+        src/graphics/vks_model.cpp src/graphics/vks_model.h src/imgui/imgui_impl_vulkan.h src/imgui/imgui_impl_vulkan.cpp src/imgui/imgui_impl_glfw.cpp src/imgui/imgui_impl_glfw.h src/app.cpp
+        )
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
 target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
+
 # Shaders
-add_custom_command(
-        TARGET ${PROJECT_NAME} POST_BUILD
+if (${CMAKE_HOST_SYSTEM_PROCESSOR} STREQUAL "AMD64")
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/usr/bin/glslangValidator")
+else()
+    set(GLSL_VALIDATOR "$ENV{VULKAN_SDK}/usr/bin/glslangValidator")
+endif()
+
+file(GLOB_RECURSE GLSL_SOURCE_FILES
+        "shaders/*.frag"
+        "shaders/*.vert"
+        )
+
+foreach(GLSL ${GLSL_SOURCE_FILES})
+    get_filename_component(FILE_NAME ${GLSL} NAME)
+    set(SPIRV "${PROJECT_BINARY_DIR}/shaders/${FILE_NAME}.spv")
+    add_custom_command(
+            OUTPUT ${SPIRV}
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${PROJECT_BINARY_DIR}/shaders/"
+            COMMAND ${GLSL_VALIDATOR} -V ${GLSL} -o ${SPIRV}
+            DEPENDS ${GLSL})
+    list(APPEND SPIRV_BINARY_FILES ${SPIRV})
+endforeach(GLSL)
+
+add_custom_target(
+        Shaders
+        DEPENDS ${SPIRV_BINARY_FILES}
+)
+
+add_dependencies(${PROJECT_NAME} Shaders)
+
+add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E make_directory "$<TARGET_FILE_DIR:VulkanEngine>/shaders/"
         COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${SRC_DIR}/shaders
-        ${CMAKE_CURRENT_BINARY_DIR}/shaders)
-#add_custom_target(
-#        copy_shader_files
-#        ${CMAKE_COMMAND}
-#        -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
-#        -D DESTINATION_DIR=${CMAKE_CURRENT_BINARY_DIR}
-#        -P CopyFile.cmake
-#        COMMENT "" VERBATIM
-#)
+        "${PROJECT_BINARY_DIR}/shaders"
+        "$<TARGET_FILE_DIR:VulkanEngine>/shaders"
+        )
 
 
 # Vulkan
