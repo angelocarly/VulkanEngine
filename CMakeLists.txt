@@ -7,6 +7,7 @@ project(VulkanEngine VERSION 0.1.0)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/build)
 set(SOURCES "${SRC_DIR}/main.cpp" lib/stb/stb_image.h src/graphics/VulkanInitializers.h src/game/Game.h src/app.hpp src/graphics/vks_window.cpp src/graphics/vks_window.h src/graphics/vks_device.cpp src/graphics/vks_device.h src/graphics/vks_swap_chain.cpp src/graphics/vks_swap_chain.h src/graphics/vks_pipeline.cpp src/graphics/vks_pipeline.h src/graphics/vks_framebuffer.cpp src/graphics/vks_framebuffer.h
         src/imgui/imconfig.h
         src/imgui/imgui.cpp
@@ -32,6 +33,15 @@ add_custom_command(
         COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${SRC_DIR}/shaders
         ${CMAKE_CURRENT_BINARY_DIR}/shaders)
+#add_custom_target(
+#        copy_shader_files
+#        ${CMAKE_COMMAND}
+#        -D SOURCE_DIR=${CMAKE_CURRENT_SOURCE_DIR}
+#        -D DESTINATION_DIR=${CMAKE_CURRENT_BINARY_DIR}
+#        -P CopyFile.cmake
+#        COMMENT "" VERBATIM
+#)
+
 
 # Vulkan
 find_package(Vulkan REQUIRED)
