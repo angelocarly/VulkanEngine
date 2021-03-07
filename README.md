@@ -5,14 +5,23 @@ This is my try at learning C++ and Vulkan at the same time. Do not expect much f
 ## status
 - [ ] Implement Vulkan
   - [x] ~~Basic rendering setup~~
-  - [x] ~~Vulkan code splitted up (device, swapchain, pipeline)~~
-  - [ ] Implement resizing without crashing  
-  - [ ] Add descriptor sets/pools + move imgui pool uit of main => swapchain?
+  - [x] ~~Vulkan code splitted up (_device, swapchain, pipeline)~~
+  - [x] ~~Implement resizing without crashing~~  
+  - [x] ~~Add descriptor sets/pools + move imgui pool uit of main => swapchain?~~
+  - [x] ~~Add uniform buffers~~
+  - [ ] Add index buffers
+  - [ ] Add model loading
+  - [ ] Add push constants
+  - [ ] Add texture mapping
   - [ ] Use initializers to clean up vulkan code
+- [ ] Add logging library (spdlog)
+  - [x] ~~Log basic vulkan setup~~
+  - [ ] Log advanced vulkan status
+  - [ ] Log vulkan validation errors cleanly
 - [ ]  Refactoring
+  - [ ] Empty out app.hpp
   - [ ] Remove unused code
   - [ ] Clean up cmakelists
-- [ ] Add logging library (spdlog)
 
 ## Notes
 [notes](./NOTES.md)

@@ -69,10 +69,9 @@ namespace vks
 
         void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
 
+        VkCommandBuffer beginCommandBuffer();
+        void endCommandBuffer(VkCommandBuffer commandBuffer);
         void waitIdle();
-
-        VkCommandBuffer beginSingleTimeCommands();
-        void endSingleTimeCommands(VkCommandBuffer commandBuffer);
 
     private:
 
@@ -134,6 +133,7 @@ namespace vks
         SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
 
         uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
+
 
     };
 

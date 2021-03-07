@@ -13,6 +13,7 @@
 #define VULKANENGINE_VKS_MODEL_H
 
 
+#include <cstddef>
 #pragma once
 
 #include "vks_device.h"
@@ -30,84 +31,89 @@
 namespace vks
 {
 
-    class VksModel
+class VksModel
+{
+public:
+    enum class VertexAttribute
     {
-    public:
-        enum class VertexAttribute
-        {
-            POSITION, NORMAL, COLOR, UV, TANGENT
-        };
-
-        struct Vertex
-        {
-            glm::vec3 position;
-            glm::vec3 normal;
-            glm::vec4 color;
-            glm::vec2 uv;
-            glm::vec4 tangent;  // w component is -1 or 1 and indicates handedness of the tangent basis
-
-            static VkVertexInputBindingDescription getBindingDescription()
-            {
-                VkVertexInputBindingDescription bindingDescription{};
-                bindingDescription.binding = 0;
-                bindingDescription.stride = sizeof(Vertex);
-                bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-                return bindingDescription;
-            }
-
-            static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions();
-
-            bool operator==(const Vertex &other) const
-            {
-                return position == other.position && color == other.color && uv == other.uv &&
-                       normal == other.normal && tangent == other.tangent;
-            }
-        };
-
-        class Builder
-        {
-        public:
-            std::vector<Vertex> vertices{};
-            std::vector<uint32_t> indices{};
-
-            void loadModel(std::string filepath);
-        };
-
-        VksModel(VksDevice &device, Builder &builder);
-
-        ~VksModel()
-        { cleanup(); }
-
-        VksModel(const VksModel &) = delete;
-
-        void operator=(const VksModel &) = delete;
-
-        void draw(VkCommandBuffer commandBuffer);
-
-        void bind(VkCommandBuffer commandBuffer);
-
-        void swapChainReset()
-        {};
-
-        static std::unique_ptr<VksModel> loadModelFromFile(VksDevice &device, std::string filepath);
-
-    private:
-        VksDevice &device_;
-
-        VkBuffer vertexBuffer_;
-        VkDeviceMemory vertexBufferMemory_;
-        uint32_t vertexCount_;
-
-        VkBuffer indexBuffer_;
-        VkDeviceMemory indexBufferMemory_;
-        uint32_t indexCount_;
-
-        void createVertexBuffer(Builder &builder);
-
-        void createIndexBuffer(Builder &builder);
-
-        void cleanup();
+        POSITION
     };
+
+    struct Vertex
+    {
+        glm::vec2 position;
+        glm::vec3 color;
+        //            glm::vec4 color;
+        //            glm::vec2 uv;
+        //            glm::vec4 tangent;  // w component is -1 or 1 and indicates handedness of the tangent basis
+
+        static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
+        {
+            std::vector<VkVertexInputBindingDescription> bindingDescriptions(1);
+            bindingDescriptions[0].binding = 0;
+            bindingDescriptions[0].stride = sizeof(Vertex); // Bytes to advance per vertex
+            bindingDescriptions[0].inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+            return bindingDescriptions;
+        }
+
+        static std::vector<VkVertexInputAttributeDescription> getAttributeDescriptions()
+        {
+            std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
+            attributeDescriptions[0].binding = 0;
+            attributeDescriptions[0].location = 0; // Location in the shader
+            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].offset = offsetof(Vertex, position);
+
+            attributeDescriptions[1].binding = 0;
+            attributeDescriptions[1].location = 1; // Location in the shader
+            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, color);
+            return attributeDescriptions;
+        }
+
+    };
+
+    VksModel(VksDevice &device, std::vector<Vertex> &vertices);
+
+    ~VksModel()
+    { cleanup(); }
+
+    //        VksModel(const VksModel &) = delete;
+    //
+    //        void operator=(const VksModel &) = delete;
+    //
+    //        void draw(VkCommandBuffer commandBuffer);
+    //
+    //        void bind(VkCommandBuffer commandBuffer);
+
+    //        void swapChainReset()
+    //        {};
+
+    void bind(VkCommandBuffer commandBuffer);
+    void draw(VkCommandBuffer commandBuffer);
+
+    //        static std::unique_ptr<VksModel> loadModelFromFile(VksDevice &_device, std::string filepath);
+
+private:
+    VksDevice &_device;
+
+    VkBuffer _vertexBuffer;
+    VkDeviceMemory _vertexBufferMemory;
+    uint32_t _vertexCount;
+
+    VkBuffer _indexBuffer;
+    VkDeviceMemory _indexBufferMemory;
+    uint32_t indexCount;
+
+    //        void createVertexBuffer(Builder &builder);
+    void createVertexBuffer(const std::vector<Vertex> &vertices);
+    void createIndexBuffer(const std::vector<Vertex> &vertices);
+
+    //void createIndexBuffer(Builder &builder);
+    //void createIndexBuffer(const std::
+
+    void cleanup();
+};
 }  // namespace lve
 
 

@@ -216,7 +216,7 @@ namespace vks
 
     void VksDevice::pickPhysicalDevice()
     {
-        spdlog::get("vulkan")->debug("Select physical device..");
+        spdlog::get("vulkan")->debug("Select physical _device..");
 
         uint32_t deviceCount = 0;
         vkEnumeratePhysicalDevices(instance, &deviceCount, nullptr);
@@ -317,10 +317,10 @@ namespace vks
 
     // ####################################### 4. Logical Device #####################################
 
-    // Instantiate logical device and graphics queue
+    // Instantiate logical _device and graphics queue
     void VksDevice::createLogicalDevice()
     {
-        spdlog::get("vulkan")->debug("Creating logical device..");
+        spdlog::get("vulkan")->debug("Creating logical _device..");
 
         QueueFamilyIndices indices = findQueueFamilies(physicalDevice);
 
@@ -363,7 +363,7 @@ namespace vks
 
         if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &device) != VK_SUCCESS)
         {
-            throw std::runtime_error("failed to create logical device!");
+            throw std::runtime_error("failed to create logical _device!");
         }
 
         vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
@@ -437,6 +437,14 @@ namespace vks
         throw std::runtime_error("failed to find suitable memory type!");
     }
 
+    /**
+     * Initialize a buffer in the _device's memory
+     * @param size, buffer length in bytes
+     * @param usage
+     * @param properties
+     * @param buffer, reference to the buffer
+     * @param bufferMemory, reference to the buffer memory
+     */
     void VksDevice::createBuffer(
             VkDeviceSize size,
             VkBufferUsageFlags usage,
@@ -464,7 +472,7 @@ namespace vks
         allocInfo.memoryTypeIndex = findMemoryType(memRequirements.memoryTypeBits, properties);
 
         // TODO there is a maximum number of memory allocations
-        // maxMemoryAllocationCount for a physical device. Should create a custom
+        // maxMemoryAllocationCount for a physical _device. Should create a custom
         // allocator that batches together a large number of objects at once. See
         // https://github.com/GPUOpen-LibrariesAndSDKs/VulkanMemoryAllocator
         if (vkAllocateMemory(device, &allocInfo, nullptr, &bufferMemory) != VK_SUCCESS)
@@ -475,7 +483,11 @@ namespace vks
         vkBindBufferMemory(device, buffer, bufferMemory, 0);
     }
 
-    VkCommandBuffer VksDevice::beginSingleTimeCommands()
+    /**
+     * Create a new command buffer to begin rendering to
+     * @return Newly bound commandbuffer
+     */
+    VkCommandBuffer VksDevice::beginCommandBuffer()
     {
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -494,7 +506,11 @@ namespace vks
         return commandBuffer;
     }
 
-    void VksDevice::endSingleTimeCommands(VkCommandBuffer commandBuffer)
+    /**
+     * Finish rendering to a commandbuffer
+     * @param commandBuffer
+     */
+    void VksDevice::endCommandBuffer(VkCommandBuffer commandBuffer)
     {
         vkEndCommandBuffer(commandBuffer);
 
@@ -511,7 +527,7 @@ namespace vks
 
     void VksDevice::copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size)
     {
-        VkCommandBuffer commandBuffer = beginSingleTimeCommands();
+        VkCommandBuffer commandBuffer = beginCommandBuffer();
 
         VkBufferCopy copyRegion{};
         copyRegion.srcOffset = 0;  // Optional
@@ -519,7 +535,7 @@ namespace vks
         copyRegion.size = size;
         vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
 
-        endSingleTimeCommands(commandBuffer);
+        endCommandBuffer(commandBuffer);
     }
 
     VkInstance VksDevice::getInstance()
