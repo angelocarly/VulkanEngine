@@ -7,10 +7,8 @@ project(VulkanEngine VERSION 0.1.0)
 # Source files
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 set(LIB_DIR "${CMAKE_CURRENT_SOURCE_DIR}/lib")
-file(GLOB_RECURSE SOURCE_FILES
-        "src/*"
-        )
-set(SOURCES ${SOURCE_FILES})
+file(GLOB_RECURSE SOURCE_FILES "src/*" "src/*.cpp")
+set(SOURCES ${SOURCE_FILES} )
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
@@ -58,13 +56,26 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 ### External dependencies
 
+# Catch
+find_package(Catch2 REQUIRED)
+file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/core/*" "src/vks/*" )
+add_executable(tests ${TEST_FILES})
+set_property(TARGET tests PROPERTY CXX_STANDARD 17)
+target_link_libraries(tests PRIVATE Catch2::Catch2 )
+include(CTest)
+enable_testing()
+include(Catch)
+#catch_discover_tests(${PROJECT_NAME})
+
 # Vulkan
 find_package(Vulkan REQUIRED)
-target_link_libraries(VulkanEngine Vulkan::Vulkan)
+target_link_libraries(VulkanEngine PRIVATE Vulkan::Vulkan)
+target_link_libraries(tests PRIVATE Vulkan::Vulkan)
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
+target_link_libraries(tests PRIVATE glfw)
 #set(GLFW_DIR "${LIB_DIR}/glfw")
 #set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
 #set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
@@ -80,7 +91,7 @@ set(GLAD_DIR "${LIB_DIR}/glad")
 add_library("glad" "${GLAD_DIR}/src/glad.c")
 target_include_directories("glad" PRIVATE "${GLAD_DIR}/include")
 target_include_directories(${PROJECT_NAME} PRIVATE "${GLAD_DIR}/include")
-target_link_libraries(${PROJECT_NAME} "glad" "${CMAKE_DL_LIBS}")
+target_link_libraries(${PROJECT_NAME} PRIVATE "glad" "${CMAKE_DL_LIBS}")
 
 # glm
 find_package(glm REQUIRED)
@@ -103,4 +114,5 @@ include_directories(${STB_DIR})
 
 # spdlog
 find_package(spdlog REQUIRED)
-target_link_libraries(${PROJECT_NAME} spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
+target_link_libraries(tests PRIVATE spdlog::spdlog)

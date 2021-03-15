@@ -13,11 +13,14 @@ This is my try at learning C++ and Vulkan at the same time. Do not expect much f
   - [ ] Add model loading
   - [ ] Add push constants
   - [ ] Add texture mapping
+  - [ ] Add framebuffer utilities
   - [ ] Use initializers to clean up vulkan code
+  - [ ] Load shaders dynamically
 - [ ] Add logging library (spdlog)
   - [x] ~~Log basic vulkan setup~~
   - [ ] Log advanced vulkan status
-  - [ ] Log vulkan validation errors cleanly
+- [ ] Game logic
+  - [ ] Add camera utilities
 - [ ]  Refactoring
   - [ ] Empty out app.hpp
   - [ ] Remove unused code

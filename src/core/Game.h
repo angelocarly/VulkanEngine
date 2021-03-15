@@ -9,7 +9,7 @@
 #include <list>
 #include <vector>
 #include <boost/algorithm/string.hpp>
-
+#include "../vks/vks_input.h"
 
 class Game
 {
@@ -89,6 +89,7 @@ public:
     }
 
 private:
+    VksInput inputHandler();
 };
 
 #endif //VULKANENGINE_GAME_H

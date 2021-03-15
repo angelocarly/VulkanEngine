@@ -41,7 +41,7 @@ public:
 
     struct Vertex
     {
-        glm::vec2 position;
+        glm::vec3 position;
         glm::vec3 color;
         //            glm::vec4 color;
         //            glm::vec2 uv;
@@ -61,7 +61,7 @@ public:
             std::vector<VkVertexInputAttributeDescription> attributeDescriptions(2);
             attributeDescriptions[0].binding = 0;
             attributeDescriptions[0].location = 0; // Location in the shader
-            attributeDescriptions[0].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
             attributeDescriptions[0].offset = offsetof(Vertex, position);
 
             attributeDescriptions[1].binding = 0;

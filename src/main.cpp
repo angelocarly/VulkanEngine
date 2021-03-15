@@ -7,7 +7,6 @@
 #include <spdlog/sinks/stdout_color_sinks.h>
 #include "app.hpp"
 
-
 void setup_logging();
 
 int main()
@@ -32,11 +31,4 @@ void setup_logging()
 {
     spdlog::set_level(spdlog::level::debug);
     spdlog::stdout_color_mt("vulkan");
-    // create color multi threaded logger
-//    auto console = spdlog::stdout_color_mt("console");
-//    auto err_logger = spdlog::stderr_color_mt("stderr");
-//    spdlog::get("console");
-//    c->info("loggers can be retrieved from a global registry using the spdlog::get(logger_name)");
-//    spdlog::get("console")->
-//    console->
 }
