@@ -1,18 +1,13 @@
 #include <vulkan/vulkan.h>
 #include <stdexcept>
-#include "vks_device.h"
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <set>
 #include <cstring>
 #include <iostream>
 #include <spdlog/spdlog.h>
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
+#include "vks_window.h"
+#include "vks_device.h"
 
 namespace vks
 {
@@ -23,14 +18,16 @@ namespace vks
             void *pUserData)
     {
 
-        spdlog::get("vulkan")->warn("VALIDATION: {}" , pCallbackData->pMessage);
+        spdlog::get("vulkan")->warn("VALIDATION: {}", pCallbackData->pMessage);
 
         return VK_FALSE;
     }
 
     // ########################################## Instancing ##################################################
 
-    VksDevice::VksDevice(VksWindow &window) : window(window)
+    VksDevice::VksDevice(VksWindow &window, bool validationLayersEnabled)
+            : window(window),
+              validationLayersEnabled(validationLayersEnabled)
     {
         createInstance();
         setupDebugMessenger();
@@ -46,7 +43,7 @@ namespace vks
 
         vkDestroyDevice(device, nullptr);
 
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
         }
@@ -59,7 +56,7 @@ namespace vks
     {
         spdlog::get("vulkan")->debug("Creating instance..");
 
-        if (enableValidationLayers && !checkValidationLayerSupport())
+        if (validationLayersEnabled && !checkValidationLayerSupport())
         {
             throw std::runtime_error("validation layers requested, but not available!");
         }
@@ -81,7 +78,7 @@ namespace vks
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -107,7 +104,7 @@ namespace vks
 
     void VksDevice::setupDebugMessenger()
     {
-        if (!enableValidationLayers) return;
+        if (!validationLayersEnabled) return;
 
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
@@ -196,7 +193,7 @@ namespace vks
 
         std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
@@ -352,7 +349,7 @@ namespace vks
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();

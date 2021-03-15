@@ -7,8 +7,9 @@ layout(location = 0) in vec3 fragColor;
 
 
 
-void main() {
+void main()
+{
 
-
-    outColor = vec4(fragColor, 0.1);
+    outColor = vec4(fragColor, 0);
+//    outColor = vec4(1.0, 1.0, 0.0, 0.1);
 }
