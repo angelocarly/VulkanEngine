@@ -30,7 +30,7 @@ namespace vks
     class VksDevice
     {
     public:
-        VksDevice(VksWindow &window);
+        VksDevice(VksWindow &window, bool enableValidationLayers);
 
         ~VksDevice()
         { destroy(); }
@@ -77,6 +77,7 @@ namespace vks
 
         VksWindow &window;
         VkInstance instance;
+        bool validationLayersEnabled;
 
         VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -92,7 +93,8 @@ namespace vks
                 "VK_LAYER_KHRONOS_validation"
         };
         const std::vector<const char *> deviceExtensions = {
-                VK_KHR_SWAPCHAIN_EXTENSION_NAME
+                VK_KHR_SWAPCHAIN_EXTENSION_NAME,
+                VK_KHR_MAINTENANCE1_EXTENSION_NAME
         };
 
         // Instancing

@@ -1,18 +1,13 @@
 #include <vulkan/vulkan.h>
 #include <stdexcept>
-#include "vks_device.h"
 #include <GLFW/glfw3.h>
 #include <vector>
 #include <set>
 #include <cstring>
 #include <iostream>
 #include <spdlog/spdlog.h>
-
-#ifdef NDEBUG
-const bool enableValidationLayers = false;
-#else
-const bool enableValidationLayers = true;
-#endif
+#include "vks_window.h"
+#include "vks_device.h"
 
 namespace vks
 {
@@ -23,14 +18,33 @@ namespace vks
             void *pUserData)
     {
 
-        spdlog::get("vulkan")->warn("VALIDATION: {}" , pCallbackData->pMessage);
+        switch (messageSeverity)
+        {
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+                spdlog::get("vulkan")->debug("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+                spdlog::get("vulkan")->info("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+                spdlog::get("vulkan")->warn("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+                spdlog::get("vulkan")->error("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            default:
+                spdlog::get("vulkan")->debug("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+        }
 
         return VK_FALSE;
     }
 
     // ########################################## Instancing ##################################################
 
-    VksDevice::VksDevice(VksWindow &window) : window(window)
+    VksDevice::VksDevice(VksWindow &window, bool validationLayersEnabled)
+            : window(window),
+              validationLayersEnabled(validationLayersEnabled)
     {
         createInstance();
         setupDebugMessenger();
@@ -46,7 +60,7 @@ namespace vks
 
         vkDestroyDevice(device, nullptr);
 
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             DestroyDebugUtilsMessengerEXT(instance, debugMessenger, nullptr);
         }
@@ -59,7 +73,7 @@ namespace vks
     {
         spdlog::get("vulkan")->debug("Creating instance..");
 
-        if (enableValidationLayers && !checkValidationLayerSupport())
+        if (validationLayersEnabled && !checkValidationLayerSupport())
         {
             throw std::runtime_error("validation layers requested, but not available!");
         }
@@ -81,7 +95,7 @@ namespace vks
         createInfo.ppEnabledExtensionNames = extensions.data();
 
         VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo;
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -107,7 +121,7 @@ namespace vks
 
     void VksDevice::setupDebugMessenger()
     {
-        if (!enableValidationLayers) return;
+        if (!validationLayersEnabled) return;
 
         VkDebugUtilsMessengerCreateInfoEXT createInfo;
         populateDebugMessengerCreateInfo(createInfo);
@@ -196,7 +210,7 @@ namespace vks
 
         std::vector<const char *> extensions(glfwExtensions, glfwExtensions + glfwExtensionCount);
 
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             extensions.push_back(VK_EXT_DEBUG_UTILS_EXTENSION_NAME);
         }
@@ -352,7 +366,7 @@ namespace vks
         createInfo.enabledExtensionCount = static_cast<uint32_t>(deviceExtensions.size());
         createInfo.ppEnabledExtensionNames = deviceExtensions.data();
 
-        if (enableValidationLayers)
+        if (validationLayersEnabled)
         {
             createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
             createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -410,7 +424,7 @@ namespace vks
         VkCommandPoolCreateInfo poolInfo{};
         poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
         poolInfo.queueFamilyIndex = queueFamilyIndices.graphicsFamily.value();
-        poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT; // Often recreate the pool
+        poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT; // Often recreate the pool
 
         if (vkCreateCommandPool(device, &poolInfo, nullptr, &commandPool) != VK_SUCCESS)
         {
