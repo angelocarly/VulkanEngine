@@ -16,8 +16,7 @@ class Camera
 public:
     Camera()
     {
-//        rotatePitch(0.5f);
-//        rotateYaw(1.8f);
+        updateRotation();
     }
 
     void setInputHandler(VksInput *handler)
@@ -31,29 +30,27 @@ public:
 
         glm::vec2 delta = _inputHandler->pollMouseDelta();
 
-        rotatePitch(-delta.y / 100.0f);
-        rotateYaw(-delta.x / 100.0f);
+        rotatePitch(delta.y / 100.0f);
+        rotateYaw(delta.x / 100.0f);
 
         if (_inputHandler->isKeyDown(GLFW_KEY_A))
         {
-            _position.x -= 0.01f;
+            _position -= _right /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_D))
         {
-            _position.x += 0.01f;
+            _position += _right /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_W))
         {
-//            _position.z += 0.01f;
-            _position += calculateLook() /= 100;
+            _position += _forward /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_S))
         {
-//            _position.z -= 0.01f;
-            _position -= calculateLook() /= 100 ;
+            _position -= _forward /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_SPACE))
@@ -87,16 +84,16 @@ public:
         glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f /
                                                                (float) 600.0f, 0.1f,
                                           10.0f);
+
         return proj;
     }
 
-    void updateRotation() {
-        _rotation = _qYaw * _qPitch * _qRoll;
-    }
-
-    glm::vec3 calculateLook()
+    void updateRotation()
     {
-        return glm::normalize(_rotation * glm::vec3(0, 0, 1));
+        _rotation = _qYaw * _qPitch * _qRoll;
+        _forward = glm::normalize(_rotation * glm::vec3(0, 0, 1));
+        _right = glm::normalize(glm::cross(UP, _forward));
+        _up = glm::normalize(glm::cross(_forward, _right));
     }
 
     /**
@@ -126,11 +123,29 @@ public:
         return _position;
     }
 
+    glm::vec3 getForward()
+    {
+        return _forward;
+    }
+
+    glm::vec3 getRight()
+    {
+        return _right;
+    }
+
+    glm::vec3 getUp()
+    {
+        return _up;
+    }
+
 private:
     VksInput *_inputHandler = nullptr;
 
+    const glm::vec3 UP = glm::vec3(0, 1, 0);
     glm::vec3 _position = glm::vec3();
-    glm::vec3 _look = glm::vec3();
+    glm::vec3 _forward = glm::vec3();
+    glm::vec3 _right = glm::vec3();
+    glm::vec3 _up = glm::vec3();
     glm::quat _qPitch = glm::angleAxis(0.0f, glm::vec3(1, 0, 0));
     glm::quat _qYaw = glm::angleAxis(0.0f, glm::vec3(0, 1, 0));
     glm::quat _qRoll = glm::angleAxis(0.0f, glm::vec3(0, 0, 1));

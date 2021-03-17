@@ -18,7 +18,24 @@ namespace vks
             void *pUserData)
     {
 
-        spdlog::get("vulkan")->warn("VALIDATION: {}", pCallbackData->pMessage);
+        switch (messageSeverity)
+        {
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT:
+                spdlog::get("vulkan")->debug("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT:
+                spdlog::get("vulkan")->info("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT:
+                spdlog::get("vulkan")->warn("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            case VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT:
+                spdlog::get("vulkan")->error("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+            default:
+                spdlog::get("vulkan")->debug("VALIDATION: {}", pCallbackData->pMessage);
+                break;
+        }
 
         return VK_FALSE;
     }

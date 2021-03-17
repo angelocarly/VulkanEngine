@@ -43,7 +43,7 @@
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
-const bool VALIDATION_LAYERS_ENABLED = true;
+const bool VALIDATION_LAYERS_ENABLED = false;
 
 namespace vks
 {
@@ -284,11 +284,12 @@ namespace vks
             ImGui::SliderFloat("x", &gui_x, -1, 1, "%.2f");
             ImGui::SliderFloat("y", &gui_y, -1, 1, "%.2f");
             ImGui::SliderFloat("z", &gui_z, -1, 1, "%.2f");
-            ImGui::Text("Camera: %f %f %f", camera.getPosition().x,
+            ImGui::Text("pos: %f %f %f", camera.getPosition().x,
                         camera.getPosition().y, camera.getPosition().z);
-            glm::vec3 look = camera.calculateLook();
-            ImGui::Text("Camera: %f %f %f", look.x,
-                        look.y, look.z);
+            glm::vec3 look = camera.getForward();
+            ImGui::Text("forward: %f %f %f", look.x, look.y, look.z);
+            glm::vec3 right = camera.getRight();
+            ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
             //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
             //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
             //            bool inputImage = ImGui::InputText("Path to Image", &imageName);
@@ -598,6 +599,7 @@ namespace vks
             ubo.model = camera.calculateModelMatrix();
             ubo.view = camera.calculateViewMatrix();
             ubo.proj = camera.calculateProjectionMatrix();
+            ubo.proj[1][1] *= -1;
 
             ubo.view = glm::inverse(ubo.view);
 
