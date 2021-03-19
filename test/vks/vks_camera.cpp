@@ -31,7 +31,7 @@ TEST_CASE("Camera pitch rotation")
     glm::vec3 look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("Vector " + glm::to_string(expected) + " is not equal to " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     camera.rotatePitch(M_PI / 2);
 
@@ -39,7 +39,7 @@ TEST_CASE("Camera pitch rotation")
     look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     camera.rotatePitch(M_PI / 2);
 
@@ -47,7 +47,7 @@ TEST_CASE("Camera pitch rotation")
     look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     camera.rotatePitch(M_PI / 2);
 
@@ -55,7 +55,7 @@ TEST_CASE("Camera pitch rotation")
     look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 }
 
 TEST_CASE("Camera yaw rotation")
@@ -71,7 +71,7 @@ TEST_CASE("Camera yaw rotation")
     glm::vec3 look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     camera.rotateYaw(M_PI / 2);
 
@@ -79,7 +79,7 @@ TEST_CASE("Camera yaw rotation")
     look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     camera.rotateYaw(M_PI / 2);
 
@@ -87,7 +87,7 @@ TEST_CASE("Camera yaw rotation")
     look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     camera.rotateYaw(M_PI / 2);
 
@@ -95,7 +95,7 @@ TEST_CASE("Camera yaw rotation")
     look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 }
 TEST_CASE("Camera look vector forward")
 {
@@ -109,21 +109,21 @@ TEST_CASE("Camera look vector forward")
     glm::vec3 look = camera.getForward();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     // Right
     expected = glm::vec3(1.0f, 0.0f, 0.0f);
     look = camera.getRight();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
     // Up
     expected = glm::vec3(0.0f, 1.0f, 0.0f);
     look = camera.getUp();
     if(!isVecEqual(expected, look, 0.01f)) {
         FAIL("expected " + glm::to_string(expected) + ", actual " + glm::to_string(look));
-    }
+    } else SUCCEED();
 
 }
 

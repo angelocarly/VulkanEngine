@@ -38,9 +38,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
-#include <core/Camera.h>
-#include <core/game.hpp>
-#include "app.hpp"
+#include "Camera.h"
 
 const uint32_t WIDTH = 800;
 const uint32_t HEIGHT = 600;
@@ -49,7 +47,7 @@ const bool VSYNC = false;
 
 using namespace vks;
 
-class App
+class Game
 {
 public:
 
@@ -68,9 +66,8 @@ public:
         mainLoop();
     }
 
-    ~App()
+    ~Game()
     {
-
 
         vkDestroyDescriptorSetLayout(device.getVkDevice(), descriptorSetLayout, nullptr);
         //            vkDestroyCommandPool(_device.getVkDevice(), command)
@@ -144,9 +141,6 @@ private:
      */
     void mainLoop()
     {
-
-        Game game;
-
 
         spdlog::info("Game initialized");
 

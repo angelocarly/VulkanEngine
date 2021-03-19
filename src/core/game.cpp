@@ -2,9 +2,9 @@
 // Created by magnias on 28/02/2021.
 //
 
-#include "app.hpp"
+#include "game.hpp"
 
-void App::loadModel()
+void Game::loadModel()
 {
     std::vector<VksModel::Vertex> vertices{
             {{-1.0f, 0.0f, -1.0f}, {1.0f, 0.0f, 0.0f}},
