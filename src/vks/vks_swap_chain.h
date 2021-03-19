@@ -11,7 +11,7 @@ namespace vks
     class VksSwapChain
     {
     public:
-        VksSwapChain(VksWindow &window, VksDevice &device);
+        VksSwapChain(VksWindow &window, VksDevice &device, bool vsync);
 
         ~VksSwapChain()
         { destroy(); }
@@ -51,6 +51,8 @@ namespace vks
     private:
         VksWindow &window;
         VksDevice &device;
+
+        bool vsync;
 
         VkSwapchainKHR swapChain;
         std::vector<VkImage> swapChainImages;

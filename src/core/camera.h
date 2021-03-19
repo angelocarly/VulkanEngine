@@ -7,7 +7,6 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
-#include "Game.h"
 #include "../vks/vks_input.h"
 
 class Camera
@@ -24,43 +23,43 @@ public:
         _inputHandler = handler;
     }
 
-    void update()
+    void update(float delta)
     {
         if (_inputHandler == nullptr) return;
 
-        glm::vec2 delta = _inputHandler->pollMouseDelta();
+        glm::vec2 deltaMouse = _inputHandler->pollMouseDelta();
 
-        rotatePitch(delta.y / 100.0f);
-        rotateYaw(delta.x / 100.0f);
+        rotatePitch(deltaMouse.y / 100.0f);
+        rotateYaw(deltaMouse.x / 100.0f);
 
         if (_inputHandler->isKeyDown(GLFW_KEY_A))
         {
-            _position -= _right /= 100;
+            _position -= _right * delta /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_D))
         {
-            _position += _right /= 100;
+            _position += _right * delta /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_W))
         {
-            _position += _forward /= 100;
+            _position += _forward * delta /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_S))
         {
-            _position -= _forward /= 100;
+            _position -= _forward * delta /= 100;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_SPACE))
         {
-            _position.y += 0.01f;
+            _position.y += 0.01f * delta;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_LEFT_CONTROL))
         {
-            _position.y -= 0.01f;
+            _position.y -= 0.01f * delta;
         }
 
     }
@@ -81,9 +80,11 @@ public:
 
     glm::mat4 calculateProjectionMatrix()
     {
-        glm::mat4 proj = glm::perspective(glm::radians(45.0f), 800.0f /
-                                                               (float) 600.0f, 0.1f,
-                                          10.0f);
+        glm::mat4 proj = glm::perspective(
+                glm::radians(90.0f),
+                800.0f / (float) 600.0f,
+                0.1f, 10.0f
+        );
 
         return proj;
     }

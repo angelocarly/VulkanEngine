@@ -13,7 +13,7 @@ int main()
 {
 
     setup_logging();
-    vks::App app;
+    App app;
 
     try
     {
