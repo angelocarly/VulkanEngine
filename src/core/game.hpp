@@ -40,10 +40,10 @@
 #include <chrono>
 #include "camera.h"
 
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+const uint32_t WIDTH = 1600;
+const uint32_t HEIGHT = 900;
 const bool VALIDATION_LAYERS_ENABLED = false;
-const bool VSYNC = false;
+const bool VSYNC = true;
 
 using namespace vks;
 
@@ -71,22 +71,26 @@ public:
 
         handler.init(&window);
         camera.setInputHandler(&handler);
+        handler.swallowMouse();
     }
 
     // Render game and handle input
     void update(float delta)
     {
+        input(delta);
+
         if (!imguiDataAvailable)
         {
             imGuiCreateRenderData();
             imguiDataAvailable = true;
         }
 
-        camera.update(delta);
 
         renderCommandBuffers();
 
         drawFrame();
+
+        handler.syncInputState();
     }
 
     void destroy()
@@ -118,7 +122,6 @@ public:
 
         //            _device.destroy();
     }
-
 
 private:
 
@@ -155,6 +158,27 @@ private:
     };
 
     void loadModel();
+
+    void input(float delta)
+    {
+
+        if(handler.isKeyDown(GLFW_KEY_ESCAPE)) {
+            handler.showMouse();
+        }
+
+        if(handler.isButtonClicked(GLFW_MOUSE_BUTTON_1)) {
+
+            ImGuiIO &io = ImGui::GetIO();
+            if (!io.WantCaptureMouse) {
+                handler.swallowMouse();
+            }
+        }
+
+        if(!handler.isMouseSwallowed()) return;
+
+        camera.update(delta);
+
+    }
 
     /**
      * Handle vulkan error
