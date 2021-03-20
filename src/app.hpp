@@ -80,7 +80,7 @@ private:
         if (newFpsUpdate - lastFpsUpdate >= std::chrono::milliseconds(1000))
         {
             fps = fpsCounter;
-            spdlog::info("Fps: {}", 1000 / deltaTime);
+            spdlog::info("Fps: {}", fps);
             lastFpsUpdate = newFpsUpdate;
             fpsCounter = 0;
         }

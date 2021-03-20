@@ -73,6 +73,28 @@ public:
         camera.setInputHandler(&handler);
     }
 
+    // Render game and handle input
+    void update(float delta)
+    {
+        if (!imguiDataAvailable)
+        {
+            imGuiCreateRenderData();
+            imguiDataAvailable = true;
+        }
+
+        camera.update(delta);
+
+        renderCommandBuffers();
+
+        drawFrame();
+    }
+
+    void destroy()
+    {
+        // Wait until any operation towards the gpu is completed
+        device.waitIdle();
+    }
+
     ~Game()
     {
 
@@ -97,32 +119,12 @@ public:
         //            _device.destroy();
     }
 
-    void update(float delta)
-    {
-        if (!imguiwindowcreated)
-        {
-            imGuiSetupWindow();
-            imguiwindowcreated = true;
-        }
-
-        camera.update(delta);
-
-        renderCommandBuffers();
-
-        drawFrame();
-    }
-
-    void destroy()
-    {
-        // Wait until any operation towards the gpu is completed
-        device.waitIdle();
-    }
-
 
 private:
 
-    // Vulkan properties
     VksWindow &window;
+
+    // Vulkan properties
     VksDevice device = VksDevice(window, VALIDATION_LAYERS_ENABLED);
     VksSwapChain swapChain = VksSwapChain(window, device, VSYNC);
     std::unique_ptr<VksPipeline> pipeline;
@@ -136,13 +138,11 @@ private:
     VksInput handler = VksInput();
     Camera camera;
 
-    bool imguiwindowcreated = false;
-    bool imguirebuildswapchain = true;
+    bool imguiDataAvailable = false;
     std::unique_ptr<VksModel> vksModel;
     VkResult err;
 
     // ImGui
-    int fps = 1;
     float gui_x = 0;
     float gui_y = 0;
     float gui_z = 0;
@@ -183,14 +183,6 @@ private:
         //            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
         //io.Fonts->AddFontFromFileTTF("../../Assets/Fonts/Roboto-Medium.ttf", 16.0f);
 
-        // When viewports are enabled we tweak WindowRounding/WindowBg so platform windows can look identical to regular ones.
-        ImGuiStyle &style = ImGui::GetStyle();
-        //            if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
-        //            {
-        //                style.WindowRounding = 0.0f;
-        //                style.Colors[ImGuiCol_WindowBg].w = 1.0f;
-        //            }
-
         io.DisplaySize = ImVec2(window.getWidth(), window.getHeight());
         io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
 
@@ -222,68 +214,40 @@ private:
     /**
      * Draw an ImGUI GUI window in the commandbuffer
      */
-    void imGuiSetupWindow()
+    void imGuiCreateRenderData()
     {
         ImGuiIO &io = ImGui::GetIO();
-        // Start the Dear ImGui frame
         ImGui_ImplVulkan_NewFrame();
         ImGui_ImplGlfw_NewFrame();
 
         auto WindowSize = ImVec2((float) window.getWidth(), (float) window.getHeight());
         ImGui::SetNextWindowSize(WindowSize, ImGuiCond_::ImGuiCond_FirstUseEver);
         ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_::ImGuiCond_FirstUseEver);
+
         ImGui::NewFrame();
 
-        // render your GUI
         ImGui::Begin("Stats");
-        ImGui::Text("Fps: %d", fps);
-        ImGui::SliderFloat("x", &gui_x, -1, 1, "%.2f");
-        ImGui::SliderFloat("y", &gui_y, -1, 1, "%.2f");
-        ImGui::SliderFloat("z", &gui_z, -1, 1, "%.2f");
-        ImGui::Text("pos: %f %f %f", camera.getPosition().x,
-                    camera.getPosition().y, camera.getPosition().z);
-        glm::vec3 look = camera.getForward();
-        ImGui::Text("forward: %f %f %f", look.x, look.y, look.z);
-        glm::vec3 right = camera.getRight();
-        ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
-        //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
-        //            ImGui::Text(std::to_string(10 * 1000.0).c_str());
-        //            bool inputImage = ImGui::InputText("Path to Image", &imageName);
-        //            bool logoImage = ImGui::InputText("Path to Logo", &logoImageName);
-        //            if (ImGui::Button("Reload")) {
-        //                changeImage = true;
-        //            }
-        //            ImGui::Checkbox("Show OpenCV" );
-        //            ImGui::Checkbox("Flip Image", &flip);
-        //            ImGui::SliderFloat("Size", &sizeMultiplier, 0.0, 10.0, "%.3f", 1.0f);
-        //            ImGui::SliderFloat("Resize Window", &resize, 1.0, 10.0, "%.3f", 1.0f);
-        //            ImGui::SliderFloat("XPos", &xTrans, -1.0, 1.0, "%.3f", 1.0f);
-        //            ImGui::SliderFloat("YPos", &yTrans, -1.0, 1.0, "%.3f", 1.0f);
-        //            ImGui::SliderFloat("Alpha", &alpha, 0.0, 1.0, "%.3f", 1.0f);
-        //            ImGui::SliderFloat("Transparency", &transparency, 0.0, 1.0, "%.3f", 1.0f);
-        //            bool outputImage = ImGui::InputText("Save As (No file type at the end, only the name)", &outputImageName);
-        //            ImGui::ListBox("File format\n(single select)", &fileFormat, listbox_items, 5, 4);
-        //            tempOutImageName = outputImageName + listbox_items[fileFormat];
-        //            if (ImGui::Button("Save")) {
-        //                writeImage = true;
-        //            }
-
+        {
+            ImGui::Text("Fps: %d", 0);
+            ImGui::SliderFloat("x", &gui_x, -1, 1, "%.2f");
+            ImGui::SliderFloat("y", &gui_y, -1, 1, "%.2f");
+            ImGui::SliderFloat("z", &gui_z, -1, 1, "%.2f");
+            ImGui::Text("pos: %f %f %f", camera.getPosition().x,
+                        camera.getPosition().y, camera.getPosition().z);
+            glm::vec3 look = camera.getForward();
+            ImGui::Text("forward: %f %f %f", look.x, look.y, look.z);
+            glm::vec3 right = camera.getRight();
+            ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
+        }
         ImGui::End();
-        // Render dear imgui UI box into our window
-        ImGui::Render();
 
-        // Update and Render additional Platform Windows
-//                        if (io.ConfigFlags ) //& ImGuiConfigFlags_ViewportsEnable)
-//                        {
-        GLFWwindow *backup_current_context = glfwGetCurrentContext();
-        //                ImGui::UpdatePlatformWindows();
-        //                ImGui::RenderPlatformWindowsDefault();
-        glfwMakeContextCurrent(backup_current_context);
-//                        }
+        // Store the created window in memory until it can be rendered
+        ImGui::Render();
     }
 
     /**
-     * Create a pipeline layout in order to pass values to our shaders
+     * Create a pipeline layout
+     * Stores the set of resources that can be used by the pipeline
      */
     void createPipelineLayout()
     {
@@ -303,12 +267,8 @@ private:
 
     }
 
-    /**
-     * Create the actual pipeline
-     */
     void createPipeline()
     {
-        //            pipeline->destroy();
         spdlog::get("vulkan")->debug("Creating pipeline..");
 
         auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(swapChain.getSwapChainExtent().width,
@@ -318,6 +278,9 @@ private:
         pipeline = std::make_unique<VksPipeline>(device, swapChain, pipelineConfig);
     }
 
+    /**
+     * Stores the data that will be accessible to the descriptor set
+     */
     void createDescriptorSetLayout()
     {
         VkDescriptorSetLayoutBinding uboLayoutBinding{};
@@ -362,17 +325,17 @@ private:
     {
         VkDescriptorPoolSize pool_sizes[] =
                 {
-                        {VK_DESCRIPTOR_TYPE_SAMPLER,                1000},
-                        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 1000},
-                        {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,          1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          1000},
-                        {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,   1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,   1000},
-                        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         1000},
-                        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 1000},
-                        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 1000},
-                        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,       1000}
+                        {VK_DESCRIPTOR_TYPE_SAMPLER,                5},
+                        {VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 5},
+                        {VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE,          5},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_IMAGE,          5},
+                        {VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER,   5},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER,   5},
+                        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,         5},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER,         5},
+                        {VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 5},
+                        {VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 5},
+                        {VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,       5}
                 };
 
         VkDescriptorPoolCreateInfo pool_info = {};
@@ -484,7 +447,7 @@ private:
             vksModel->draw(commandBuffers[i]);
 
             // Render imgui data
-            if (imguiwindowcreated)
+            if (imguiDataAvailable)
             {
                 ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffers[i]);
             }
@@ -495,7 +458,7 @@ private:
                 throw std::runtime_error("failed to record command buffer!");
             }
         }
-        imguiwindowcreated = false;
+        imguiDataAvailable = false;
     }
 
     /**
