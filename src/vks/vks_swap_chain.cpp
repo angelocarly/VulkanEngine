@@ -7,8 +7,8 @@
 
 namespace vks
 {
-    VksSwapChain::VksSwapChain(VksWindow &window, VksDevice &device)
-            : window(window), device(device)
+    VksSwapChain::VksSwapChain(VksWindow &window, VksDevice &device, bool vsync)
+            : window(window), device(device), vsync(vsync)
     {
         init();
     }
@@ -148,7 +148,7 @@ namespace vks
 
     VkPresentModeKHR VksSwapChain::chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes)
     {
-        return VK_PRESENT_MODE_IMMEDIATE_KHR;
+        if (!vsync) return VK_PRESENT_MODE_IMMEDIATE_KHR;
 
         for (const auto &availablePresentMode : availablePresentModes)
         {
