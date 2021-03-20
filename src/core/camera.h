@@ -27,39 +27,39 @@ public:
     {
         if (_inputHandler == nullptr) return;
 
-        glm::vec2 deltaMouse = _inputHandler->pollMouseDelta();
+        glm::vec2 deltaMouse = _inputHandler->getMouseDelta() /= 1000;
 
-        rotatePitch(deltaMouse.y / 100.0f);
-        rotateYaw(deltaMouse.x / 100.0f);
+        rotatePitch(deltaMouse.y * sensitivity);
+        rotateYaw(deltaMouse.x * sensitivity);
 
         if (_inputHandler->isKeyDown(GLFW_KEY_A))
         {
-            _position -= _right * delta /= 100;
+            _position -= _right * delta * speed;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_D))
         {
-            _position += _right * delta /= 100;
+            _position += _right * delta * speed;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_W))
         {
-            _position += _forward * delta /= 100;
+            _position += _forward * delta * speed;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_S))
         {
-            _position -= _forward * delta /= 100;
+            _position -= _forward * delta * speed;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_SPACE))
         {
-            _position.y += 0.01f * delta;
+            _position.y += speed * delta;
         }
 
         if (_inputHandler->isKeyDown(GLFW_KEY_LEFT_CONTROL))
         {
-            _position.y -= 0.01f * delta;
+            _position.y -= speed * delta;
         }
 
     }
@@ -156,6 +156,10 @@ private:
     glm::mat4 _mView;
     glm::mat4 _mProj;
 
+    // Camera speed in units per second
+    float speed = 2.0f;
+    // Camera sensitivity in ?
+    float sensitivity = 4.0f;
 };
 
 #endif //VULKANENGINE_CAMERA_H
