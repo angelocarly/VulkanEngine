@@ -57,14 +57,14 @@ private:
     }
 
     /**
-     * Record the duration of the last frame in milliseconds
+     * Record the duration of the last frame in seconds
      */
     void updateDeltaTime()
     {
         currentFrameTime = std::chrono::high_resolution_clock::now();
         deltaTime =
                 std::chrono::duration_cast<std::chrono::microseconds>(currentFrameTime - lastFrameTime).count() /
-                1000.0f;
+                1000000.0f;
         lastFrameTime = currentFrameTime;
     }
 
