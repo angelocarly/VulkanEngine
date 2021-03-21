@@ -157,6 +157,10 @@ private:
         glm::mat4 proj;
     };
 
+    struct MeshPushConstants {
+        glm::mat4 transform;
+    };
+
     void loadModel();
 
     void input(float delta)
@@ -277,12 +281,17 @@ private:
     {
         spdlog::get("vulkan")->debug("Creating pipeline layout..");
 
+        VkPushConstantRange push_constant;
+        push_constant.offset = 0;
+        push_constant.size = sizeof(MeshPushConstants);
+        push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+
         VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
         pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
         pipelineLayoutInfo.setLayoutCount = 1;
         pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-        pipelineLayoutInfo.pushConstantRangeCount = 0;
-        pipelineLayoutInfo.pPushConstantRanges = nullptr;
+        pipelineLayoutInfo.pushConstantRangeCount = 1;
+        pipelineLayoutInfo.pPushConstantRanges = &push_constant;
         if (vkCreatePipelineLayout(device.getVkDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
             VK_SUCCESS)
         {
@@ -465,6 +474,10 @@ private:
 
             vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                                     &descriptorSets[i], 0, nullptr);
+
+            MeshPushConstants constants;
+            constants.transform = glm::translate(glm::mat4(1), glm::vec3(gui_x, gui_y, gui_z));
+            vkCmdPushConstants(commandBuffers[i], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
 
             pipeline->bind(commandBuffers[i]);
             vksModel->bind(commandBuffers[i]);

@@ -132,10 +132,8 @@ namespace vks
 
         configInfo.viewport.x = 0.0f;
         configInfo.viewport.y = 0.0f;
-//        configInfo.viewport.y = static_cast<float>(height);
         configInfo.viewport.width = static_cast<float>(width);
         configInfo.viewport.height = static_cast<float>(height);
-//        configInfo.viewport.height = static_cast<float>(-height);
         configInfo.viewport.minDepth = 0.0f;
         configInfo.viewport.maxDepth = 1.0f;
 
