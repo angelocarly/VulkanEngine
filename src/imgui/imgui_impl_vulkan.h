@@ -1,10 +1,3 @@
-//
-// Created by magnias on 07/02/2021.
-//
-
-#ifndef VULKANENGINE_IMGUI_IMPL_VULKAN_H
-#define VULKANENGINE_IMGUI_IMPL_VULKAN_H
-
 // dear imgui: Renderer Backend for Vulkan
 // This needs to be used along with a Platform Backend (e.g. GLFW, SDL, Win32, custom..)
 
@@ -153,5 +146,3 @@ struct ImGui_ImplVulkanH_Window
     }
 };
 
-
-#endif //VULKANENGINE_IMGUI_IMPL_VULKAN_H

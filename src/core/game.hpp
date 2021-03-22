@@ -42,7 +42,7 @@
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 900;
-const bool VALIDATION_LAYERS_ENABLED = false;
+const bool VALIDATION_LAYERS_ENABLED = true;
 const bool VSYNC = true;
 
 using namespace vks;
