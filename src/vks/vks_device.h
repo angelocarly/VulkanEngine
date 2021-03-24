@@ -33,7 +33,7 @@ namespace vks
         VksDevice(VksWindow &window, bool enableValidationLayers);
 
         ~VksDevice()
-        { destroy(); }
+        {}
 
         void destroy();
 

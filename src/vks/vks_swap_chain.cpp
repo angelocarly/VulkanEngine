@@ -7,23 +7,40 @@
 
 namespace vks
 {
-    VksSwapChain::VksSwapChain(VksWindow &window, VksDevice &device, bool vsync)
-            : window(window), device(device), vsync(vsync)
+    VksSwapChain::VksSwapChain(VksDevice &device, VkExtent2D extent, bool vsync)
+            : device(device), vsync(vsync)
     {
-        init();
+        init(extent);
     }
 
-    void VksSwapChain::destroy()
+    VksSwapChain::VksSwapChain(VksDevice &device, VkExtent2D extent, bool vsync, std::shared_ptr<VksSwapChain> previous)
+            : device(device), vsync(vsync), oldSwapChain(previous)
     {
-        cleanupSwapChain();
+        init(extent);
+        oldSwapChain = nullptr;
+    }
 
-//        for (int i = 0; i < depthImages.size(); i++) {
-//            vkDestroyImageView(_device.getVkDevice(), depthImageViews[i], nullptr);
-//            vkDestroyImage(_device.getVkDevice(), depthImages[i], nullptr);
-//            vkFreeMemory(_device.getVkDevice(), depthImageMemorys[i], nullptr);
-//        }
+    VksSwapChain::~VksSwapChain()
+    {
+        for (auto imageView : swapChainImageViews)
+        {
+            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
+        }
+        swapChainImageViews.clear();
 
-        // cleanup synchronization objects
+        if (swapChain != nullptr)
+        {
+            vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
+            swapChain = nullptr;
+        }
+
+        for (auto framebuffer : swapChainFramebuffers)
+        {
+            vkDestroyFramebuffer(device.getVkDevice(), framebuffer, nullptr);
+        }
+
+        vkDestroyRenderPass(device.getVkDevice(), renderPass, nullptr);
+
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++)
         {
             vkDestroySemaphore(device.getVkDevice(), renderFinishedSemaphores[i], nullptr);
@@ -32,22 +49,22 @@ namespace vks
         }
     }
 
-    void VksSwapChain::init()
+    void VksSwapChain::init(VkExtent2D baseExtent)
     {
-        createSwapChain();
+        createSwapChain(baseExtent);
         createImageViews();
         createRenderPass();
         createFramebuffers();
         createSyncObject();
     }
 
-    void VksSwapChain::createSwapChain()
+    void VksSwapChain::createSwapChain(VkExtent2D baseExtent)
     {
         SwapChainSupportDetails swapChainSupport = device.getSwapChainSupport();
 
         VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
         VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-        VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities);
+        VkExtent2D extent = chooseSwapExtent(swapChainSupport.capabilities, baseExtent);
 
         uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
         if (swapChainSupport.capabilities.maxImageCount > 0 &&
@@ -85,7 +102,8 @@ namespace vks
         createInfo.presentMode = presentMode;
         createInfo.clipped = VK_TRUE;
 
-        createInfo.oldSwapchain = VK_NULL_HANDLE;
+        // Pass a previous swapchain to reuse it's memory instead of creating a new one
+        createInfo.oldSwapchain = oldSwapChain == nullptr ? VK_NULL_HANDLE : oldSwapChain->swapChain;
 
         VkResult swap = vkCreateSwapchainKHR(device.getVkDevice(), &createInfo, nullptr, &swapChain);
         if ( swap != VK_SUCCESS)
@@ -99,8 +117,6 @@ namespace vks
 
         swapChainImageFormat = surfaceFormat.format;
         swapChainExtent = extent;
-
-
     }
 
     void VksSwapChain::createImageViews()
@@ -161,7 +177,7 @@ namespace vks
         return VK_PRESENT_MODE_FIFO_KHR;
     }
 
-    VkExtent2D VksSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities)
+    VkExtent2D VksSwapChain::chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, VkExtent2D baseExtend)
     {
 
         if (capabilities.currentExtent.width != UINT32_MAX)
@@ -169,12 +185,9 @@ namespace vks
             return capabilities.currentExtent;
         } else
         {
-            int width = window.getWidth();
-            int height = window.getHeight();
-
             VkExtent2D actualExtent = {
-                    static_cast<uint32_t>(width),
-                    static_cast<uint32_t>(height)
+                    static_cast<uint32_t>(baseExtend.width),
+                    static_cast<uint32_t>(baseExtend.height)
             };
 
             actualExtent.width = std::max(capabilities.minImageExtent.width,
@@ -377,56 +390,27 @@ namespace vks
         }
     }
 
-    void VksSwapChain::cleanupSwapChain()
-    {
-        for (auto imageView : swapChainImageViews)
-        {
-            vkDestroyImageView(device.getVkDevice(), imageView, nullptr);
-        }
-        swapChainImageViews.clear();
-
-        if (swapChain != nullptr)
-        {
-            vkDestroySwapchainKHR(device.getVkDevice(), swapChain, nullptr);
-            swapChain = nullptr;
-        }
-
-//        for (int i = 0; i < depthImages.size(); i++) {
-//            vkDestroyImageView(_device.getVkDevice(), depthImageViews[i], nullptr);
-//            vkDestroyImage(_device.getVkDevice(), depthImages[i], nullptr);
-//            vkFreeMemory(_device.getVkDevice(), depthImageMemorys[i], nullptr);
+//    void VksSwapChain::recreate()
+//    {
+//
+////        VkExtent2D extent = _device.getSwapChainSupport().capabilities.currentExtent;
+////        spdlog::debug("extent: " + std::to_string(extent.width) + " " + std::to_string(extent.height));
+////        spdlog::debug(std::to_string(width) + " " + std::to_string(height));
+//        device.waitIdle();
+//
+//        cleanupSwapChain();
+//
+//        int width = 0, height = 0;
+//        glfwGetFramebufferSize(window.getWindow(), &width, &height);
+//        while (width == 0 || height == 0) {
+//            glfwGetFramebufferSize(window.getWindow(), &width, &height);
+//            glfwWaitEvents();
 //        }
-
-        for (auto framebuffer : swapChainFramebuffers)
-        {
-            vkDestroyFramebuffer(device.getVkDevice(), framebuffer, nullptr);
-        }
-
-        vkDestroyRenderPass(device.getVkDevice(), renderPass, nullptr);
-
-    }
-
-    void VksSwapChain::recreate()
-    {
-
-//        VkExtent2D extent = _device.getSwapChainSupport().capabilities.currentExtent;
-//        spdlog::debug("extent: " + std::to_string(extent.width) + " " + std::to_string(extent.height));
-//        spdlog::debug(std::to_string(width) + " " + std::to_string(height));
-        device.waitIdle();
-
-        cleanupSwapChain();
-
-        int width = 0, height = 0;
-        glfwGetFramebufferSize(window.getWindow(), &width, &height);
-        while (width == 0 || height == 0) {
-            glfwGetFramebufferSize(window.getWindow(), &width, &height);
-            glfwWaitEvents();
-        }
-
-        createSwapChain();
-        createImageViews();
-        createRenderPass();
-        createFramebuffers();
-    }
+//
+//        createSwapChain();
+//        createImageViews();
+//        createRenderPass();
+//        createFramebuffers();
+//    }
 
 }

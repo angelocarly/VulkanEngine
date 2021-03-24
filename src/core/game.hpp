@@ -38,7 +38,9 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
+#include <libwebsockets.h>
 #include "camera.h"
+#include "entity.h"
 
 const uint32_t WIDTH = 1600;
 const uint32_t HEIGHT = 900;
@@ -52,7 +54,7 @@ class Game
 public:
 
     Game(VksWindow &window)
-    :window(window)
+            : window(window)
     {
 
     };
@@ -62,7 +64,7 @@ public:
         loadModel();
         createDescriptorSetLayout();
         createPipelineLayout();
-        createPipeline();
+        recreateSwapChain();
         createUniformBuffers();
         createDescriptorPool();
         createDescriptorSets();
@@ -86,8 +88,7 @@ public:
         }
 
 
-        renderCommandBuffers();
-
+        recordCommandBuffers();
         drawFrame();
 
         handler.syncInputState();
@@ -102,25 +103,25 @@ public:
     ~Game()
     {
 
-        vkDestroyDescriptorSetLayout(device.getVkDevice(), descriptorSetLayout, nullptr);
+//        vkDestroyDescriptorSetLayout(device.getVkDevice(), descriptorSetLayout, nullptr);
         //            vkDestroyCommandPool(_device.getVkDevice(), command)
 
         //            vkDestroyPipeline(_device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
-        vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
-        vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
-        //            swapChain.destroy();
-        //
-        for (size_t i = 0; i < swapChain.getImageCount(); i++)
-        {
-            vkDestroyBuffer(device.getVkDevice(), uniformBuffers[i], nullptr);
-            vkFreeMemory(device.getVkDevice(), uniformBuffersMemory[i], nullptr);
-        }
+//        vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
+//        vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
+
+//        for (size_t i = 0; i < uniformBuffers.size(); i++)
+//        {
+//            vkDestroyBuffer(device.getVkDevice(), uniformBuffers[i], nullptr);
+//            vkFreeMemory(device.getVkDevice(), uniformBuffersMemory[i], nullptr);
+//        }
+
 
         ImGui_ImplVulkan_Shutdown();
         ImGui_ImplGlfw_Shutdown();
         ImGui::DestroyContext();
 
-        //            _device.destroy();
+//        device.destroy();
     }
 
 private:
@@ -129,7 +130,7 @@ private:
 
     // Vulkan properties
     VksDevice device = VksDevice(window, VALIDATION_LAYERS_ENABLED);
-    VksSwapChain swapChain = VksSwapChain(window, device, VSYNC);
+    std::unique_ptr<VksSwapChain> swapChain;
     std::unique_ptr<VksPipeline> pipeline;
     VkPipelineLayout pipelineLayout;
     std::vector<VkCommandBuffer> commandBuffers;
@@ -143,6 +144,7 @@ private:
 
     bool imguiDataAvailable = false;
     std::unique_ptr<VksModel> vksModel;
+    Entity entity;
     VkResult err;
 
     // ImGui
@@ -157,7 +159,8 @@ private:
         glm::mat4 proj;
     };
 
-    struct MeshPushConstants {
+    struct MeshPushConstants
+    {
         glm::mat4 transform;
     };
 
@@ -166,19 +169,24 @@ private:
     void input(float delta)
     {
 
-        if(handler.isKeyDown(GLFW_KEY_ESCAPE)) {
+        if (handler.isKeyDown(GLFW_KEY_ESCAPE))
+        {
             handler.showMouse();
         }
 
-        if(handler.isButtonClicked(GLFW_MOUSE_BUTTON_1)) {
+        if (handler.isButtonClicked(GLFW_MOUSE_BUTTON_1))
+        {
 
             ImGuiIO &io = ImGui::GetIO();
-            if (!io.WantCaptureMouse) {
+            if (!io.WantCaptureMouse)
+            {
                 handler.swallowMouse();
             }
         }
 
-        if(!handler.isMouseSwallowed()) return;
+        entity.position = glm::vec3(gui_x, gui_y, gui_z);
+
+        if (!handler.isMouseSwallowed()) return;
 
         camera.update(delta);
 
@@ -226,9 +234,9 @@ private:
         init_info.DescriptorPool = descriptorPool;
         init_info.Allocator = NULL;
         init_info.MinImageCount = 2;
-        init_info.ImageCount = static_cast<uint32_t>(swapChain.getImageCount());
+        init_info.ImageCount = static_cast<uint32_t>(swapChain->getImageCount());
         init_info.CheckVkResultFn = NULL;
-        ImGui_ImplVulkan_Init(&init_info, swapChain.getRenderPass());
+        ImGui_ImplVulkan_Init(&init_info, swapChain->getRenderPass());
 
         // Setup Dear ImGui style
         ImGui::StyleColorsDark();
@@ -302,13 +310,16 @@ private:
 
     void createPipeline()
     {
+        assert(swapChain != nullptr && "Cannot create pipeline before swap chain");
+        assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
+
         spdlog::get("vulkan")->debug("Creating pipeline..");
 
-        auto pipelineConfig = VksPipeline::defaultPipelineConfigInfo(swapChain.getSwapChainExtent().width,
-                                                                     swapChain.getSwapChainExtent().height);
-        pipelineConfig.renderPass = swapChain.getRenderPass();
-        pipelineConfig.pipelineLayout = pipelineLayout;
-        pipeline = std::make_unique<VksPipeline>(device, swapChain, pipelineConfig);
+        PipelineConfigInfo pipelineConfigInfo{};
+        VksPipeline::defaultPipelineConfigInfo(pipelineConfigInfo);
+        pipelineConfigInfo.renderPass = swapChain->getRenderPass();
+        pipelineConfigInfo.pipelineLayout = pipelineLayout;
+        pipeline = std::make_unique<VksPipeline>(device, *swapChain, pipelineConfigInfo);
     }
 
     /**
@@ -339,10 +350,10 @@ private:
     {
         VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 
-        uniformBuffers.resize(swapChain.getImageCount());
-        uniformBuffersMemory.resize(swapChain.getImageCount());
+        uniformBuffers.resize(swapChain->getImageCount());
+        uniformBuffersMemory.resize(swapChain->getImageCount());
 
-        for (size_t i = 0; i < swapChain.getImageCount(); i++)
+        for (size_t i = 0; i < swapChain->getImageCount(); i++)
         {
             device.createBuffer(
                     bufferSize,
@@ -374,7 +385,7 @@ private:
         VkDescriptorPoolCreateInfo pool_info = {};
         pool_info.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
         pool_info.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-        pool_info.maxSets = swapChain.getImageCount() * IM_ARRAYSIZE(pool_sizes);
+        pool_info.maxSets = swapChain->getImageCount() * IM_ARRAYSIZE(pool_sizes);
         pool_info.poolSizeCount = (uint32_t) IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
         vkCreateDescriptorPool(device.getVkDevice(), &pool_info, nullptr, &descriptorPool);
@@ -382,20 +393,20 @@ private:
 
     void createDescriptorSets()
     {
-        std::vector<VkDescriptorSetLayout> layouts(swapChain.getImageCount(), descriptorSetLayout);
+        std::vector<VkDescriptorSetLayout> layouts(swapChain->getImageCount(), descriptorSetLayout);
         VkDescriptorSetAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
         allocInfo.descriptorPool = descriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChain.getImageCount());
+        allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChain->getImageCount());
         allocInfo.pSetLayouts = layouts.data();
 
-        descriptorSets.resize(swapChain.getImageCount());
+        descriptorSets.resize(swapChain->getImageCount());
         if (vkAllocateDescriptorSets(device.getVkDevice(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
         {
             throw std::runtime_error("failed to allocate descriptor sets!");
         }
 
-        for (size_t i = 0; i < swapChain.getImageCount(); i++)
+        for (size_t i = 0; i < swapChain->getImageCount(); i++)
         {
             VkDescriptorBufferInfo bufferInfo{};
             bufferInfo.buffer = uniformBuffers[i];
@@ -416,10 +427,22 @@ private:
         }
     }
 
+    void freeCommandBuffers()
+    {
+        if (commandBuffers.empty()) return;
+
+        vkFreeCommandBuffers(
+                device.getVkDevice(),
+                device.getCommandPool(),
+                static_cast<uint32_t>(commandBuffers.size()),
+                commandBuffers.data());
+        commandBuffers.clear();
+    }
+
     void createCommandBuffers()
     {
         // Allocate new commandbuffers
-        commandBuffers.resize(swapChain.getImageCount());
+        commandBuffers.resize(swapChain->getImageCount());
         VkCommandBufferAllocateInfo allocInfo{};
         allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
         allocInfo.commandPool = device.getCommandPool();
@@ -433,11 +456,11 @@ private:
     /**
      * Create the command buffers used to render our scene
      */
-    void renderCommandBuffers()
+    void recordCommandBuffers()
     {
         // Before recreating the command buffers, wait until they are no longer in use
         // Might be a reason for slowdowns in the future
-        swapChain.waitForImageInFlight();
+        swapChain->waitForImageInFlight();
         device.waitIdle();
 
         for (size_t i = 0; i < commandBuffers.size(); i++)
@@ -458,11 +481,11 @@ private:
             }
             VkRenderPassBeginInfo renderPassInfo = {};
             renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-            renderPassInfo.renderPass = swapChain.getRenderPass();
-            renderPassInfo.framebuffer = swapChain.getFrameBuffer(i);
+            renderPassInfo.renderPass = swapChain->getRenderPass();
+            renderPassInfo.framebuffer = swapChain->getFrameBuffer(i);
 
             renderPassInfo.renderArea.offset = {0, 0};
-            renderPassInfo.renderArea.extent = swapChain.getSwapChainExtent();
+            renderPassInfo.renderArea.extent = swapChain->getSwapChainExtent();
 
             std::array<VkClearValue, 2> clearValues{};
             clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
@@ -472,16 +495,30 @@ private:
 
             vkCmdBeginRenderPass(commandBuffers[i], &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
+            VkViewport viewport{};
+            viewport.x = 0.0f;
+            viewport.y = 0.0f;
+            viewport.width = static_cast<float>(swapChain->getSwapChainExtent().width);
+            viewport.height = static_cast<float>(swapChain->getSwapChainExtent().height);
+            viewport.minDepth = 0.0f;
+            viewport.maxDepth = 1.0f;
+            VkRect2D scissor{{0, 0}, swapChain->getSwapChainExtent()};
+            vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
+            vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
+
             vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                                     &descriptorSets[i], 0, nullptr);
 
             MeshPushConstants constants;
-            constants.transform = glm::translate(glm::mat4(1), glm::vec3(gui_x, gui_y, gui_z));
-            vkCmdPushConstants(commandBuffers[i], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0, sizeof(MeshPushConstants), &constants);
+            constants.transform = entity.calculateTransform();
+            vkCmdPushConstants(commandBuffers[i], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+                               sizeof(MeshPushConstants), &constants);
 
             pipeline->bind(commandBuffers[i]);
-            vksModel->bind(commandBuffers[i]);
-            vksModel->draw(commandBuffers[i]);
+//            vksModel->bind(commandBuffers[i]);
+//            vksModel->draw(commandBuffers[i]);
+            entity.model->bind(commandBuffers[i]);
+            entity.model->draw(commandBuffers[i]);
 
             // Render imgui data
             if (imguiDataAvailable)
@@ -508,21 +545,18 @@ private:
         if (window.pollFrameBufferResized())
         {
             spdlog::get("vulkan")->warn("Swapchain image is out of date");
-            swapChain.recreate();
-            createPipeline();
+            recreateSwapChain();
             return;
         }
 
-
         // Load the next image in the swapchain
         uint32_t imageIndex;
-        auto result = swapChain.acquireNextImage(&imageIndex);
+        auto result = swapChain->acquireNextImage(&imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR)
         {
             // When the swapchain is out of date, recreate a new one
             spdlog::get("vulkan")->warn("Swapchain image is out of date");
-            swapChain.recreate();
-            createPipeline();
+            recreateSwapChain();
             return;
         } else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
         {
@@ -530,13 +564,12 @@ private:
         }
 
         // Submit our command buffer to be drawed on the new image
-        result = swapChain.submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
+        result = swapChain->submitCommandBuffers(&commandBuffers[imageIndex], &imageIndex);
         if (result == VK_ERROR_OUT_OF_DATE_KHR)// || result == VK_SUBOPTIMAL_KHR
         {
             // When the swapchain is out of date, recreate a new one
             spdlog::get("vulkan")->warn("Swapchain is out of date");
-            swapChain.recreate();
-            createPipeline();
+            recreateSwapChain();
 
         } else if (result != VK_SUCCESS)
         {
@@ -563,6 +596,32 @@ private:
         vkMapMemory(device.getVkDevice(), uniformBuffersMemory[imageIndex], 0, sizeof(ubo), 0, &data);
         memcpy(data, &ubo, sizeof(ubo));
         vkUnmapMemory(device.getVkDevice(), uniformBuffersMemory[imageIndex]);
+    }
+
+    void recreateSwapChain()
+    {
+        auto extent = window.getExtent();
+        while (extent.width == 0 || extent.height == 0)
+        {
+            extent = window.getExtent();
+            glfwWaitEvents();
+        }
+        vkDeviceWaitIdle(device.getVkDevice());
+
+        if (swapChain == nullptr)
+        {
+            swapChain = std::make_unique<VksSwapChain>(device, extent, VSYNC);
+        } else
+        {
+            swapChain = std::make_unique<VksSwapChain>(device, extent, VSYNC, std::move(swapChain));
+            if (swapChain->getImageCount() != commandBuffers.size())
+            {
+                freeCommandBuffers();
+                createCommandBuffers();
+            }
+        }
+
+        createPipeline();
     }
 
 };

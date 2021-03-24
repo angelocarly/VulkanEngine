@@ -4,6 +4,7 @@
 
 #include "game.hpp"
 
+
 void Game::loadModel()
 {
     std::vector<VksModel::Vertex> vertices{
@@ -16,4 +17,5 @@ void Game::loadModel()
     };
 
     vksModel = std::make_unique<VksModel>(device, vertices);
+    entity.model = vksModel.get();
 }

@@ -11,8 +11,8 @@ namespace vks
 
     struct PipelineConfigInfo
     {
-        VkViewport viewport;
-        VkRect2D scissor;
+//        VkViewport viewport;
+//        VkRect2D scissor;
         VkPipelineViewportStateCreateInfo viewportInfo;
         VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
         VkPipelineRasterizationStateCreateInfo rasterizationInfo;
@@ -20,6 +20,8 @@ namespace vks
         VkPipelineColorBlendAttachmentState colorBlendAttachment;
         VkPipelineColorBlendStateCreateInfo colorBlendInfo;
         VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
+        std::vector<VkDynamicState> dynamicStateEnables;
+        VkPipelineDynamicStateCreateInfo dynamicStateInfo;
         VkPipelineLayout pipelineLayout = nullptr;
         VkRenderPass renderPass = nullptr;
         uint32_t subpass = 0;
@@ -36,7 +38,8 @@ namespace vks
 
         void destroy();
 
-        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+//        static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
+        static void defaultPipelineConfigInfo(PipelineConfigInfo& configInfo);
 
         VksPipeline(const VksPipeline &) = delete;
 
@@ -46,10 +49,6 @@ namespace vks
 
         VkPipeline getPipeline()
         { return graphicsPipeline; }
-
-        void recreate();
-
-        void recreate(uint32_t width, uint32_t height);
 
     private:
         VksDevice &device;
