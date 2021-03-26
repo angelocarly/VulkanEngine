@@ -11,10 +11,13 @@ namespace vks
     class VksSwapChain
     {
     public:
-        VksSwapChain(VksWindow &window, VksDevice &device, bool vsync);
+        VksSwapChain(VksDevice &device, VkExtent2D extent, bool vsync);
+        VksSwapChain(VksDevice &device, VkExtent2D extent, bool vsync, std::shared_ptr<VksSwapChain> previous);
 
-        ~VksSwapChain()
-        { destroy(); }
+        ~VksSwapChain();
+
+        VksSwapChain(const VksSwapChain &) = delete;
+        VksSwapChain &operator=(const VksSwapChain &) = delete;
 
         void destroy();
 
@@ -49,7 +52,6 @@ namespace vks
         void recreate();
 
     private:
-        VksWindow &window;
         VksDevice &device;
 
         bool vsync;
@@ -58,6 +60,7 @@ namespace vks
         std::vector<VkImage> swapChainImages;
         VkFormat swapChainImageFormat;
         VkExtent2D swapChainExtent;
+        std::shared_ptr<VksSwapChain> oldSwapChain;
 
         std::vector<VkImageView> swapChainImageViews;
         std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -71,9 +74,9 @@ namespace vks
         size_t currentFrame = 0;
 
         // Instancing
-        void init();
+        void init(VkExtent2D baseExtent);
 
-        void createSwapChain();
+        void createSwapChain(VkExtent2D baseExtent);
 
         void createImageViews();
 
@@ -83,7 +86,7 @@ namespace vks
 
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
 
-        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities);
+        VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, VkExtent2D baseExtend);
 
         void createFramebuffers();
 

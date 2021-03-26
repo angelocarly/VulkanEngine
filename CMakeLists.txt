@@ -12,7 +12,7 @@ set(SOURCES ${SOURCE_FILES} )
 
 # Executable definition and properties
 add_executable(${PROJECT_NAME} ${SOURCES})
-target_include_directories(${PROJECT_NAME} PRIVATE "${SRC_DIR}")
+target_include_directories(${PROJECT_NAME} PUBLIC "${SRC_DIR}")
 set_property(TARGET ${PROJECT_NAME} PROPERTY CXX_STANDARD 17)
 
 ### Shaders
@@ -58,10 +58,10 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 # Catch
 find_package(Catch2 REQUIRED)
-file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/core/*" "src/vks/*" )
-add_executable(tests ${TEST_FILES})
+file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/*" )
+add_executable(tests ${TEST_FILES} ${SOURCES})
 set_property(TARGET tests PROPERTY CXX_STANDARD 17)
-target_link_libraries(tests PRIVATE Catch2::Catch2 )
+target_link_libraries(tests PUBLIC Catch2::Catch2 )
 include(CTest)
 enable_testing()
 include(Catch)
@@ -69,13 +69,13 @@ include(Catch)
 
 # Vulkan
 find_package(Vulkan REQUIRED)
-target_link_libraries(VulkanEngine PRIVATE Vulkan::Vulkan)
-target_link_libraries(tests PRIVATE Vulkan::Vulkan)
+target_link_libraries(VulkanEngine PUBLIC Vulkan::Vulkan)
+target_link_libraries(tests PUBLIC Vulkan::Vulkan)
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE glfw)
-target_link_libraries(tests PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
+target_link_libraries(tests PUBLIC glfw)
 #set(GLFW_DIR "${LIB_DIR}/glfw")
 #set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
 #set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
@@ -89,9 +89,9 @@ target_link_libraries(tests PRIVATE glfw)
 # glad
 set(GLAD_DIR "${LIB_DIR}/glad")
 add_library("glad" "${GLAD_DIR}/src/glad.c")
-target_include_directories("glad" PRIVATE "${GLAD_DIR}/include")
-target_include_directories(${PROJECT_NAME} PRIVATE "${GLAD_DIR}/include")
-target_link_libraries(${PROJECT_NAME} PRIVATE "glad" "${CMAKE_DL_LIBS}")
+target_include_directories("glad" PUBLIC "${GLAD_DIR}/include")
+target_include_directories(${PROJECT_NAME} PUBLIC "${GLAD_DIR}/include")
+target_link_libraries(${PROJECT_NAME} PUBLIC "glad" "${CMAKE_DL_LIBS}")
 
 # glm
 find_package(glm REQUIRED)
@@ -114,5 +114,5 @@ include_directories(${STB_DIR})
 
 # spdlog
 find_package(spdlog REQUIRED)
-target_link_libraries(${PROJECT_NAME} PRIVATE spdlog::spdlog)
-target_link_libraries(tests PRIVATE spdlog::spdlog)
+target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
+target_link_libraries(tests PUBLIC spdlog::spdlog)
