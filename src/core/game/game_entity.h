@@ -25,11 +25,23 @@ public:
 
 //        vksModel = std::make_unique<VksModel>(device, vertices);
         model = new vks::VksModel(device, vertices);
+
+        position = glm::vec3(
+                std::rand() % 100 / 10.0f - 5,
+                std::rand() % 100 / 10.0f - 5,
+                std::rand() % 100 / 10.0f - 5
+        );
     }
 
     void draw(IRenderProvider &renderProvider) override
     {
         renderProvider.bindModel(*model);
+        renderProvider.bindModelTransform(calculateTransform());
+        renderProvider.drawModel();
+    }
+
+    void draw2(IRenderProvider &renderProvider)
+    {
         renderProvider.bindModelTransform(calculateTransform());
         renderProvider.drawModel();
     }
