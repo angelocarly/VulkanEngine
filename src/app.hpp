@@ -5,6 +5,9 @@
 
 #include "core/game.hpp"
 
+const uint32_t WIDTH = 1600;
+const uint32_t HEIGHT = 900;
+
 using namespace vks;
 
 class App

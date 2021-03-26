@@ -39,13 +39,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <libwebsockets.h>
+#include <core/graphics/renderable.h>
+#include <core/game/world.h>
 #include "camera.h"
-#include "entity.h"
 
-const uint32_t WIDTH = 1600;
-const uint32_t HEIGHT = 900;
 const bool VALIDATION_LAYERS_ENABLED = true;
-const bool VSYNC = true;
+const bool VSYNC = false;
 
 using namespace vks;
 
@@ -142,9 +141,10 @@ private:
     VksInput handler = VksInput();
     Camera camera;
 
+    VulkanRenderManager vulkanRenderManager;
+
     bool imguiDataAvailable = false;
-    std::unique_ptr<VksModel> vksModel;
-    Entity entity;
+    IRenderable* world = new World(device);
     VkResult err;
 
     // ImGui
@@ -184,7 +184,7 @@ private:
             }
         }
 
-        entity.position = glm::vec3(gui_x, gui_y, gui_z);
+//        entity.position = glm::vec3(gui_x, gui_y, gui_z);
 
         if (!handler.isMouseSwallowed()) return;
 
@@ -509,16 +509,12 @@ private:
             vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
                                     &descriptorSets[i], 0, nullptr);
 
-            MeshPushConstants constants;
-            constants.transform = entity.calculateTransform();
-            vkCmdPushConstants(commandBuffers[i], pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-                               sizeof(MeshPushConstants), &constants);
 
             pipeline->bind(commandBuffers[i]);
-//            vksModel->bind(commandBuffers[i]);
-//            vksModel->draw(commandBuffers[i]);
-            entity.model->bind(commandBuffers[i]);
-            entity.model->draw(commandBuffers[i]);
+
+            vulkanRenderManager.startFrame(commandBuffers[i], pipelineLayout);
+            world->draw(vulkanRenderManager);
+            vulkanRenderManager.drawFrame();
 
             // Render imgui data
             if (imguiDataAvailable)
