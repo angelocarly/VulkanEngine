@@ -6,6 +6,7 @@
 
 #include "core/graphics/renderable.h"
 #include "game_entity.h"
+#include <list>
 //#include "entity.h"
 
 class World : public IRenderable
@@ -13,18 +14,27 @@ class World : public IRenderable
 public:
 
     World(vks::VksDevice &device)
-    :entity(Entity(device)){
-
+    {
+//        _entities.resize(10);
+        for(int i = 0; i < 500; i++)
+        {
+//            _entities[i] = Entity(device);
+            _entities.emplace_back(device);
+        }
     };
 
     virtual void draw(IRenderProvider &renderProvider)
     {
-        entity.draw(renderProvider);
+        _entities.front().draw(renderProvider);
+        for( auto entity : _entities)
+        {
+            entity.draw2(renderProvider);
+        }
     }
 private:
 
-    Entity entity;
-
+//    std::vector<Entity> _entities;
+    std::list<Entity> _entities;
 
 };
 

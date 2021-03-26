@@ -60,7 +60,6 @@ public:
 
     void init()
     {
-        loadModel();
         createDescriptorSetLayout();
         createPipelineLayout();
         recreateSwapChain();
@@ -163,8 +162,6 @@ private:
     {
         glm::mat4 transform;
     };
-
-    void loadModel();
 
     void input(float delta)
     {
@@ -514,7 +511,6 @@ private:
 
             vulkanRenderManager.startFrame(commandBuffers[i], pipelineLayout);
             world->draw(vulkanRenderManager);
-            vulkanRenderManager.drawFrame();
 
             // Render imgui data
             if (imguiDataAvailable)

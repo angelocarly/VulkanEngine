@@ -74,6 +74,7 @@ namespace vks
         pipelineInfo.basePipelineIndex = -1;
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
         pipelineInfo.pDynamicState = &configInfo.dynamicStateInfo;
+        pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
 
         if (vkCreateGraphicsPipelines(device.getVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
                                       &graphicsPipeline) != VK_SUCCESS)

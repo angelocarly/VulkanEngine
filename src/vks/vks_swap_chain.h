@@ -37,6 +37,8 @@ namespace vks
 
         VkResult submitCommandBuffers(VkCommandBuffer const *buffers, uint32_t *imageIndex);
 
+        VkFormat findDepthFormat();
+
         int getCurrentFrame()
         { return currentFrame; }
 
@@ -62,6 +64,9 @@ namespace vks
         VkExtent2D swapChainExtent;
         std::shared_ptr<VksSwapChain> oldSwapChain;
 
+        std::vector<VkImage> depthImages;
+        std::vector<VkDeviceMemory> depthImageMemorys;
+        std::vector<VkImageView> depthImageViews;
         std::vector<VkImageView> swapChainImageViews;
         std::vector<VkFramebuffer> swapChainFramebuffers;
 
@@ -87,6 +92,8 @@ namespace vks
         VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR> &availablePresentModes);
 
         VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR &capabilities, VkExtent2D baseExtend);
+
+        void createDepthResources();
 
         void createFramebuffers();
 

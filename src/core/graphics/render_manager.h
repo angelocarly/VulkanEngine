@@ -28,11 +28,6 @@ public:
     VulkanRenderManager()
     {}
 
-    void drawFrame()
-    {
-
-    }
-
     void bindModelTransform(glm::mat4 transform) override
     {
         MeshPushConstants constants;

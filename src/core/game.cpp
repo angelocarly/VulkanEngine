@@ -3,9 +3,3 @@
 //
 
 #include "game.hpp"
-
-
-void Game::loadModel()
-{
-//    entity.model = vksModel.get();
-}
