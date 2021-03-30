@@ -22,15 +22,15 @@
 #include <iostream>
 #include <stdexcept>
 #include <cstdlib>
-#include <vks/vks_window.h>
-#include <vks/vks_device.h>
-#include <vks/vks_swap_chain.h>
-#include <vks/vks_pipeline.h>
+#include "../vks/vks_window.h"
+#include "../vks/vks_device.h"
+#include "../vks/vks_swap_chain.h"
+#include "../vks/vks_pipeline.h"
 #include <memory>
-#include <imgui/imgui.h>
-#include <imgui/imgui_impl_glfw.h>
-#include <imgui/imgui_impl_vulkan.h>
-#include <vks/vks_model.h>
+#include "../imgui/imgui.h"
+#include "../imgui/imgui_impl_glfw.h"
+#include "../imgui/imgui_impl_vulkan.h"
+#include "../vks/vks_model.h"
 #include <spdlog/spdlog.h>
 
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -39,12 +39,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <libwebsockets.h>
-#include <core/graphics/renderable.h>
-#include <core/game/world.h>
+#include "graphics/renderable.h"
+#include "game/world.h"
 #include "camera.h"
 
 const bool VALIDATION_LAYERS_ENABLED = true;
-const bool VSYNC = false;
+const bool VSYNC = true;
 
 using namespace vks;
 

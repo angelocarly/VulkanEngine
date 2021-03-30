@@ -6,6 +6,8 @@
 #define VULKANENGINE_RENDER_MANAGER_H
 
 #include <vulkan/vulkan.h>
+#include <glm/glm.hpp>
+#include "../../vks/vks_model.h"
 
 class IRenderProvider
 {

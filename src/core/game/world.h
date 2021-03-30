@@ -4,8 +4,9 @@
 #ifndef VULKANENGINE_WORLD_H
 #define VULKANENGINE_WORLD_H
 
-#include "core/graphics/renderable.h"
+#include "../../core/graphics/renderable.h"
 #include "game_entity.h"
+#include "octree.h"
 #include <list>
 //#include "entity.h"
 
@@ -14,27 +15,30 @@ class World : public IRenderable
 public:
 
     World(vks::VksDevice &device)
+    :octree(Octree(device))
     {
-//        _entities.resize(10);
-        for(int i = 0; i < 500; i++)
-        {
-//            _entities[i] = Entity(device);
-            _entities.emplace_back(device);
-        }
+
+//        for(int i = 0; i < 5; i++)
+//        {
+//            _entities.emplace_back(device);
+//        }
     };
 
     virtual void draw(IRenderProvider &renderProvider)
     {
-        _entities.front().draw(renderProvider);
-        for( auto entity : _entities)
-        {
-            entity.draw2(renderProvider);
-        }
+//        _entities.front().draw(renderProvider);
+//        for( auto entity : _entities)
+//        {
+//            entity.draw2(renderProvider);
+//        }
+
+        octree.draw(renderProvider);
     }
 private:
 
 //    std::vector<Entity> _entities;
     std::list<Entity> _entities;
+    Octree octree;
 
 };
 

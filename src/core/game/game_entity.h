@@ -5,8 +5,8 @@
 #ifndef VULKANENGINE_GAME_ENTITY_H
 #define VULKANENGINE_GAME_ENTITY_H
 
-#include <vks/vks_model.h>
-#include <core/graphics/render_manager.h>
+#include "../../vks/vks_model.h"
+#include "../graphics/render_manager.h"
 
 class Entity : public IRenderable
 {
@@ -15,12 +15,12 @@ public:
     Entity(vks::VksDevice &device)
     {
         std::vector<vks::VksModel::Vertex> vertices{
-                {{-1.0f, 0.0f, -1.0f}, {-1.0f, -1.0f, 0.0f}},
-                {{1.0f,  0.0f, -1.0f}, {1.0f,  -1.0f, 0.0f}},
+                {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
+                {{1.0f,  0.0f, 0.0f}, {1.0f,  0.0f, 0.0f}},
                 {{1.0f,  0.0f, 1.0f},  {1.0f,  1.0f,  0.0f}},
-                {{-1.0f, 0.0f, -1.0f}, {-1.0f, -1.0f, 0.0f}},
+                {{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 0.0f}},
                 {{1.0f,  0.0f, 1.0f},  {1.0f,  1.0f,  0.0f}},
-                {{-1.0f, 0.0f, 1.0f},  {-1.0f, 1.0f,  0.0f}}
+                {{0.0f, 0.0f, 1.0f},  {0.0f, 1.0f,  0.0f}},
         };
 
 //        vksModel = std::make_unique<VksModel>(device, vertices);
@@ -46,15 +46,23 @@ public:
         renderProvider.drawModel();
     }
 
-    glm::mat4 calculateTransform()
+    void setScale(glm::vec3 scale)
     {
-        return glm::translate(glm::mat4(1), position);
+        _scale = scale;
     }
 
-    vks::VksModel *model;
-    glm::vec3 position;
+    glm::mat4 calculateTransform()
+    {
+        glm::mat4 transform =  glm::translate(glm::mat4(1), position);
+        glm::scale(transform, _scale);
+        return transform;
+    }
+
 
 private:
+    vks::VksModel *model;
+    glm::vec3 position;
+    glm::vec3 _scale = glm::vec3(1);
 };
 
 #endif //VULKANENGINE_GAME_ENTITY_H

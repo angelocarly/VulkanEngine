@@ -82,7 +82,7 @@ public:
         glm::mat4 proj = glm::perspective(
                 glm::radians(90.0f),
                 800.0f / (float) 600.0f,
-                0.1f, 10.0f
+                0.01f, 100.0f
         );
 
         return proj;
