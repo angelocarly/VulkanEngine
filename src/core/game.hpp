@@ -60,20 +60,15 @@ class Game
 
 	void init()
 	{
-//        createDescriptorSetLayout();
-//        createPipelineLayout();
 		recreateSwapChain();
 		createDescriptorPool();
-		pipelineee = new BaseRenderPipeline(device, *swapChain, descriptorPool);
-//        pipelineee->recreatePipeline(*swapChain);
-//        createUniformBuffers();
-//        createDescriptorSets();
+		renderpipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		createCommandBuffers();
 		initImGui();
 
-		handler.init(&window);
-		camera.setInputHandler(&handler);
-		handler.swallowMouse();
+		inputhandler.init(&window);
+		camera.setInputHandler(&inputhandler);
+		inputhandler.swallowMouse();
 	}
 
 	// Render game and handle input
@@ -90,7 +85,7 @@ class Game
 		recordCommandBuffers();
 		drawFrame();
 
-		handler.syncInputState();
+		inputhandler.syncInputState();
 	}
 
 	void destroy()
@@ -101,26 +96,9 @@ class Game
 
 	~Game()
 	{
-
-//        vkDestroyDescriptorSetLayout(device.getVkDevice(), descriptorSetLayout, nullptr);
-		//            vkDestroyCommandPool(_device.getVkDevice(), command)
-
-		//            vkDestroyPipeline(_device.getVkDevice(), pipeline.release()->getPipeline(), nullptr);
-//        vkDestroyDescriptorPool(device.getVkDevice(), descriptorPool, nullptr);
-//        vkDestroyPipelineLayout(device.getVkDevice(), pipelineLayout, nullptr);
-
-//        for (size_t i = 0; i < uniformBuffers.size(); i++)
-//        {
-//            vkDestroyBuffer(device.getVkDevice(), uniformBuffers[i], nullptr);
-//            vkFreeMemory(device.getVkDevice(), uniformBuffersMemory[i], nullptr);
-//        }
-
-
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
 		ImGui::DestroyContext();
-
-//        device.destroy();
 	}
 
  private:
@@ -132,10 +110,10 @@ class Game
 	std::unique_ptr<VksSwapChain> swapChain;
 	std::vector<VkCommandBuffer> commandBuffers;
 	VkDescriptorPool descriptorPool;
-	VksInput handler = VksInput();
+	VksInput inputhandler = VksInput();
 	Camera camera;
 
-	BaseRenderPipeline* pipelineee = nullptr;
+	BaseRenderPipeline* renderpipeline = nullptr;
 
 	bool imguiDataAvailable = false;
 	IRenderable* world = new World(device);
@@ -149,24 +127,24 @@ class Game
 	void input(float delta)
 	{
 
-		if (handler.isKeyDown(GLFW_KEY_ESCAPE))
+		if (inputhandler.isKeyDown(GLFW_KEY_ESCAPE))
 		{
-			handler.showMouse();
+			inputhandler.showMouse();
 		}
 
-		if (handler.isButtonClicked(GLFW_MOUSE_BUTTON_1))
+		if (inputhandler.isButtonClicked(GLFW_MOUSE_BUTTON_1))
 		{
 
 			ImGuiIO& io = ImGui::GetIO();
 			if (!io.WantCaptureMouse)
 			{
-				handler.swallowMouse();
+				inputhandler.swallowMouse();
 			}
 		}
 
 //        entity.position = glm::vec3(gui_x, gui_y, gui_z);
 
-		if (!handler.isMouseSwallowed()) return;
+		if (!inputhandler.isMouseSwallowed()) return;
 
 		camera.update(delta);
 
@@ -365,10 +343,10 @@ class Game
 			vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
 			vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
-			pipelineee->begin(commandBuffers[i], i);
-			pipelineee->updateBuffers(camera);
+			renderpipeline->begin(commandBuffers[i], i);
+			renderpipeline->updateBuffers(camera);
 
-			world->draw(*pipelineee);
+			world->draw(*renderpipeline);
 
 			// Render imgui data
 			if (imguiDataAvailable)
