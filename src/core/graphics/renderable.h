@@ -6,13 +6,14 @@
 #define VULKANENGINE_ENTITY_H
 
 #include <glm/glm.hpp>
-#include "render_manager.h"
 
 class IRenderable
 {
-public:
-    virtual ~IRenderable(){};
-    virtual void draw(IRenderProvider &renderProvider) = 0;
+ public:
+	virtual ~IRenderable()
+	{
+	};
+	virtual void draw(IRenderProvider& renderProvider) = 0;
 };
 
 #endif //VULKANENGINE_ENTITY_H

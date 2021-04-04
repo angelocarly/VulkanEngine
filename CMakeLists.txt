@@ -58,7 +58,7 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 
 # Catch
 find_package(Catch2 REQUIRED)
-file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/*" )
+file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/vks/*.cp" "src/core/*.cpp" )
 add_executable(tests ${TEST_FILES} ${SOURCES})
 set_property(TARGET tests PROPERTY CXX_STANDARD 17)
 target_link_libraries(tests PUBLIC Catch2::Catch2 )

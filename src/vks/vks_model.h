@@ -14,6 +14,7 @@
 
 
 #include <cstddef>
+
 #pragma once
 
 #include "vks_device.h"
@@ -90,6 +91,7 @@ public:
     //        {};
 
     void bind(VkCommandBuffer commandBuffer);
+
     void draw(VkCommandBuffer commandBuffer);
 
     //        static std::unique_ptr<VksModel> loadModelFromFile(VksDevice &_device, std::string filepath);
@@ -107,6 +109,7 @@ private:
 
     //        void createVertexBuffer(Builder &builder);
     void createVertexBuffer(const std::vector<Vertex> &vertices);
+
     void createIndexBuffer(const std::vector<Vertex> &vertices);
 
     //void createIndexBuffer(Builder &builder);

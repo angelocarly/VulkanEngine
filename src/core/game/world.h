@@ -4,27 +4,43 @@
 #ifndef VULKANENGINE_WORLD_H
 #define VULKANENGINE_WORLD_H
 
-#include "core/graphics/renderable.h"
+#include "../../core/graphics/renderable.h"
 #include "game_entity.h"
+#include "octree.h"
+#include <list>
+#include "graph.h"
 //#include "entity.h"
 
 class World : public IRenderable
 {
-public:
+ public:
 
-    World(vks::VksDevice &device)
-    :entity(Entity(device)){
+	World(vks::VksDevice& device)
+		: octree(Octree(device)), graph(Graph(device))
+	{
+//        for(int i = 0; i < 5; i++)
+//        {
+//            _entities.emplace_back(device);
+//        }
+	};
 
-    };
+	virtual void draw(IRenderProvider& renderProvider)
+	{
+//        _entities.front().draw(renderProvider);
+//        for( auto entity : _entities)
+//        {
+//            entity.draw2(renderProvider);
+//        }
 
-    virtual void draw(IRenderProvider &renderProvider)
-    {
-        entity.draw(renderProvider);
-    }
-private:
+//        octree.draw(renderProvider);
+		graph.draw(renderProvider);
+	}
+ private:
 
-    Entity entity;
-
+//    std::vector<Entity> _entities;
+	std::list<Entity> _entities;
+	Octree octree;
+	Graph graph;
 
 };
 
