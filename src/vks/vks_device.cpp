@@ -584,7 +584,7 @@ namespace vks
         }
 
         if (vkBindImageMemory(device, image, imageMemory, 0) != VK_SUCCESS) {
-            throw std::runtime_error("failed to bind image memory!");
+            throw std::runtime_error("failed to begin image memory!");
         }
     }
 

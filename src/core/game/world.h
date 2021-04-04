@@ -13,19 +13,19 @@
 
 class World : public IRenderable
 {
-public:
+ public:
 
-    World(vks::VksDevice &device)
-    :octree(Octree(device)), graph(Graph(device))
-    {
+	World(vks::VksDevice& device)
+		: octree(Octree(device)), graph(Graph(device))
+	{
 //        for(int i = 0; i < 5; i++)
 //        {
 //            _entities.emplace_back(device);
 //        }
-    };
+	};
 
-    virtual void draw(IRenderProvider &renderProvider)
-    {
+	virtual void draw(IRenderProvider& renderProvider)
+	{
 //        _entities.front().draw(renderProvider);
 //        for( auto entity : _entities)
 //        {
@@ -33,14 +33,14 @@ public:
 //        }
 
 //        octree.draw(renderProvider);
-        graph.draw(renderProvider);
-    }
-private:
+		graph.draw(renderProvider);
+	}
+ private:
 
 //    std::vector<Entity> _entities;
-    std::list<Entity> _entities;
-    Octree octree;
-    Graph graph;
+	std::list<Entity> _entities;
+	Octree octree;
+	Graph graph;
 
 };
 
