@@ -39,6 +39,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include <chrono>
 #include <libwebsockets.h>
+#include <core/graphics/render_pipeline.h>
 #include "graphics/renderable.h"
 #include "game/world.h"
 #include "camera.h"
@@ -60,12 +61,14 @@ public:
 
     void init()
     {
-        createDescriptorSetLayout();
-        createPipelineLayout();
+//        createDescriptorSetLayout();
+//        createPipelineLayout();
         recreateSwapChain();
-        createUniformBuffers();
         createDescriptorPool();
-        createDescriptorSets();
+        pipelineee = new BaseRenderPipeline(device, *swapChain, descriptorPool);
+//        pipelineee->recreatePipeline(*swapChain);
+//        createUniformBuffers();
+//        createDescriptorSets();
         createCommandBuffers();
         initImGui();
 
@@ -129,21 +132,23 @@ private:
     // Vulkan properties
     VksDevice device = VksDevice(window, VALIDATION_LAYERS_ENABLED);
     std::unique_ptr<VksSwapChain> swapChain;
-    std::unique_ptr<VksPipeline> pipeline;
-    VkPipelineLayout pipelineLayout;
+//    std::unique_ptr<VksPipeline> pipeline;
+//    VkPipelineLayout pipelineLayout;
     std::vector<VkCommandBuffer> commandBuffers;
-    std::vector<VkBuffer> uniformBuffers;
-    std::vector<VkDeviceMemory> uniformBuffersMemory;
-    VkDescriptorSetLayout descriptorSetLayout;
-    std::vector<VkDescriptorSet> descriptorSets;
+//    std::vector<VkBuffer> uniformBuffers;
+//    std::vector<VkDeviceMemory> uniformBuffersMemory;
+//    VkDescriptorSetLayout descriptorSetLayout;
+//    std::vector<VkDescriptorSet> descriptorSets;
     VkDescriptorPool descriptorPool;
     VksInput handler = VksInput();
     Camera camera;
 
+    IRenderPipeline *pipelineee = nullptr;
+
     VulkanRenderManager vulkanRenderManager;
 
     bool imguiDataAvailable = false;
-    IRenderable* world = new World(device);
+    IRenderable *world = new World(device);
     VkResult err;
 
     // ImGui
@@ -278,89 +283,6 @@ private:
         ImGui::Render();
     }
 
-    /**
-     * Create a pipeline layout
-     * Stores the set of resources that can be used by the pipeline
-     */
-    void createPipelineLayout()
-    {
-        spdlog::get("vulkan")->debug("Creating pipeline layout..");
-
-        VkPushConstantRange push_constant;
-        push_constant.offset = 0;
-        push_constant.size = sizeof(MeshPushConstants);
-        push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
-        pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-        pipelineLayoutInfo.setLayoutCount = 1;
-        pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-        pipelineLayoutInfo.pushConstantRangeCount = 1;
-        pipelineLayoutInfo.pPushConstantRanges = &push_constant;
-        if (vkCreatePipelineLayout(device.getVkDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
-            VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create pipeline layout!");
-        }
-
-    }
-
-    void createPipeline()
-    {
-        assert(swapChain != nullptr && "Cannot create pipeline before swap chain");
-        assert(pipelineLayout != nullptr && "Cannot create pipeline before pipeline layout");
-
-        spdlog::get("vulkan")->debug("Creating pipeline..");
-
-        PipelineConfigInfo pipelineConfigInfo{};
-        VksPipeline::defaultPipelineConfigInfo(pipelineConfigInfo);
-        pipelineConfigInfo.renderPass = swapChain->getRenderPass();
-        pipelineConfigInfo.pipelineLayout = pipelineLayout;
-        pipeline = std::make_unique<VksPipeline>(device, *swapChain, pipelineConfigInfo);
-    }
-
-    /**
-     * Stores the data that will be accessible to the descriptor set
-     */
-    void createDescriptorSetLayout()
-    {
-        VkDescriptorSetLayoutBinding uboLayoutBinding{};
-        uboLayoutBinding.binding = 0;
-        uboLayoutBinding.descriptorCount = 1;
-        uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-        uboLayoutBinding.pImmutableSamplers = nullptr;
-        uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-
-        VkDescriptorSetLayoutCreateInfo layoutInfo{};
-        layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-        layoutInfo.bindingCount = 1;
-        layoutInfo.pBindings = &uboLayoutBinding;
-
-        if (vkCreateDescriptorSetLayout(device.getVkDevice(), &layoutInfo, nullptr, &descriptorSetLayout) !=
-            VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to create descriptor set layout!");
-        }
-    }
-
-    void createUniformBuffers()
-    {
-        VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-
-        uniformBuffers.resize(swapChain->getImageCount());
-        uniformBuffersMemory.resize(swapChain->getImageCount());
-
-        for (size_t i = 0; i < swapChain->getImageCount(); i++)
-        {
-            device.createBuffer(
-                    bufferSize,
-                    VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-                    VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-                    uniformBuffers[i],
-                    uniformBuffersMemory[i]
-            );
-        }
-    }
 
     void createDescriptorPool()
     {
@@ -386,42 +308,6 @@ private:
         pool_info.poolSizeCount = (uint32_t) IM_ARRAYSIZE(pool_sizes);
         pool_info.pPoolSizes = pool_sizes;
         vkCreateDescriptorPool(device.getVkDevice(), &pool_info, nullptr, &descriptorPool);
-    }
-
-    void createDescriptorSets()
-    {
-        std::vector<VkDescriptorSetLayout> layouts(swapChain->getImageCount(), descriptorSetLayout);
-        VkDescriptorSetAllocateInfo allocInfo{};
-        allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-        allocInfo.descriptorPool = descriptorPool;
-        allocInfo.descriptorSetCount = static_cast<uint32_t>(swapChain->getImageCount());
-        allocInfo.pSetLayouts = layouts.data();
-
-        descriptorSets.resize(swapChain->getImageCount());
-        if (vkAllocateDescriptorSets(device.getVkDevice(), &allocInfo, descriptorSets.data()) != VK_SUCCESS)
-        {
-            throw std::runtime_error("failed to allocate descriptor sets!");
-        }
-
-        for (size_t i = 0; i < swapChain->getImageCount(); i++)
-        {
-            VkDescriptorBufferInfo bufferInfo{};
-            bufferInfo.buffer = uniformBuffers[i];
-            bufferInfo.offset = 0;
-            bufferInfo.range = sizeof(UniformBufferObject);
-
-            VkWriteDescriptorSet descriptorWrite{};
-            descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-            descriptorWrite.dstSet = descriptorSets[i];
-            descriptorWrite.dstBinding = 0;
-            descriptorWrite.dstArrayElement = 0;
-            descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-            descriptorWrite.descriptorCount = 1;
-            descriptorWrite.pBufferInfo = &bufferInfo;
-            descriptorWrite.pImageInfo = nullptr; // Optional
-            descriptorWrite.pTexelBufferView = nullptr; // Optional
-            vkUpdateDescriptorSets(device.getVkDevice(), 1, &descriptorWrite, 0, nullptr);
-        }
     }
 
     void freeCommandBuffers()
@@ -465,7 +351,7 @@ private:
             err = vkResetCommandBuffer(commandBuffers[i], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
             check_vk_result(err);
 
-            updateUniformBuffer(i);
+            pipelineee->updateBuffers(i, camera);
 
             VkCommandBufferBeginInfo beginInfo = {};
             beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -503,13 +389,9 @@ private:
             vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
             vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
-            vkCmdBindDescriptorSets(commandBuffers[i], VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
-                                    &descriptorSets[i], 0, nullptr);
+            pipelineee->bind(commandBuffers[i], i);
 
-
-            pipeline->bind(commandBuffers[i]);
-
-            vulkanRenderManager.startFrame(commandBuffers[i], pipelineLayout);
+            vulkanRenderManager.startFrame(commandBuffers[i], pipelineee->getPipelineLayout());
             world->draw(vulkanRenderManager);
 
             // Render imgui data
@@ -569,27 +451,6 @@ private:
         }
     }
 
-    void updateUniformBuffer(uint32_t imageIndex)
-    {
-        static auto startTime = std::chrono::high_resolution_clock::now();
-
-        auto currentTime = std::chrono::high_resolution_clock::now();
-        float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-        UniformBufferObject ubo{};
-        ubo.model = camera.calculateModelMatrix();
-        ubo.view = camera.calculateViewMatrix();
-        ubo.proj = camera.calculateProjectionMatrix();
-        ubo.proj[1][1] *= -1;
-
-        ubo.view = glm::inverse(ubo.view);
-
-        void *data;
-        vkMapMemory(device.getVkDevice(), uniformBuffersMemory[imageIndex], 0, sizeof(ubo), 0, &data);
-        memcpy(data, &ubo, sizeof(ubo));
-        vkUnmapMemory(device.getVkDevice(), uniformBuffersMemory[imageIndex]);
-    }
-
     void recreateSwapChain()
     {
         auto extent = window.getExtent();
@@ -613,7 +474,10 @@ private:
             }
         }
 
-        createPipeline();
+        if (pipelineee != nullptr)
+        {
+            pipelineee->recreatePipeline();
+        }
     }
 
 };

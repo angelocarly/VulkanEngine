@@ -8,6 +8,7 @@
 #include "game_entity.h"
 #include "octree.h"
 #include <list>
+#include "graph.h"
 //#include "entity.h"
 
 class World : public IRenderable
@@ -15,9 +16,8 @@ class World : public IRenderable
 public:
 
     World(vks::VksDevice &device)
-    :octree(Octree(device))
+    :octree(Octree(device)), graph(Graph(device))
     {
-
 //        for(int i = 0; i < 5; i++)
 //        {
 //            _entities.emplace_back(device);
@@ -32,13 +32,15 @@ public:
 //            entity.draw2(renderProvider);
 //        }
 
-        octree.draw(renderProvider);
+//        octree.draw(renderProvider);
+        graph.draw(renderProvider);
     }
 private:
 
 //    std::vector<Entity> _entities;
     std::list<Entity> _entities;
     Octree octree;
+    Graph graph;
 
 };
 
