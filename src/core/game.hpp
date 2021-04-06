@@ -39,6 +39,7 @@
 #include <chrono>
 #include <libwebsockets.h>
 #include <core/graphics/render_pipeline.h>
+#include <core/graphics/compute_pipeline.h>
 #include "graphics/renderable.h"
 #include "game/world.h"
 #include "camera.h"
@@ -62,13 +63,16 @@ class Game
 	{
 		recreateSwapChain();
 		createDescriptorPool();
-		renderpipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
+		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
+		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		createCommandBuffers();
-		initImGui();
+//		initImGui();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
 		inputhandler.swallowMouse();
+
+		spdlog::get("vulkan")->info("Instantiated application");
 	}
 
 	// Render game and handle input
@@ -78,8 +82,8 @@ class Game
 
 		if (!imguiDataAvailable)
 		{
-			imGuiCreateRenderData();
-			imguiDataAvailable = true;
+//			imGuiCreateRenderData();
+//			imguiDataAvailable = true;
 		}
 
 		recordCommandBuffers();
@@ -96,9 +100,9 @@ class Game
 
 	~Game()
 	{
-		ImGui_ImplVulkan_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
+//		ImGui_ImplVulkan_Shutdown();
+//		ImGui_ImplGlfw_Shutdown();
+//		ImGui::DestroyContext();
 	}
 
  private:
@@ -113,7 +117,8 @@ class Game
 	VksInput inputhandler = VksInput();
 	Camera camera;
 
-	BaseRenderPipeline* renderpipeline = nullptr;
+	ComputePipeline* computepipeline = nullptr;
+	BaseRenderPipeline* basepipeline = nullptr;
 
 	bool imguiDataAvailable = false;
 	IRenderable* world = new World(device);
@@ -186,7 +191,7 @@ class Game
 		init_info.Instance = device.getInstance();
 		init_info.PhysicalDevice = device.getPhysicalDevice();
 		init_info.Device = device.getVkDevice();
-		init_info.QueueFamily = device.findPhysicalQueueFamilies().graphicsFamily.value();
+		init_info.QueueFamily = device.findQueueFamilies().graphicsFamily.value();
 		init_info.Queue = device.getGraphicsQueue();
 		init_info.PipelineCache = VK_NULL_HANDLE;
 		init_info.DescriptorPool = descriptorPool;
@@ -306,7 +311,6 @@ class Game
 			err = vkResetCommandBuffer(commandBuffers[i], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 			check_vk_result(err);
 
-
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 			beginInfo.flags = 0;                   // Optional
@@ -316,6 +320,13 @@ class Game
 			{
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
+
+			if (i == 0)
+			{
+				computepipeline->begin(commandBuffers[0], 0);
+				computepipeline->end();
+			}
+
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = swapChain->getRenderPass();
@@ -343,10 +354,15 @@ class Game
 			vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
 			vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
-			renderpipeline->begin(commandBuffers[i], i);
-			renderpipeline->updateBuffers(camera);
+//			renderpipeline->begin(commandBuffers[i], i);
+//			renderpipeline->updateBuffers(camera);
 
-			world->draw(*renderpipeline);
+//			basepipeline->begin(commandBuffers[i], i);
+//			basepipeline->updateBuffers(camera);
+
+//			world->draw(*basepipeline);
+
+//			basepipeline->end();
 
 			// Render imgui data
 			if (imguiDataAvailable)

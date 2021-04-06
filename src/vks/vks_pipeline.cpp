@@ -2,10 +2,9 @@
 #include "vks_device.h"
 #include "vks_swap_chain.h"
 #include "vks_model.h"
+#include "vks_util.h"
 #include <vulkan/vulkan.h>
 #include <vector>
-#include <string>
-#include <fstream>
 #include <iostream>
 
 namespace vks
@@ -27,9 +26,8 @@ namespace vks
     {
         _configInfo = configInfo;
 
-
-        auto vertShaderCode = readFile("shaders/shader.vert.spv");
-        auto fragShaderCode = readFile("shaders/shader.frag.spv");
+        auto vertShaderCode = VksUtil::readFile("shaders/shader.vert.spv");
+        auto fragShaderCode = VksUtil::readFile("shaders/shader.frag.spv");
 
         VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
         VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
@@ -101,26 +99,6 @@ namespace vks
         }
 
         return shaderModule;
-    }
-
-    std::vector<char> VksPipeline::readFile(const std::string &filename)
-    {
-        std::ifstream file(filename, std::ios::ate | std::ios::binary);
-
-        if (!file.is_open())
-        {
-            throw std::runtime_error("failed to open file!");
-        }
-
-        size_t fileSize = (size_t) file.tellg();
-        std::vector<char> buffer(fileSize);
-
-        file.seekg(0);
-        file.read(buffer.data(), fileSize);
-
-        file.close();
-
-        return buffer;
     }
 
     void VksPipeline::defaultPipelineConfigInfo(PipelineConfigInfo& configInfo)
