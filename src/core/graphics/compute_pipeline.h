@@ -8,6 +8,7 @@
 #include <vks/vks_util.h>
 #include "render_pipeline.h"
 #include <lodepng.h>
+#include <vks/VulkanInitializers.h>
 
 struct Pixel
 {
@@ -26,6 +27,7 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 	void init()
 	{
 		_bufferSize = sizeof(Pixel) * WIDTH * HEIGHT;
+		createTexture();
 		createDescriptorSetLayout();
 		createPipelineLayout();
 		createPipeline();
@@ -52,9 +54,8 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 		_currentCommandBuffer = nullptr;
 		_currentFrame = -1;
 
-		sleep(1);
 
-		saveRenderedImage();
+//		saveRenderedImage();
 //		throw std::runtime_error("stop");
 	}
 
@@ -109,6 +110,11 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 		return _buffer;
 	}
 
+	VkImage getComputeTarget()
+	{
+		return _computeTarget;
+	}
+
  private:
 
 	const int WIDTH = 1600;
@@ -130,9 +136,121 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 	VkCommandBuffer* _currentCommandBuffer;
 	int _currentFrame = -1;
 
+	VkImage _computeTarget;
+	VkSampler _computeSampler;
+	VkSamplerMipmapMode _miplevels;
+	VkImageLayout _imageLayout;
+	VkImageView _imageView;
+	VkDeviceMemory _computeTextureMemory;
+
 	VkBuffer _buffer;
 	VkDeviceMemory _bufferMemory;
 	uint32_t _bufferSize;
+
+	// Prepare a texture target that is used to store compute shader calculations
+	void createTexture()
+	{
+		VkFormatProperties formatProperties;
+
+		// Get device properties for the requested texture format
+		vkGetPhysicalDeviceFormatProperties(_device.getPhysicalDevice(), VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
+		// Check if requested image format supports image storage operations
+		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT);
+
+		VkImageCreateInfo imageCreateInfo = vks::initializers::imageCreateInfo();
+		imageCreateInfo.imageType = VK_IMAGE_TYPE_2D;
+		imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+		imageCreateInfo.extent = { _swapChain.getSwapChainExtent().width, _swapChain.getSwapChainExtent().height, 1 };
+		imageCreateInfo.mipLevels = 1;
+		imageCreateInfo.arrayLayers = 1;
+		imageCreateInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+		imageCreateInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
+		// Image will be sampled in the fragment shader and used as storage target in the compute shader
+		imageCreateInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
+		imageCreateInfo.flags = 0;
+		// If compute and graphics queue family indices differ, we create an image that can be shared between them
+		// This can result in worse performance than exclusive sharing mode, but save some synchronization to keep the sample simple
+		std::vector<uint32_t> queueFamilyIndices;
+//		if (_device.findQueueFamilies().graphicsFamily != vulkanDevice->queueFamilyIndices.compute) {
+//			queueFamilyIndices = {
+//				vulkanDevice->queueFamilyIndices.graphics,
+//				vulkanDevice->queueFamilyIndices.compute
+//			};
+//			imageCreateInfo.sharingMode = VK_SHARING_MODE_CONCURRENT;
+//			imageCreateInfo.queueFamilyIndexCount = 2;
+//			imageCreateInfo.pQueueFamilyIndices = queueFamilyIndices.data();
+//		}
+
+		VkMemoryAllocateInfo memAllocInfo = vks::initializers::memoryAllocateInfo();
+		VkMemoryRequirements memReqs;
+
+		if(vkCreateImage(_device.getVkDevice(), &imageCreateInfo, nullptr, &_computeTarget) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create texture");
+		}
+
+		vkGetImageMemoryRequirements(_device.getVkDevice(), _computeTarget, &memReqs);
+		memAllocInfo.allocationSize = memReqs.size;
+		memAllocInfo.memoryTypeIndex = _device.getMemoryType(memReqs.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+		if(vkAllocateMemory(_device.getVkDevice(), &memAllocInfo, nullptr, &_computeTextureMemory) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to allocate texture memory");
+		}
+		if(vkBindImageMemory(_device.getVkDevice(), _computeTarget, _computeTextureMemory, 0) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to bind image memory");
+		}
+
+		VkCommandBuffer layoutCmd = _device.createCommandBuffer(VK_COMMAND_BUFFER_LEVEL_PRIMARY, true);
+
+		_imageLayout = VK_IMAGE_LAYOUT_GENERAL;
+//		vks::tools::setImageLayout(
+//			layoutCmd, _computeTarget,
+//			VK_IMAGE_ASPECT_COLOR_BIT,
+//			VK_IMAGE_LAYOUT_UNDEFINED,
+//			_imageLayout);
+
+		_device.endSingleTimeCommands(layoutCmd);
+
+		// Create sampler
+		VkSamplerCreateInfo sampler = vks::initializers::samplerCreateInfo();
+		sampler.magFilter = VK_FILTER_LINEAR;
+		sampler.minFilter = VK_FILTER_LINEAR;
+		sampler.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+		sampler.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_BORDER;
+		sampler.addressModeV = sampler.addressModeU;
+		sampler.addressModeW = sampler.addressModeU;
+		sampler.mipLodBias = 0.0f;
+		sampler.maxAnisotropy = 1.0f;
+		sampler.compareOp = VK_COMPARE_OP_NEVER;
+		sampler.minLod = 0.0f;
+		sampler.maxLod = _miplevels;
+		sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
+		if(vkCreateSampler(_device.getVkDevice(), &sampler, nullptr, &_computeSampler) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create texture");
+		}
+
+		// Create image view
+		VkImageViewCreateInfo view = vks::initializers::imageViewCreateInfo();
+		view.image = VK_NULL_HANDLE;
+		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
+		view.format = VK_FORMAT_R8G8B8A8_UNORM;
+		view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+		view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+		view.image = _computeTarget;
+		if(vkCreateImageView(_device.getVkDevice(), &view, nullptr, &_imageView) != VK_SUCCESS)
+		{
+			throw std::runtime_error("Failed to create image view");
+		}
+
+		// Initialize a descriptor for later use
+//		tex->descriptor.imageLayout = tex->imageLayout;
+//		tex->descriptor.imageView = tex->view;
+//		tex->descriptor.sampler = tex->sampler;
+//		tex->device = vulkanDevice;
+
+	}
 
 	/**
 	 * Create a pipeline layout
@@ -167,7 +285,7 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 	{
 		VkDescriptorSetLayoutBinding binding = {};
 		binding.binding = 0;
-		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		binding.descriptorCount = 1;
 		binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
@@ -229,20 +347,25 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 
 		// Allocate the storage buffer to the descriptor set
 
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = _buffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = _bufferSize;
+//		VkDescriptorBufferInfo bufferInfo{};
+//		bufferInfo.buffer = _buffer;
+//		bufferInfo.offset = 0;
+//		bufferInfo.range = _bufferSize;
+
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageView = _imageView;
+		imageInfo.sampler = _computeSampler;
+		imageInfo.imageLayout = _imageLayout;
 
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = _descriptorSet; // Write to this descriptor set
 		descriptorWrite.dstBinding = 0; // Write to the first and only binding
 		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		descriptorWrite.descriptorCount = 1; // Update a single descriptor
-		descriptorWrite.pBufferInfo = &bufferInfo;
-		descriptorWrite.pImageInfo = nullptr; // Optional
+//		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = &imageInfo; // Optional
 		descriptorWrite.pTexelBufferView = nullptr; // Optional
 		vkUpdateDescriptorSets(_device.getVkDevice(), 1, &descriptorWrite, 0, nullptr);
 	}

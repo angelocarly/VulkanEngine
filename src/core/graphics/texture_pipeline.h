@@ -2,8 +2,8 @@
 // Created by magnias on 31/03/2021.
 //
 
-#ifndef VULKANENGINE_RENDER_PIPELINE_H
-#define VULKANENGINE_RENDER_PIPELINE_H
+#ifndef VULKANENGINE_TEXTURE_PIPELINE_H
+#define VULKANENGINE_TEXTURE_PIPELINE_H
 
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
@@ -11,8 +11,6 @@
 #include "../../vks/vks_pipeline.h"
 #include "../../vks/vks_swap_chain.h"
 #include "../camera.h"
-
-using namespace vks;
 
 struct UniformBufferObject
 {
@@ -26,33 +24,13 @@ struct MeshPushConstants
 	glm::mat4 transform;
 };
 
-class IRenderProvider
+/**
+ * Pipeline that renders a full-screen quad with custom texture
+ */
+class TextureRenderPipeline : public IRenderPipeline, public IRenderProvider
 {
  public:
-	virtual ~IRenderProvider()
-	{
-	};
-	virtual void bindModelTransform(glm::mat4 transform) = 0;
-	virtual void bindModel(vks::VksModel& model) = 0;
-	virtual void drawModel() = 0;
-};
-
-class IRenderPipeline
-{
- public:
-	virtual ~IRenderPipeline()
-	{
-	};
-
-	virtual void updateBuffers(Camera camera) = 0;
-	virtual void begin(VkCommandBuffer& commandBuffer, int frame) = 0;
-	virtual void end() = 0;
-};
-
-class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
-{
- public:
-	BaseRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
+	TextureRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
 		: _device(device), _descriptorPool(descriptorPool), _swapChain(swapChain)
 	{
 		init();
@@ -60,17 +38,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 
 	void init()
 	{
-		std::vector<vks::VksModel::Vertex> vertices
-			{
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }}, // Bottom
-				{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
-			};
-		_screenModel = new vks::VksModel(_device, vertices);
-
 		createTextureImage(_device);
 		createTextureImageView(_device);
 		createTextureSampler(_device);
@@ -144,27 +111,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 		_currentModel->draw(*_currentCommandBuffer);
 	}
 
-	void drawScreenRect()
-	{
-		_screenModel->bind(*_currentCommandBuffer);
-		glm::mat4 transform = glm::mat4(1);
-		glm::translate(transform, glm::vec3());
-		bindModelTransform(transform);
-
-		UniformBufferObject ubo{};
-		ubo.model = glm::mat4(1);
-		ubo.view = glm::mat4(1);
-		ubo.proj = glm::ortho(0.f, 1.f, 0.f, 1.f, -1.f, 1.f);
-		ubo.view = glm::inverse(ubo.view);
-
-		void* data;
-		vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
-
-		_screenModel->draw(*_currentCommandBuffer);
-	}
-
 	std::vector<VkDescriptorSet> getVkDescriptorSet()
 	{
 		return descriptorSets;
@@ -195,7 +141,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 	VkCommandBuffer* _currentCommandBuffer;
 	int _currentFrame = -1;
 	vks::VksModel* _currentModel;
-	vks::VksModel* _screenModel;
 
 	VkSampler textureSampler;
 
@@ -489,4 +434,4 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 	}
 };
 
-#endif //VULKANENGINE_RENDER_PIPELINE_H
+#endif //VULKANENGINE_TEXTURE_PIPELINE_H

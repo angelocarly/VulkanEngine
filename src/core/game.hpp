@@ -63,10 +63,11 @@ class Game
 	{
 		recreateSwapChain();
 		createDescriptorPool();
-		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
+//		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		createCommandBuffers();
-//		initImGui();
+
+		generateQuad();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
@@ -123,6 +124,8 @@ class Game
 	bool imguiDataAvailable = false;
 	IRenderable* world = new World(device);
 	VkResult err;
+
+	VksModel* model;
 
 	// ImGui
 	float gui_x = 0;
@@ -204,9 +207,9 @@ class Game
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
-		VkCommandBuffer commandBuffer = device.beginCommandBuffer();
+		VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
 		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-		device.endCommandBuffer(commandBuffer);
+		device.endSingleTimeCommands(commandBuffer);
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
@@ -306,6 +309,8 @@ class Game
 		swapChain->waitForImageInFlight();
 		device.waitIdle();
 
+
+		// Swapchain renderpasses
 		for (size_t i = 0; i < commandBuffers.size(); i++)
 		{
 			err = vkResetCommandBuffer(commandBuffers[i], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
@@ -321,12 +326,32 @@ class Game
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
 
-			if (i == 0)
-			{
-				computepipeline->begin(commandBuffers[0], 0);
-				computepipeline->end();
-			}
+			// Compute
+//			computepipeline->begin(commandBuffers[i], i);
+//			computepipeline->end();
+//
+//			// Wait until the compute shader is finished rendering to it's texture
+//			VkImageMemoryBarrier computeBarrier{};
+//			computeBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+//			computeBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+//			computeBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+//			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+//			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+//			computeBarrier.image = computepipeline->getComputeTarget();
+//			computeBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+//			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+//
+//			vkCmdPipelineBarrier(
+//				commandBuffers[i],
+//				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+//				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+//				0,
+//				0, NULL,
+//				0, NULL,
+//				1, &computeBarrier);
 
+			// Renderpass
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = swapChain->getRenderPass();
@@ -354,15 +379,18 @@ class Game
 			vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
 			vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
-//			renderpipeline->begin(commandBuffers[i], i);
-//			renderpipeline->updateBuffers(camera);
-
-//			basepipeline->begin(commandBuffers[i], i);
-//			basepipeline->updateBuffers(camera);
-
+			// Render screen quad
+			basepipeline->begin(commandBuffers[i], i);
+			basepipeline->updateBuffers(camera);
+//			screenpipeline->begin(commandBuffers[i], i);
+//			screenpipeline->updateBuffers(camera);
 //			world->draw(*basepipeline);
-
-//			basepipeline->end();
+//			basepipeline->bindModelTransform(glm::mat4(1));
+//
+//			screenpipeline->drawModel();
+//			basepipeline->bindModel(*model);
+//			basepipeline->drawModel();
+			basepipeline->drawScreenRect();
 
 			// Render imgui data
 			if (imguiDataAvailable)
@@ -446,6 +474,22 @@ class Game
 				createCommandBuffers();
 			}
 		}
+	}
+
+	void generateQuad()
+	{
+		// Setup vertices for a single uv-mapped quad made from two triangles
+		std::vector<vks::VksModel::Vertex> vertices =
+			{
+				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
+				{{ -1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
+				{{ -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }},
+				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+				{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }},
+				{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }}
+			};
+
+		model = new vks::VksModel(device, vertices);
 	}
 
 };

@@ -15,12 +15,12 @@ class Entity : public IRenderable
 	Entity(vks::VksDevice& device)
 	{
 		std::vector<vks::VksModel::Vertex> vertices{
-			{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
-			{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f, 0.0f }},
-			{{ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 0.0f }},
-			{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f, 0.0f }},
-			{{ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f, 0.0f }},
-			{{ 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f, 0.0f }},
+			{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+			{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
+			{{ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+			{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
+			{{ 1.0f, 0.0f, 1.0f }, { 1.0f, 1.0f }},
+			{{ 0.0f, 0.0f, 1.0f }, { 0.0f, 1.0f }},
 		};
 
 //        vksModel = std::make_unique<VksModel>(device, vertices);
