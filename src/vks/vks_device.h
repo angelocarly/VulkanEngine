@@ -89,17 +89,27 @@ namespace vks
 			VkBuffer& buffer,
 			VkDeviceMemory& bufferMemory);
 		void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-		VkCommandBuffer beginCommandBuffer();
+		VkCommandBuffer beginSingleTimeCommands();
 
-		void endCommandBuffer(VkCommandBuffer commandBuffer);
+		void endSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+		VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, VkCommandPool pool, bool begin);
+		VkCommandBuffer createCommandBuffer(VkCommandBufferLevel level, bool begin);
+		uint32_t
+		getMemoryType(uint32_t typeBits, VkMemoryPropertyFlags properties, VkBool32* memTypeFound = nullptr) const;
 
 		void createImageWithInfo(
 			const VkImageCreateInfo& imageInfo,
 			VkMemoryPropertyFlags properties,
 			VkImage& image,
 			VkDeviceMemory& imageMemory);
+		void copyBufferToImage(
+			VkBuffer buffer,
+			VkImage image,
+			uint32_t width,
+			uint32_t height);
 
-		VkShaderModule createShaderModule(const std::vector<char> &code);
+		VkShaderModule createShaderModule(const std::vector<char>& code);
 
 		void waitIdle();
 
@@ -164,6 +174,7 @@ namespace vks
 
 		uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
+		VkPhysicalDeviceMemoryProperties memoryProperties;
 	};
 
 }

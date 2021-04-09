@@ -10,7 +10,6 @@
 
 #include <vulkan/vulkan.h>
 #include <vector>
-#include "VulkanDevice.h"
 
 #ifndef VULKANENGINE_VULKANINITIALIZERS_H
 #define VULKANENGINE_VULKANINITIALIZERS_H
@@ -19,6 +18,13 @@
 
 namespace vks::initializers
 {
+	inline VkMemoryAllocateInfo memoryAllocateInfo()
+	{
+		VkMemoryAllocateInfo memAllocInfo {};
+		memAllocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+		return memAllocInfo;
+	}
+
     inline VkDescriptorSetLayoutBinding descriptorSetLayoutBinding(
             VkDescriptorType type,
             VkShaderStageFlags stageFlags,
@@ -33,6 +39,41 @@ namespace vks::initializers
         layoutBinding.pImmutableSamplers = nullptr;
         return layoutBinding;
     }
+
+	inline VkCommandBufferAllocateInfo commandBufferAllocateInfo(
+		VkCommandPool commandPool,
+		VkCommandBufferLevel level,
+		uint32_t bufferCount)
+	{
+		VkCommandBufferAllocateInfo commandBufferAllocateInfo {};
+		commandBufferAllocateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		commandBufferAllocateInfo.commandPool = commandPool;
+		commandBufferAllocateInfo.level = level;
+		commandBufferAllocateInfo.commandBufferCount = bufferCount;
+		return commandBufferAllocateInfo;
+	}
+
+	inline VkCommandPoolCreateInfo commandPoolCreateInfo()
+	{
+		VkCommandPoolCreateInfo cmdPoolCreateInfo {};
+		cmdPoolCreateInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+		return cmdPoolCreateInfo;
+	}
+
+	inline VkCommandBufferBeginInfo commandBufferBeginInfo()
+	{
+		VkCommandBufferBeginInfo cmdBufferBeginInfo {};
+		cmdBufferBeginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		return cmdBufferBeginInfo;
+	}
+
+	inline VkSamplerCreateInfo samplerCreateInfo()
+	{
+		VkSamplerCreateInfo samplerCreateInfo {};
+		samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+		samplerCreateInfo.maxAnisotropy = 1.0f;
+		return samplerCreateInfo;
+	}
 
     inline VkDescriptorSetLayoutCreateInfo descriptorSetLayoutCreateInfo(
             const VkDescriptorSetLayoutBinding *pBindings,
@@ -98,18 +139,32 @@ namespace vks::initializers
         return writeDescriptorSet;
     }
 
-    inline VulkanDevice vulkanDevice(
-            VkInstance instance,
-            VkSurfaceKHR surface,
-            std::vector<const char *> validationLayers,
-            std::vector<const char *> deviceExtensions
-    )
-    {
-        VulkanDevice device{};
-        device.instance = instance;
-        device.surface = surface;
-        device.validationLayers = validationLayers;
-        device.deviceExtensions = deviceExtensions;
-        return device;
-    }
+	inline VkImageCreateInfo imageCreateInfo()
+	{
+		VkImageCreateInfo imageCreateInfo {};
+		imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+		return imageCreateInfo;
+	}
+
+	inline VkImageViewCreateInfo imageViewCreateInfo()
+	{
+		VkImageViewCreateInfo imageViewCreateInfo {};
+		imageViewCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+		return imageViewCreateInfo;
+	}
+
+//    inline VulkanDevice vulkanDevice(
+//            VkInstance instance,
+//            VkSurfaceKHR surface,
+//            std::vector<const char *> validationLayers,
+//            std::vector<const char *> deviceExtensions
+//    )
+//    {
+//        VulkanDevice device{};
+//        device.instance = instance;
+//        device.surface = surface;
+//        device.validationLayers = validationLayers;
+//        device.deviceExtensions = deviceExtensions;
+//        return device;
+//    }
 }

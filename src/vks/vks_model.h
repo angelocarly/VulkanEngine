@@ -43,9 +43,9 @@ public:
     struct Vertex
     {
         glm::vec3 position;
-        glm::vec3 color;
+//        glm::vec3 color;
         //            glm::vec4 color;
-        //            glm::vec2 uv;
+                    glm::vec2 uv;
         //            glm::vec4 tangent;  // w component is -1 or 1 and indicates handedness of the tangent basis
 
         static std::vector<VkVertexInputBindingDescription> getBindingDescriptions()
@@ -67,8 +67,8 @@ public:
 
             attributeDescriptions[1].binding = 0;
             attributeDescriptions[1].location = 1; // Location in the shader
-            attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-            attributeDescriptions[1].offset = offsetof(Vertex, color);
+            attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
+            attributeDescriptions[1].offset = offsetof(Vertex, uv);
             return attributeDescriptions;
         }
 

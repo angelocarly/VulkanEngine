@@ -2,8 +2,8 @@
 // Created by magnias on 31/03/2021.
 //
 
-#ifndef VULKANENGINE_RENDER_PIPELINE_H
-#define VULKANENGINE_RENDER_PIPELINE_H
+#ifndef VULKANENGINE_SCREEN_PIPELINE_H
+#define VULKANENGINE_SCREEN_PIPELINE_H
 
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
@@ -11,9 +11,6 @@
 #include "../../vks/vks_pipeline.h"
 #include "../../vks/vks_swap_chain.h"
 #include "../camera.h"
-#define STD_IMAGE_IMPLEMENTATION
-
-using namespace vks;
 
 struct UniformBufferObject
 {
@@ -27,33 +24,13 @@ struct MeshPushConstants
 	glm::mat4 transform;
 };
 
-class IRenderProvider
+/**
+ * Pipeline that renders a full-screen quad with custom texture
+ */
+class ScreenRenderPipeline : public IRenderPipeline, public IRenderProvider
 {
  public:
-	virtual ~IRenderProvider()
-	{
-	};
-	virtual void bindModelTransform(glm::mat4 transform) = 0;
-	virtual void bindModel(vks::VksModel& model) = 0;
-	virtual void drawModel() = 0;
-};
-
-class IRenderPipeline
-{
- public:
-	virtual ~IRenderPipeline()
-	{
-	};
-
-	virtual void updateBuffers(Camera camera) = 0;
-	virtual void begin(VkCommandBuffer& commandBuffer, int frame) = 0;
-	virtual void end() = 0;
-};
-
-class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
-{
- public:
-	BaseRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
+	ScreenRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
 		: _device(device), _descriptorPool(descriptorPool), _swapChain(swapChain)
 	{
 		init();
@@ -457,4 +434,4 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 	}
 };
 
-#endif //VULKANENGINE_RENDER_PIPELINE_H
+#endif //VULKANENGINE_SCREEN_PIPELINE_H
