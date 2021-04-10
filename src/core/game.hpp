@@ -67,7 +67,7 @@ class Game
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		createCommandBuffers();
 
-		generateQuad();
+		initImGui();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
@@ -83,8 +83,8 @@ class Game
 
 		if (!imguiDataAvailable)
 		{
-//			imGuiCreateRenderData();
-//			imguiDataAvailable = true;
+			imGuiCreateRenderData();
+			imguiDataAvailable = true;
 		}
 
 		recordCommandBuffers();
@@ -124,8 +124,6 @@ class Game
 	bool imguiDataAvailable = false;
 	IRenderable* world = new World(device);
 	VkResult err;
-
-	VksModel* model;
 
 	// ImGui
 	float gui_x = 0;
@@ -474,22 +472,6 @@ class Game
 				createCommandBuffers();
 			}
 		}
-	}
-
-	void generateQuad()
-	{
-		// Setup vertices for a single uv-mapped quad made from two triangles
-		std::vector<vks::VksModel::Vertex> vertices =
-			{
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ -1.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
-				{{ -1.0f, -1.0f, 0.0f }, { 0.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 1.0f, -1.0f, 0.0f }, { 1.0f, 0.0f }}
-			};
-
-		model = new vks::VksModel(device, vertices);
 	}
 
 };
