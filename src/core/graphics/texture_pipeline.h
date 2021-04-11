@@ -2,8 +2,8 @@
 // Created by magnias on 31/03/2021.
 //
 
-#ifndef VULKANENGINE_RENDER_PIPELINE_H
-#define VULKANENGINE_RENDER_PIPELINE_H
+#ifndef VULKANENGINE_TEXTURE_PIPELINE_H
+#define VULKANENGINE_TEXTURE_PIPELINE_H
 
 #include <vulkan/vulkan.h>
 #include <glm/glm.hpp>
@@ -11,8 +11,6 @@
 #include "../../vks/vks_pipeline.h"
 #include "../../vks/vks_swap_chain.h"
 #include "../camera.h"
-
-using namespace vks;
 
 struct UniformBufferObject
 {
@@ -26,33 +24,13 @@ struct MeshPushConstants
 	glm::mat4 transform;
 };
 
-class IRenderProvider
+/**
+ * Pipeline that renders a full-screen quad with custom texture
+ */
+class TextureRenderPipeline : public IRenderPipeline, public IRenderProvider
 {
  public:
-	virtual ~IRenderProvider()
-	{
-	};
-	virtual void bindModelTransform(glm::mat4 transform) = 0;
-	virtual void bindModel(vks::VksModel& model) = 0;
-	virtual void drawModel() = 0;
-};
-
-class IRenderPipeline
-{
- public:
-	virtual ~IRenderPipeline()
-	{
-	};
-
-	virtual void updateBuffers(Camera camera) = 0;
-	virtual void begin(VkCommandBuffer& commandBuffer, int frame) = 0;
-	virtual void end() = 0;
-};
-
-class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
-{
- public:
-	BaseRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
+	TextureRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
 		: _device(device), _descriptorPool(descriptorPool), _swapChain(swapChain)
 	{
 		init();
@@ -60,17 +38,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 
 	void init()
 	{
-		std::vector<vks::VksModel::Vertex> vertices
-			{
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }}, // Bottom
-				{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
-			};
-		_screenModel = new vks::VksModel(_device, vertices);
-
 		createTextureImage(_device);
 		createTextureImageView(_device);
 		createTextureSampler(_device);
@@ -144,27 +111,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 		_currentModel->draw(*_currentCommandBuffer);
 	}
 
-	void drawScreenRect()
-	{
-		_screenModel->bind(*_currentCommandBuffer);
-		glm::mat4 transform = glm::mat4(1);
-		glm::translate(transform, glm::vec3());
-		bindModelTransform(transform);
-
-		UniformBufferObject ubo{};
-		ubo.model = glm::mat4(1);
-		ubo.view = glm::mat4(1);
-		ubo.proj = glm::ortho(0.f, 1.f, 0.f, 1.f, -1.f, 1.f);
-		ubo.view = glm::inverse(ubo.view);
-
-		void* data;
-		vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
-
-		_screenModel->draw(*_currentCommandBuffer);
-	}
-
 	std::vector<VkDescriptorSet> getVkDescriptorSet()
 	{
 		return descriptorSets;
@@ -180,36 +126,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 		return pipeline->getPipeline();
 	}
 
-	void bindTexture(VkDescriptorImageInfo imageInfo)
-	{
-		for (size_t i = 0; i < _swapChain.getImageCount(); i++)
-		{
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = _uniformBuffers[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
-
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
-
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSets[i];
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pBufferInfo = &bufferInfo;
-
-			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = descriptorSets[i];
-			descriptorWrites[1].dstBinding = 1;
-			descriptorWrites[1].dstArrayElement = 0;
-			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[1].descriptorCount = 1;
-			descriptorWrites[1].pImageInfo = &imageInfo;
-
-			vkUpdateDescriptorSets(_device.getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		}
-	}
  private:
 
 	VksDevice& _device;
@@ -225,7 +141,6 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 	VkCommandBuffer* _currentCommandBuffer;
 	int _currentFrame = -1;
 	vks::VksModel* _currentModel;
-	vks::VksModel* _screenModel;
 
 	VkSampler textureSampler;
 
@@ -277,12 +192,61 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 		device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
 
 		// Create the texture image
-		device.transitionImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+		transitionImageLayout(device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 		device.copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth), static_cast<uint32_t>(texHeight));
 
-		device.transitionImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
+		transitionImageLayout(device, textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 	}
 
+	static void transitionImageLayout(VksDevice device, VkImage image, VkFormat format, VkImageLayout oldLayout, VkImageLayout newLayout)
+	{
+		VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
+
+		VkImageMemoryBarrier barrier{};
+		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+		barrier.oldLayout = oldLayout;
+		barrier.newLayout = newLayout;
+		barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+		barrier.image = image;
+		barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		barrier.subresourceRange.baseMipLevel = 0;
+		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.baseArrayLayer = 0;
+		barrier.subresourceRange.layerCount = 1;
+		barrier.srcAccessMask = 0; // TODO
+		barrier.dstAccessMask = 0; // TODO
+
+		VkPipelineStageFlags sourceStage;
+		VkPipelineStageFlags destinationStage;
+
+		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+			barrier.srcAccessMask = 0;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
+			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		} else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+			barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
+			barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		} else {
+			throw std::invalid_argument("unsupported layout transition!");
+		}
+
+		vkCmdPipelineBarrier(
+			commandBuffer,
+			sourceStage, destinationStage,
+			0,
+			0, nullptr,
+			0, nullptr,
+			1, &barrier
+		);
+
+		device.endSingleTimeCommands(commandBuffer);
+	}
 
 	void createTextureImageView(VksDevice& device)
 	{
@@ -470,4 +434,4 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 	}
 };
 
-#endif //VULKANENGINE_RENDER_PIPELINE_H
+#endif //VULKANENGINE_TEXTURE_PIPELINE_H

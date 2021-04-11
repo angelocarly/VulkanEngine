@@ -27,6 +27,11 @@ struct PipelineConfigInfo
     uint32_t subpass = 0;
 };
 
+/**
+ * The pipeline specifies the pipeline that all graphics and commands pass trough in Vulkan.
+ *
+ * This can be a simple rasterization pipeline, a compute pipeline or others.
+ */
 class VksPipeline
 {
 public:

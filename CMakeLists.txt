@@ -27,6 +27,7 @@ endif()
 file(GLOB_RECURSE GLSL_SOURCE_FILES
         "shaders/*.frag"
         "shaders/*.vert"
+        "shaders/*.comp"
         )
 
 foreach(GLSL ${GLSL_SOURCE_FILES})
@@ -116,3 +117,9 @@ include_directories(${STB_DIR})
 find_package(spdlog REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
 target_link_libraries(tests PUBLIC spdlog::spdlog)
+
+# lodepng
+set(LODEPNG_DIR "${LIB_DIR}/lodepng")
+add_library("lodepng" ${LODEPNG_DIR}/lodepng.cpp)
+target_include_directories("lodepng" PUBLIC "${LODEPNG_DIR}")
+target_link_libraries(${PROJECT_NAME} PUBLIC "lodepng")

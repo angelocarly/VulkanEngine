@@ -39,6 +39,8 @@
 #include <chrono>
 #include <libwebsockets.h>
 #include <core/graphics/render_pipeline.h>
+#include <core/graphics/compute_pipeline.h>
+#include <core/graphics/compute_pipeline.h>
 #include "graphics/renderable.h"
 #include "game/world.h"
 #include "camera.h"
@@ -62,13 +64,18 @@ class Game
 	{
 		recreateSwapChain();
 		createDescriptorPool();
-		renderpipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
+		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
+		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
+		basepipeline->bindTexture(computepipeline->getComputeTarget());
 		createCommandBuffers();
+
 		initImGui();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
 		inputhandler.swallowMouse();
+
+		spdlog::get("vulkan")->info("Instantiated application");
 	}
 
 	// Render game and handle input
@@ -113,7 +120,8 @@ class Game
 	VksInput inputhandler = VksInput();
 	Camera camera;
 
-	BaseRenderPipeline* renderpipeline = nullptr;
+	ComputePipeline* computepipeline = nullptr;
+	BaseRenderPipeline* basepipeline = nullptr;
 
 	bool imguiDataAvailable = false;
 	IRenderable* world = new World(device);
@@ -186,7 +194,7 @@ class Game
 		init_info.Instance = device.getInstance();
 		init_info.PhysicalDevice = device.getPhysicalDevice();
 		init_info.Device = device.getVkDevice();
-		init_info.QueueFamily = device.findPhysicalQueueFamilies().graphicsFamily.value();
+		init_info.QueueFamily = device.findQueueFamilies().graphicsFamily.value();
 		init_info.Queue = device.getGraphicsQueue();
 		init_info.PipelineCache = VK_NULL_HANDLE;
 		init_info.DescriptorPool = descriptorPool;
@@ -199,9 +207,9 @@ class Game
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
-		VkCommandBuffer commandBuffer = device.beginCommandBuffer();
+		VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
 		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-		device.endCommandBuffer(commandBuffer);
+		device.endSingleTimeCommands(commandBuffer);
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 	}
 
@@ -301,11 +309,12 @@ class Game
 		swapChain->waitForImageInFlight();
 		device.waitIdle();
 
+
+		// Swapchain renderpasses
 		for (size_t i = 0; i < commandBuffers.size(); i++)
 		{
 			err = vkResetCommandBuffer(commandBuffers[i], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 			check_vk_result(err);
-
 
 			VkCommandBufferBeginInfo beginInfo = {};
 			beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -316,6 +325,34 @@ class Game
 			{
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
+
+			// Compute
+			computepipeline->begin(commandBuffers[i], i);
+			computepipeline->end();
+//
+//			// Wait until the compute shader is finished rendering to it's texture
+			VkImageMemoryBarrier computeBarrier{};
+			computeBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			computeBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+			computeBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+			computeBarrier.image = computepipeline->getResultImage();
+			computeBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+			vkCmdPipelineBarrier(
+				commandBuffers[i],
+				VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+//0,
+				0,
+				0, NULL,
+				0, NULL,
+				1, &computeBarrier);
+
+			// Renderpass
 			VkRenderPassBeginInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 			renderPassInfo.renderPass = swapChain->getRenderPass();
@@ -343,10 +380,18 @@ class Game
 			vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
 			vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
-			renderpipeline->begin(commandBuffers[i], i);
-			renderpipeline->updateBuffers(camera);
-
-			world->draw(*renderpipeline);
+			// Render screen quad
+			basepipeline->begin(commandBuffers[i], i);
+			basepipeline->updateBuffers(camera);
+//			screenpipeline->begin(commandBuffers[i], i);
+//			screenpipeline->updateBuffers(camera);
+//			world->draw(*basepipeline);
+//			basepipeline->bindModelTransform(glm::mat4(1));
+//
+//			screenpipeline->drawModel();
+//			basepipeline->bindModel(*model);
+//			basepipeline->drawModel();
+			basepipeline->drawScreenRect();
 
 			// Render imgui data
 			if (imguiDataAvailable)

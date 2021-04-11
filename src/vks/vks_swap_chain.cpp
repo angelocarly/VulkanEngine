@@ -91,7 +91,7 @@ namespace vks
         createInfo.imageArrayLayers = 1;
         createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 
-        QueueFamilyIndices indices = device.findPhysicalQueueFamilies();
+        QueueFamilyIndices indices = device.findQueueFamilies();
         uint32_t queueFamilyIndices[] = {indices.graphicsFamily.value(), indices.presentFamily.value()};
 
         if (indices.graphicsFamily != indices.presentFamily)
@@ -159,7 +159,7 @@ namespace vks
         // Try to choose SRGB as colorspace
         for (const auto &availableFormat : availableFormats)
         {
-            if (availableFormat.format == VK_FORMAT_B8G8R8A8_SRGB &&
+            if (availableFormat.format == VK_FORMAT_B8G8R8A8_UNORM &&
                 availableFormat.colorSpace == VK_COLOR_SPACE_SRGB_NONLINEAR_KHR)
             {
                 return availableFormat;
