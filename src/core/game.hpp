@@ -40,6 +40,7 @@
 #include <libwebsockets.h>
 #include <core/graphics/render_pipeline.h>
 #include <core/graphics/compute_pipeline.h>
+#include <core/graphics/compute_pipeline.h>
 #include "graphics/renderable.h"
 #include "game/world.h"
 #include "camera.h"
@@ -65,9 +66,10 @@ class Game
 		createDescriptorPool();
 		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
+		basepipeline->bindTexture(computepipeline->getComputeTarget());
 		createCommandBuffers();
 
-//		initImGui();
+		initImGui();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
@@ -83,8 +85,8 @@ class Game
 
 		if (!imguiDataAvailable)
 		{
-//			imGuiCreateRenderData();
-//			imguiDataAvailable = true;
+			imGuiCreateRenderData();
+			imguiDataAvailable = true;
 		}
 
 		recordCommandBuffers();
@@ -101,9 +103,9 @@ class Game
 
 	~Game()
 	{
-//		ImGui_ImplVulkan_Shutdown();
-//		ImGui_ImplGlfw_Shutdown();
-//		ImGui::DestroyContext();
+		ImGui_ImplVulkan_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
 	}
 
  private:
@@ -329,25 +331,26 @@ class Game
 			computepipeline->end();
 //
 //			// Wait until the compute shader is finished rendering to it's texture
-//			VkImageMemoryBarrier computeBarrier{};
-//			computeBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-//			computeBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
-//			computeBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
-//			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
-//			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-//			computeBarrier.image = computepipeline->getComputeTarget();
-//			computeBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
-//			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-//			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-//
-//			vkCmdPipelineBarrier(
-//				commandBuffers[i],
-//				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-//				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
-//				0,
-//				0, NULL,
-//				0, NULL,
-//				1, &computeBarrier);
+			VkImageMemoryBarrier computeBarrier{};
+			computeBarrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+			computeBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+			computeBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
+			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
+			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
+			computeBarrier.image = computepipeline->getResultImage();
+			computeBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+
+			vkCmdPipelineBarrier(
+				commandBuffers[i],
+				VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT,
+				VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+//0,
+				0,
+				0, NULL,
+				0, NULL,
+				1, &computeBarrier);
 
 			// Renderpass
 			VkRenderPassBeginInfo renderPassInfo = {};

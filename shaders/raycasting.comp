@@ -10,10 +10,11 @@ struct Pixel{
     vec4 value;
 };
 
-layout(std140, binding = 0) buffer buf
-{
-    Pixel imageData[];
-};
+//layout(std140, binding = 0) buffer buf
+//{
+//    Pixel imageData[];
+//};
+layout (binding = 0, rgba8) uniform image2D resultImage;
 
 void main() {
 
@@ -34,7 +35,7 @@ void main() {
     float n = 0.0;
     vec2 c = vec2(-.445, 0.0) +  (uv - 0.5)*(2.0+ 1.7*0.2),
     z = vec2(0.0);
-    const int M =128;
+    const int M =228;
     for (int i = 0; i<M; i++)
     {
         z = vec2(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c;
@@ -52,6 +53,7 @@ void main() {
     vec4 color = vec4(d + e*cos(6.28318*(f*t+g)), 1.0);
 
     // store the rendered mandelbrot set into a storage buffer:
-    imageData[WIDTH * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x].value = color;
+//    resultImage[WIDTH * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x].value = color;
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), color);
 
 }

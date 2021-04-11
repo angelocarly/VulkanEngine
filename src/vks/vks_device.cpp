@@ -54,7 +54,13 @@ namespace vks
 		createLogicalDevice();
 		createCommandPool();
 
-		vkGetPhysicalDeviceMemoryProperties(physicalDevice, &memoryProperties);
+		// Queue family properties, used for setting up requested queues upon device creation
+		uint32_t queueFamilyCount;
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, nullptr);
+		assert(queueFamilyCount > 0);
+		queueFamilyProperties.resize(queueFamilyCount);
+		vkGetPhysicalDeviceQueueFamilyProperties(physicalDevice, &queueFamilyCount, queueFamilyProperties.data());
+
 	}
 
 	void VksDevice::destroy()
@@ -283,9 +289,13 @@ namespace vks
 				indices.graphicsFamily = i;
 			}
 
+			if (queueFamily.queueFlags & VK_QUEUE_COMPUTE_BIT)
+			{
+				indices.computeFamily = i;
+			}
+
 			VkBool32 presentSupport = false;
 			vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
-
 			if (presentSupport)
 			{
 				indices.presentFamily = i;
@@ -390,6 +400,7 @@ namespace vks
 
 		vkGetDeviceQueue(device, indices.graphicsFamily.value(), 0, &graphicsQueue);
 		vkGetDeviceQueue(device, indices.presentFamily.value(), 0, &presentQueue);
+		vkGetDeviceQueue(device, indices.computeFamily.value(), 0, &computeQueue);
 
 	}
 

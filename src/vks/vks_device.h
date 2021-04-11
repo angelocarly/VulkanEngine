@@ -20,10 +20,11 @@ namespace vks
 	{
 		std::optional<uint32_t> graphicsFamily;
 		std::optional<uint32_t> presentFamily;
+		std::optional<uint32_t> computeFamily;
 
 		bool isComplete()
 		{
-			return graphicsFamily.has_value() && presentFamily.has_value();
+			return graphicsFamily.has_value() && presentFamily.has_value() && presentFamily.has_value();
 		}
 	};
 
@@ -76,6 +77,10 @@ namespace vks
 		{
 			return graphicsQueue;
 		}
+		VkQueue getComputeQueue()
+		{
+			return computeQueue;
+		}
 		VkQueue getPresentQueue()
 		{
 			return presentQueue;
@@ -117,6 +122,8 @@ namespace vks
 
 		void waitIdle();
 
+		std::vector<VkQueueFamilyProperties> queueFamilyProperties;
+
 	 private:
 
 		VksWindow& window;
@@ -130,6 +137,7 @@ namespace vks
 		VkDevice device;
 		VkQueue graphicsQueue;
 		VkQueue presentQueue;
+		VkQueue computeQueue;
 		VkSurfaceKHR surface;
 		VkCommandPool commandPool;
 

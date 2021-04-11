@@ -10,12 +10,7 @@
 #include <lodepng.h>
 #include <vks/VulkanInitializers.h>
 
-struct Pixel
-{
-	glm::vec4 color;
-};
-
-class ComputePipeline : public IRenderPipeline, public IRenderProvider
+class ComputePipeline : public IRenderPipeline
 {
  public:
 	ComputePipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
@@ -26,22 +21,18 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 
 	void init()
 	{
-		_bufferSize = sizeof(Pixel) * WIDTH * HEIGHT;
-//		createTexture();
+
+		_computeQueue = _device.getComputeQueue();
+
+		createTexture(VK_FORMAT_R8G8B8A8_UNORM);
 		createDescriptorSetLayout();
 		createPipelineLayout();
 		createPipeline();
-		createBuffer();
-		createUniformBuffers();
 		createDescriptorSets();
-
 	}
 
 	void begin(VkCommandBuffer& commandBuffer, int frame) override
 	{
-		_currentCommandBuffer = &commandBuffer;
-		_currentFrame = frame;
-
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &_descriptorSet, 0, NULL);
 
@@ -51,68 +42,24 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 
 	void end() override
 	{
-		_currentCommandBuffer = nullptr;
-		_currentFrame = -1;
-
-
-//		saveRenderedImage();
-//		throw std::runtime_error("stop");
 	}
 
 	void updateBuffers(Camera camera) override
 	{
-//		UniformBufferObject ubo{};
-//		ubo.model = camera.calculateModelMatrix();
-//		ubo.view = camera.calculateViewMatrix();
-//		ubo.proj = camera.calculateProjectionMatrix();
-//		ubo.proj[1][1] *= -1;
-//
-//		ubo.view = glm::inverse(ubo.view);
-//
-//		void* data;
-//		vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
-//		memcpy(data, &ubo, sizeof(ubo));
-//		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
 	}
 
-	void bindModelTransform(glm::mat4 transform) override
-	{
-//		if (_currentCommandBuffer == nullptr)
-//		{
-//			throw std::runtime_error("No command buffer is bound");
-//		}
-//
-//		MeshPushConstants constants;
-//		constants.transform = transform;
-//		vkCmdPushConstants(*_currentCommandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-//			sizeof(MeshPushConstants), &constants);
-//
-	}
-
-	void bindModel(vks::VksModel& model) override
-	{
-//		_currentModel = &model;
-//		_currentModel->bind(*_currentCommandBuffer);
-	}
-
-	void drawModel() override
-	{
-//		if (_currentModel == nullptr)
-//		{
-//			throw std::runtime_error("Can't draw if no model is currently bound");
-//		}
-//
-//		_currentModel->draw(*_currentCommandBuffer);
-	}
-
-//	VkBuffer getBuffer()
-//	{
-//		return _buffer;
-//	}
-
-	VkImage getComputeTarget()
+	VkImage getResultImage()
 	{
 		return _computeTexture;
+	}
+
+	VkDescriptorImageInfo getComputeTarget()
+	{
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageView = _imageView;
+		imageInfo.sampler = _computeSampler;
+		imageInfo.imageLayout = _imageLayout;
+		return imageInfo;
 	}
 
  private:
@@ -124,18 +71,14 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 	VksDevice& _device;
 	VkDescriptorPool& _descriptorPool;
 	VksSwapChain& _swapChain;
-//	std::unique_ptr<VksPipeline> pipeline = nullptr;
 	VkPipelineLayout pipelineLayout;
 	VkDescriptorSetLayout descriptorSetLayout;
-	std::vector<VkDescriptorSet> descriptorSets;
 	VkDescriptorSet _descriptorSet;
 	VkPipeline pipeline;
 	std::vector<VkBuffer> _uniformBuffers;
 	std::vector<VkDeviceMemory> _uniformBuffersMemory;
 
-	VkCommandBuffer* _currentCommandBuffer;
-	int _currentFrame = -1;
-
+	VkQueue _computeQueue;
 	VkImage _computeTexture;
 	VkSampler _computeSampler;
 	VkSamplerMipmapMode _miplevels;
@@ -143,12 +86,8 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 	VkImageView _imageView;
 	VkDeviceMemory _computeTextureMemory;
 
-	VkBuffer _buffer;
-	VkDeviceMemory _bufferMemory;
-	uint32_t _bufferSize;
-
 	// Prepare a texture target that is used to store compute shader calculations
-	void createTexture()
+	void createTexture(VkFormat format)
 	{
 		VkImageCreateInfo imageInfo{};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -158,17 +97,17 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 		imageInfo.extent.depth = 1;
 		imageInfo.mipLevels = 1;
 		imageInfo.arrayLayers = 1;
-		imageInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+		imageInfo.format = format;
 		imageInfo.tiling = VK_IMAGE_TILING_OPTIMAL;
 		imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 		imageInfo.usage = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_STORAGE_BIT;
-		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+//		imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
 		imageInfo.flags = 0;
 
 		// Get device properties for the requested texture format
 		VkFormatProperties formatProperties;
-		vkGetPhysicalDeviceFormatProperties(_device.getPhysicalDevice(), VK_FORMAT_R8G8B8A8_UNORM, &formatProperties);
+		vkGetPhysicalDeviceFormatProperties(_device.getPhysicalDevice(), format, &formatProperties);
 		// Check if requested image format supports image storage operations
 		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT);
 
@@ -201,7 +140,7 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 		VkImageViewCreateInfo view = vks::initializers::imageViewCreateInfo();
 		view.image = VK_NULL_HANDLE;
 		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
-		view.format = VK_FORMAT_R8G8B8A8_UNORM;
+		view.format = format;
 		view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
 		view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 		view.image = _computeTexture;
@@ -249,16 +188,17 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 	 */
 	void createDescriptorSetLayout()
 	{
-		VkDescriptorSetLayoutBinding binding = {};
-//		binding.binding = 0;
-//		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
-//		binding.descriptorCount = 1;
-//		binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
+		VkDescriptorSetLayoutBinding binding = {};
 		binding.binding = 0;
-		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		binding.descriptorCount = 1;
 		binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+
+//		binding.binding = 0;
+//		binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+//		binding.descriptorCount = 1;
+//		binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
 		VkDescriptorSetLayoutCreateInfo layoutInfo{};
 		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
@@ -270,30 +210,6 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 		{
 			throw std::runtime_error("failed to create descriptor set layout!");
 		}
-	}
-
-	void saveRenderedImage() {
-		void* mappedMemory = NULL;
-		// Map the buffer memory, so that we can read from it on the CPU.
-		vkMapMemory(_device.getVkDevice(), _bufferMemory, 0, _bufferSize, 0, &mappedMemory);
-		Pixel* pmappedMemory = (Pixel *)mappedMemory;
-
-		// Get the color data from the buffer, and cast it to bytes.
-		// We save the data to a vector.
-		std::vector<unsigned char> image;
-		image.reserve(WIDTH * HEIGHT * 4);
-		for (int i = 0; i < WIDTH*HEIGHT; i += 1) {
-			image.push_back((unsigned char)(255.0f * (pmappedMemory[i].color.r)));
-			image.push_back((unsigned char)(255.0f * (pmappedMemory[i].color.g)));
-			image.push_back((unsigned char)(255.0f * (pmappedMemory[i].color.b)));
-			image.push_back((unsigned char)(255.0f * (1)));
-		}
-		// Done reading, so unmap.
-		vkUnmapMemory(_device.getVkDevice(), _bufferMemory);
-
-		// Now we save the acquired color data to a .png.
-		unsigned error = lodepng::encode("mandelbrot.png", image, WIDTH, HEIGHT);
-		if (error) printf("encoder error %d: %s", error, lodepng_error_text(error));
 	}
 
 	void createDescriptorSets()
@@ -313,38 +229,27 @@ class ComputePipeline : public IRenderPipeline, public IRenderProvider
 
 		// Allocate the storage buffer to the descriptor set
 
-		VkDescriptorBufferInfo bufferInfo{};
-		bufferInfo.buffer = _buffer;
-		bufferInfo.offset = 0;
-		bufferInfo.range = _bufferSize;
+//		VkDescriptorBufferInfo bufferInfo{};
+//		bufferInfo.buffer = _buffer;
+//		bufferInfo.offset = 0;
+//		bufferInfo.range = _bufferSize;
 
-//		VkDescriptorImageInfo imageInfo{};
-//		imageInfo.imageView = _imageView;
-//		imageInfo.sampler = _computeSampler;
-//		imageInfo.imageLayout = _imageLayout;
+		VkDescriptorImageInfo imageInfo{};
+		imageInfo.imageView = _imageView;
+		imageInfo.sampler = _computeSampler;
+		imageInfo.imageLayout = _imageLayout;
 
 		VkWriteDescriptorSet descriptorWrite{};
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = _descriptorSet; // Write to this descriptor set
 		descriptorWrite.dstBinding = 0; // Write to the first and only binding
 		descriptorWrite.dstArrayElement = 0;
-		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+		descriptorWrite.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE;
 		descriptorWrite.descriptorCount = 1; // Update a single descriptor
-		descriptorWrite.pBufferInfo = &bufferInfo;
-//		descriptorWrite.pImageInfo = &imageInfo; // Optional
+//		descriptorWrite.pBufferInfo = &bufferInfo;
+		descriptorWrite.pImageInfo = &imageInfo; // Optional
 		descriptorWrite.pTexelBufferView = nullptr; // Optional
 		vkUpdateDescriptorSets(_device.getVkDevice(), 1, &descriptorWrite, 0, nullptr);
-	}
-
-	void createBuffer()
-	{
-		_device.createBuffer(
-			_bufferSize,
-			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT,
-			_buffer,
-			_bufferMemory
-		);
 	}
 
 	void createPipeline()
