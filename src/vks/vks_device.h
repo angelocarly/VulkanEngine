@@ -108,6 +108,10 @@ namespace vks
 			VkImage image,
 			uint32_t width,
 			uint32_t height);
+		void transitionImageLayout(
+			VkImage image,
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout);
 
 		VkShaderModule createShaderModule(const std::vector<char>& code);
 

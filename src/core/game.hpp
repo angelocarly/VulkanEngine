@@ -63,11 +63,11 @@ class Game
 	{
 		recreateSwapChain();
 		createDescriptorPool();
-//		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
+		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		createCommandBuffers();
 
-		initImGui();
+//		initImGui();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
@@ -83,8 +83,8 @@ class Game
 
 		if (!imguiDataAvailable)
 		{
-			imGuiCreateRenderData();
-			imguiDataAvailable = true;
+//			imGuiCreateRenderData();
+//			imguiDataAvailable = true;
 		}
 
 		recordCommandBuffers();
@@ -325,8 +325,8 @@ class Game
 			}
 
 			// Compute
-//			computepipeline->begin(commandBuffers[i], i);
-//			computepipeline->end();
+			computepipeline->begin(commandBuffers[i], i);
+			computepipeline->end();
 //
 //			// Wait until the compute shader is finished rendering to it's texture
 //			VkImageMemoryBarrier computeBarrier{};
