@@ -64,8 +64,8 @@ class Game
 	{
 		recreateSwapChain();
 		createDescriptorPool();
-		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
+		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
 		basepipeline->bindTexture(computepipeline->getComputeTarget());
 		createCommandBuffers();
 
@@ -73,7 +73,7 @@ class Game
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
-		inputhandler.swallowMouse();
+//		inputhandler.swallowMouse();
 
 		spdlog::get("vulkan")->info("Instantiated application");
 	}
@@ -116,6 +116,7 @@ class Game
 	VksDevice device = VksDevice(window, VALIDATION_LAYERS_ENABLED);
 	std::unique_ptr<VksSwapChain> swapChain;
 	std::vector<VkCommandBuffer> commandBuffers;
+	VkCommandBuffer computeCommandBuffer;
 	VkDescriptorPool descriptorPool;
 	VksInput inputhandler = VksInput();
 	Camera camera;
@@ -283,6 +284,12 @@ class Game
 			static_cast<uint32_t>(commandBuffers.size()),
 			commandBuffers.data());
 		commandBuffers.clear();
+
+		vkFreeCommandBuffers(
+			device.getVkDevice(),
+			device.getCommandPool(),
+			1,
+			&computeCommandBuffer);
 	}
 
 	void createCommandBuffers()
@@ -297,6 +304,16 @@ class Game
 
 		err = vkAllocateCommandBuffers(device.getVkDevice(), &allocInfo, commandBuffers.data());
 		check_vk_result(err);
+
+		// Allocate compute commandbuffer
+		VkCommandBufferAllocateInfo allocInfoCompute{};
+		allocInfoCompute.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfoCompute.commandPool = device.getCommandPool();
+		allocInfoCompute.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfoCompute.commandBufferCount = 1;
+
+		err = vkAllocateCommandBuffers(device.getVkDevice(), &allocInfoCompute, &computeCommandBuffer);
+		check_vk_result(err);
 	}
 
 	/**
@@ -309,6 +326,28 @@ class Game
 		swapChain->waitForImageInFlight();
 		device.waitIdle();
 
+		err = vkResetCommandBuffer(computeCommandBuffer, VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
+		check_vk_result(err);
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = 0;                   // Optional
+		beginInfo.pInheritanceInfo = nullptr;  // Optional
+
+		if (vkBeginCommandBuffer(computeCommandBuffer, &beginInfo) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to begin recording command buffer!");
+		}
+
+		// Compute
+		computepipeline->begin(computeCommandBuffer, 0);
+		computepipeline->updateBuffers(camera);
+		computepipeline->end();
+
+		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to record command buffer!");
+		}
 
 		// Swapchain renderpasses
 		for (size_t i = 0; i < commandBuffers.size(); i++)
@@ -326,9 +365,6 @@ class Game
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
 
-			// Compute
-			computepipeline->begin(commandBuffers[i], i);
-			computepipeline->end();
 //
 //			// Wait until the compute shader is finished rendering to it's texture
 			VkImageMemoryBarrier computeBarrier{};
@@ -413,6 +449,26 @@ class Game
 	 */
 	void drawFrame()
 	{
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+
+//		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+//		submitInfo.waitSemaphoreCount = 1;
+//		submitInfo.pWaitSemaphores = waitSemaphores;
+		submitInfo.pWaitDstStageMask = waitStages;
+
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &computeCommandBuffer;
+
+//		VkSemaphore signalSemaphores[] = {renderFinishedSemaphores[currentFrame]};
+		submitInfo.signalSemaphoreCount = 0;
+//		submitInfo.pSignalSemaphores = signalSemaphores;
+		if (vkQueueSubmit(device.getGraphicsQueue(), 1, &submitInfo, nullptr) !=
+			VK_SUCCESS)
+		{
+			throw std::runtime_error("failed to submit draw command buffer!");
+		}
 
 		// Recreate the swapchain if GLFW emits a resized event
 		if (window.pollFrameBufferResized())
