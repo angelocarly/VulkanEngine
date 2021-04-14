@@ -241,6 +241,8 @@ class Game
 			ImGui::Text("forward: %f %f %f", look.x, look.y, look.z);
 			glm::vec3 right = camera.getRight();
 			ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
+			glm::vec3 up = camera.getUp();
+			ImGui::Text("up: %f %f %f", up.x, up.y, up.z);
 		}
 		ImGui::End();
 

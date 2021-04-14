@@ -16,7 +16,7 @@ class Camera
 	Camera()
 	{
 		updateRotation();
-//		_position.z = -3;
+		_position.z = -3;
 	}
 
 	void setInputHandler(VksInput* handler)

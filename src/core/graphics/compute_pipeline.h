@@ -61,9 +61,9 @@ class ComputePipeline : public IRenderPipeline
 //		memcpy(data, &ubo, sizeof(ubo));
 //		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[0]);
 		MeshPushConstants constants;
-//		constants.transform = glm::inverse(camera.calculateViewMatrix() * camera.calculateModelMatrix());
-		constants.transform = camera.calculateModelMatrix() * camera.calculateViewMatrix();
-//		constants.transform = camera.calculateViewMatrix();
+		constants.model = camera.calculateModelMatrix();
+		constants.view = camera.calculateViewMatrix();
+		constants.projection = camera.calculateProjectionMatrix();
 		std::chrono::milliseconds time =
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch()
@@ -91,6 +91,14 @@ class ComputePipeline : public IRenderPipeline
 	}
 
  private:
+
+	struct MeshPushConstants
+	{
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 projection;
+		float time;
+	};
 
 	const int WIDTH = 1600;
 	const int HEIGHT = 900;
