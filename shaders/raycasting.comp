@@ -6,54 +6,111 @@
 #define WORKGROUP_SIZE 32
 layout (local_size_x = WORKGROUP_SIZE, local_size_y = WORKGROUP_SIZE, local_size_z = 1) in;
 
-struct Pixel{
+layout(push_constant) uniform constants
+{
+    mat4 model;
+    mat4 view;
+    mat4 projection;
+    float time;
+} PushConstants;
+
+struct Pixel
+{
     vec4 value;
 };
 
-//layout(std140, binding = 0) buffer buf
-//{
-//    Pixel imageData[];
-//};
 layout (binding = 0, rgba8) uniform image2D resultImage;
 
-void main() {
+float raySphereIntersect(vec3 r0, vec3 rd, vec3 s0, float sr) {
+    // - r0: ray origin
+    // - rd: normalized ray direction
+    // - s0: sphere center
+    // - sr: sphere radius
+    // - Returns distance from r0 to first intersecion with sphere,
+    //   or -1.0 if no intersection.
+    float a = dot(rd, rd);
+    vec3 s0_r0 = r0 - s0;
+    float b = 2.0 * dot(rd, s0_r0);
+    float c = dot(s0_r0, s0_r0) - (sr * sr);
+    if (b*b - 4.0*a*c < 0.0) {
+        return -1.0;
+    }
+    return (-b - sqrt((b*b) - 4.0*a*c))/(2.0*a);
+}
 
-    /*
-    In order to fit the work into workgroups, some unnecessary threads are launched.
-    We terminate those threads here.
-    */
+vec4 cast_ray(vec3 origin, vec3 direction)
+{
+    vec3 spherepos = vec3(0);
+    float sphereradius = 1.0f;
+
+    vec3 pos = origin;
+
+    float radius = 2;
+//    float a = dot(origin * origin, vec3(1)) - radius * radius;
+    float a = origin.x*origin.x + origin.y*origin.y + origin.z*origin.z - radius * radius;
+    float b = dot(2*origin*direction, vec3(1));
+    float c = dot(direction * direction, vec3(1));
+    float disc = b * b - 4 * a * c;
+
+    //    disc *= -1;
+
+    float r = raySphereIntersect(origin, direction, vec3(0), 1);
+    if (r <= 0) return vec4(0);
+    return vec4(origin + direction * r, 1);
+//    if (disc >= 0) {
+//        float r1 = (-b - sqrt(disc)) / (2 * a);
+//        float r2 = (-b + sqrt(disc)) / (2 * a);
+//
+//        return vec4(origin + r2 * direction, 1);
+////                return vec4(vec3(a, b, c), 1);
+////                return vec4(origin + r1 * direction, 1);
+////        return vec4(vec3(r2 - r1), 1);
+//    }
+//            for (int i = 0; i < 200; i++)
+//            {
+//                pos = origin + direction * i * 0.20f;
+//
+//                vec3 deltapos = spherepos - pos;
+//                if (length(deltapos) < sphereradius) {
+//        //            return vec4(vec3(length(origin - pos) / 10), 1);
+//                    return vec4(pos, 1);
+//                }
+//    //
+//            }
+
+    return vec4(0, 0, 0, 1);
+}
+
+void main()
+{
+//    vec3 camerapos = (PushConstants.transform * vec4(0, 0, 0, 1)).xyz;
+//    vec3 cameradir = (PushConstants.transform * vec4(0, 0, 1, 0)).xyz;
+
+    // Terminate unnecessary workgroup threads
     if (gl_GlobalInvocationID.x >= WIDTH || gl_GlobalInvocationID.y >= HEIGHT)
     return;
 
     float x = float(gl_GlobalInvocationID.x) / float(WIDTH);
     float y = float(gl_GlobalInvocationID.y) / float(HEIGHT);
 
-    /*
-    What follows is code for rendering the mandelbrot set.
-    */
-    vec2 uv = vec2(x, y);
-    float n = 0.0;
-    vec2 c = vec2(-.445, 0.0) +  (uv - 0.5)*(2.0+ 1.7*0.2),
-    z = vec2(0.0);
-    const int M =228;
-    for (int i = 0; i<M; i++)
-    {
-        z = vec2(z.x*z.x - z.y*z.y, 2.*z.x*z.y) + c;
-        if (dot(z, z) > 2) break;
-        n++;
-    }
+    vec2 uv = vec2(x, y) * 2.0 - 1.0;
+    uv.x *= WIDTH / float(HEIGHT);
 
-    // we use a simple cosine palette to determine color:
-    // http://iquilezles.org/www/articles/palettes/palettes.htm
-    float t = float(n) / float(M);
-    vec3 d = vec3(0.3, 0.3, 0.5);
-    vec3 e = vec3(-0.2, -0.3, -0.5);
-    vec3 f = vec3(2.1, 2.0, 3.0);
-    vec3 g = vec3(0.0, 0.1, 0.0);
-    vec4 color = vec4(d + e*cos(6.28318*(f*t+g)), 1.0);
+    float near = 1.0f;
+    float far = 100.0f;
+    vec3 worldpos = ((-(PushConstants.model * PushConstants.view * PushConstants.projection) * vec4(uv, -1, 1) * near)).xyz;
+    vec3 worlddir = normalize((-(PushConstants.view * PushConstants.projection) * vec4(-uv * (far - near), far + near, far - near)).xyz);
+//    vec3 worlddir = vec3(1);
 
-    // store the rendered mandelbrot set into a storage buffer:
-//    resultImage[WIDTH * gl_GlobalInvocationID.y + gl_GlobalInvocationID.x].value = color;
+    vec4 color = cast_ray(worldpos, worlddir);
+//    vec4 color = vec4(worldpos + worlddir * 10, 1);
+    //    vec4 color = vec4(vec3(dot(vec3(1), vec3(1))/6), 1);
+
     imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), color);
+    //    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlduv, 1));
+//        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlddir, 1));
+//        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(camerapos, 1));
+//    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worldpos, 1));
+
 
 }

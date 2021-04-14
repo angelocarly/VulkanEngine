@@ -24,6 +24,7 @@ struct UniformBufferObject
 struct MeshPushConstants
 {
 	glm::mat4 transform;
+	float time;
 };
 
 class IRenderProvider
@@ -62,12 +63,12 @@ class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 	{
 		std::vector<vks::VksModel::Vertex> vertices
 			{
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }}, // Bottom
-				{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 0.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 0.0f, 1.0f, 0.0f }, { 0.0f, 1.0f }},
+				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }}, // Bottom
+				{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
+				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+				{{ 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
 			};
 		_screenModel = new vks::VksModel(_device, vertices);
 

@@ -28,16 +28,18 @@ class ComputePipeline : public IRenderPipeline
 		createDescriptorSetLayout();
 		createPipelineLayout();
 		createPipeline();
+//		createUniformBuffers();
 		createDescriptorSets();
 	}
 
 	void begin(VkCommandBuffer& commandBuffer, int frame) override
 	{
+//		_currentFrame = frame;
+		_currentCommandBuffer = commandBuffer;
+
 		vkCmdBindPipeline(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipeline);
 		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &_descriptorSet, 0, NULL);
 
-		vkCmdDispatch(commandBuffer, (uint32_t)ceil(WIDTH / float(WORKGROUP_SIZE)), (uint32_t)ceil(
-			HEIGHT / float(WORKGROUP_SIZE)), 1);
 	};
 
 	void end() override
@@ -46,6 +48,32 @@ class ComputePipeline : public IRenderPipeline
 
 	void updateBuffers(Camera camera) override
 	{
+//		UniformBufferObject ubo{};
+//		ubo.model = camera.calculateModelMatrix();
+//		ubo.view = camera.calculateViewMatrix();
+//		ubo.proj = camera.calculateProjectionMatrix();
+//		ubo.proj[1][1] *= -1;
+//
+//		ubo.view = glm::inverse(ubo.view);
+//
+//		void* data;
+//		vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[0], 0, sizeof(ubo), 0, &data);
+//		memcpy(data, &ubo, sizeof(ubo));
+//		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[0]);
+		MeshPushConstants constants;
+		constants.model = camera.calculateModelMatrix();
+		constants.view = camera.calculateViewMatrix();
+		constants.projection = camera.calculateProjectionMatrix();
+		std::chrono::milliseconds time =
+			std::chrono::duration_cast<std::chrono::milliseconds>(
+				std::chrono::system_clock::now().time_since_epoch()
+			);
+		constants.time = time.count() % 10000 / 1000.0f;
+		vkCmdPushConstants(_currentCommandBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0,
+			sizeof(MeshPushConstants), &constants);
+
+		vkCmdDispatch(_currentCommandBuffer, (uint32_t)ceil(WIDTH / float(WORKGROUP_SIZE)), (uint32_t)ceil(
+			HEIGHT / float(WORKGROUP_SIZE)), 1);
 	}
 
 	VkImage getResultImage()
@@ -64,6 +92,14 @@ class ComputePipeline : public IRenderPipeline
 
  private:
 
+	struct MeshPushConstants
+	{
+		glm::mat4 model;
+		glm::mat4 view;
+		glm::mat4 projection;
+		float time;
+	};
+
 	const int WIDTH = 1600;
 	const int HEIGHT = 900;
 	const int WORKGROUP_SIZE = 32;
@@ -77,6 +113,9 @@ class ComputePipeline : public IRenderPipeline
 	VkPipeline pipeline;
 	std::vector<VkBuffer> _uniformBuffers;
 	std::vector<VkDeviceMemory> _uniformBuffersMemory;
+
+	VkCommandBuffer _currentCommandBuffer;
+	uint32_t _currentFrame;
 
 	VkQueue _computeQueue;
 	VkImage _computeTexture;
@@ -111,7 +150,8 @@ class ComputePipeline : public IRenderPipeline
 		// Check if requested image format supports image storage operations
 		assert(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_STORAGE_IMAGE_BIT);
 
-		_device.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _computeTexture, _computeTextureMemory);
+		_device
+			.createImageWithInfo(imageInfo, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, _computeTexture, _computeTextureMemory);
 
 		// Update layout
 		_imageLayout = VK_IMAGE_LAYOUT_GENERAL;
@@ -131,7 +171,7 @@ class ComputePipeline : public IRenderPipeline
 		sampler.minLod = 0.0f;
 		sampler.maxLod = _miplevels;
 		sampler.borderColor = VK_BORDER_COLOR_FLOAT_OPAQUE_WHITE;
-		if(vkCreateSampler(_device.getVkDevice(), &sampler, nullptr, &_computeSampler) != VK_SUCCESS)
+		if (vkCreateSampler(_device.getVkDevice(), &sampler, nullptr, &_computeSampler) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create texture");
 		}
@@ -141,10 +181,11 @@ class ComputePipeline : public IRenderPipeline
 		view.image = VK_NULL_HANDLE;
 		view.viewType = VK_IMAGE_VIEW_TYPE_2D;
 		view.format = format;
-		view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B, VK_COMPONENT_SWIZZLE_A };
+		view.components = { VK_COMPONENT_SWIZZLE_R, VK_COMPONENT_SWIZZLE_G, VK_COMPONENT_SWIZZLE_B,
+							VK_COMPONENT_SWIZZLE_A };
 		view.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 		view.image = _computeTexture;
-		if(vkCreateImageView(_device.getVkDevice(), &view, nullptr, &_imageView) != VK_SUCCESS)
+		if (vkCreateImageView(_device.getVkDevice(), &view, nullptr, &_imageView) != VK_SUCCESS)
 		{
 			throw std::runtime_error("Failed to create image view");
 		}
@@ -164,17 +205,17 @@ class ComputePipeline : public IRenderPipeline
 	void createPipelineLayout()
 	{
 
-//		VkPushConstantRange push_constant;
-//		push_constant.offset = 0;
-//		push_constant.size = sizeof(MeshPushConstants);
-//		push_constant.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
+		VkPushConstantRange push_constant;
+		push_constant.offset = 0;
+		push_constant.size = sizeof(MeshPushConstants);
+		push_constant.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutInfo.setLayoutCount = 1;
 		pipelineLayoutInfo.pSetLayouts = &descriptorSetLayout;
-		pipelineLayoutInfo.pushConstantRangeCount = 0;
-		pipelineLayoutInfo.pPushConstantRanges = VK_NULL_HANDLE;
+		pipelineLayoutInfo.pushConstantRangeCount = 1;
+		pipelineLayoutInfo.pPushConstantRanges = &push_constant;
 		if (vkCreatePipelineLayout(_device.getVkDevice(), &pipelineLayoutInfo, nullptr, &pipelineLayout) !=
 			VK_SUCCESS)
 		{
@@ -233,6 +274,10 @@ class ComputePipeline : public IRenderPipeline
 //		bufferInfo.buffer = _buffer;
 //		bufferInfo.offset = 0;
 //		bufferInfo.range = _bufferSize;
+//		VkDescriptorBufferInfo bufferInfo{};
+//		bufferInfo.buffer = _uniformBuffers[0];
+//		bufferInfo.offset = 0;
+//		bufferInfo.range = sizeof(UniformBufferObject);
 
 		VkDescriptorImageInfo imageInfo{};
 		imageInfo.imageView = _imageView;
@@ -240,6 +285,16 @@ class ComputePipeline : public IRenderPipeline
 		imageInfo.imageLayout = _imageLayout;
 
 		VkWriteDescriptorSet descriptorWrite{};
+//		std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+//
+//		descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+//		descriptorWrites[0].dstSet = _descriptorSet;
+//		descriptorWrites[0].dstBinding = 0;
+//		descriptorWrites[0].dstArrayElement = 0;
+//		descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+//		descriptorWrites[0].descriptorCount = 1;
+//		descriptorWrites[0].pBufferInfo = &bufferInfo;
+
 		descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 		descriptorWrite.dstSet = _descriptorSet; // Write to this descriptor set
 		descriptorWrite.dstBinding = 0; // Write to the first and only binding
@@ -266,6 +321,10 @@ class ComputePipeline : public IRenderPipeline
 		shaderStageCreateInfo.module = _device.createShaderModule(VksUtil::readFile("shaders/raycasting.comp.spv"));
 		shaderStageCreateInfo.pName = "main";
 
+		VkPushConstantRange push_constant;
+		push_constant.offset = 0;
+		push_constant.size = sizeof(MeshPushConstants);
+		push_constant.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
 		/*
         The pipeline layout allows the pipeline to access descriptor sets.
         So we just specify the descriptor set layout we created earlier.
@@ -274,6 +333,8 @@ class ComputePipeline : public IRenderPipeline
 		pipelineLayoutCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
 		pipelineLayoutCreateInfo.setLayoutCount = 1;
 		pipelineLayoutCreateInfo.pSetLayouts = &descriptorSetLayout;
+		pipelineLayoutCreateInfo.pushConstantRangeCount = 1;
+		pipelineLayoutCreateInfo.pPushConstantRanges = &push_constant;
 		if (vkCreatePipelineLayout(_device.getVkDevice(), &pipelineLayoutCreateInfo, nullptr, &pipelineLayout)
 			!= VK_SUCCESS)
 		{
@@ -297,24 +358,25 @@ class ComputePipeline : public IRenderPipeline
 		}
 	}
 
-	void createUniformBuffers()
-	{
-		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+//	void createUniformBuffers()
+//	{
+//		VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+//
+//		_uniformBuffers.resize(_swapChain.getImageCount());
+//		_uniformBuffersMemory.resize(_swapChain.getImageCount());
+//
+//		for (size_t i = 0; i < _swapChain.getImageCount(); i++)
+//		{
+//			_device.createBuffer(
+//				bufferSize,
+//				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+//				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+//				_uniformBuffers[i],
+//				_uniformBuffersMemory[i]
+//			);
+//		}
+//	}
 
-		_uniformBuffers.resize(_swapChain.getImageCount());
-		_uniformBuffersMemory.resize(_swapChain.getImageCount());
-
-		for (size_t i = 0; i < _swapChain.getImageCount(); i++)
-		{
-			_device.createBuffer(
-				bufferSize,
-				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
-				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
-				_uniformBuffers[i],
-				_uniformBuffersMemory[i]
-			);
-		}
-	}
 };
 
 #endif //_COMPUTE_PIPELINE_H_

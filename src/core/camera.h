@@ -16,6 +16,7 @@ class Camera
 	Camera()
 	{
 		updateRotation();
+		_position.z = -3;
 	}
 
 	void setInputHandler(VksInput* handler)
@@ -29,8 +30,8 @@ class Camera
 
 		glm::vec2 deltaMouse = _inputHandler->getMouseDelta() /= 1000;
 
-		rotatePitch(-deltaMouse.y * sensitivity);
-		rotateYaw(-deltaMouse.x * sensitivity);
+		rotatePitch(deltaMouse.y * sensitivity);
+		rotateYaw(deltaMouse.x * sensitivity);
 
 		if (_inputHandler->isKeyDown(GLFW_KEY_A))
 		{
@@ -92,9 +93,9 @@ class Camera
 	{
 		_rotation = _qYaw * _qPitch * _qRoll;
 		glm::normalize(_rotation);
-		_forward = glm::normalize(_rotation * glm::vec3(0, 0, -1));
 		_right = glm::normalize(_rotation * glm::vec3(1, 0, 0));
 		_up = glm::normalize(_rotation * glm::vec3(0, 1, 0));
+		_forward = glm::normalize(_rotation * glm::vec3(0, 0, 1));
 //        _right = glm::normalize(glm::cross(UP, _forward));
 //        _up = glm::normalize(glm::cross(_forward, _right));
 	}
@@ -141,6 +142,13 @@ class Camera
 		return _up;
 	}
 
+	glm::mat4 calculateModelViewProjectionMatrix()
+	{
+		glm::mat4 mvp = calculateViewMatrix();
+		mvp *= calculateModelMatrix();
+//		mvp *= calculateProjectionMatrix();
+		return mvp;
+	}
  private:
 	VksInput* _inputHandler = nullptr;
 
