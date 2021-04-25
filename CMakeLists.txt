@@ -58,25 +58,25 @@ add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
 ### External dependencies
 
 # Catch
-find_package(Catch2 REQUIRED)
-file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/vks/*.cp" "src/core/*.cpp" )
-add_executable(tests ${TEST_FILES} ${SOURCES})
-set_property(TARGET tests PROPERTY CXX_STANDARD 17)
-target_link_libraries(tests PUBLIC Catch2::Catch2 )
-include(CTest)
-enable_testing()
-include(Catch)
+#find_package(Catch2 REQUIRED)
+#file(GLOB_RECURSE TEST_FILES "test/*.cpp" "src/vks/*.cp" "src/core/*.cpp" )
+#add_executable(tests ${TEST_FILES} ${SOURCES})
+#set_property(TARGET tests PROPERTY CXX_STANDARD 17)
+#target_link_libraries(tests PUBLIC Catch2::Catch2 )
+#include(CTest)
+#enable_testing()
+#include(Catch)
 #catch_discover_tests(${PROJECT_NAME})
 
 # Vulkan
 find_package(Vulkan REQUIRED)
 target_link_libraries(VulkanEngine PUBLIC Vulkan::Vulkan)
-target_link_libraries(tests PUBLIC Vulkan::Vulkan)
+#target_link_libraries(tests PUBLIC Vulkan::Vulkan)
 
 # GLFW
 find_package(glfw3 3.3 REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC glfw)
-target_link_libraries(tests PUBLIC glfw)
+#target_link_libraries(tests PUBLIC glfw)
 #set(GLFW_DIR "${LIB_DIR}/glfw")
 #set(GLFW_BUILD_EXAMPLES OFF CACHE INTERNAL "Build the GLFW example programs") # Disable GLFW standard programs from being built
 #set(GLFW_BUILD_TESTS OFF CACHE INTERNAL "Build the GLFW test programs")
@@ -116,7 +116,7 @@ include_directories(${STB_DIR})
 # spdlog
 find_package(spdlog REQUIRED)
 target_link_libraries(${PROJECT_NAME} PUBLIC spdlog::spdlog)
-target_link_libraries(tests PUBLIC spdlog::spdlog)
+#target_link_libraries(tests PUBLIC spdlog::spdlog)
 
 # lodepng
 set(LODEPNG_DIR "${LIB_DIR}/lodepng")

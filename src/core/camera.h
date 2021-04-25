@@ -33,34 +33,41 @@ class Camera
 		rotatePitch(deltaMouse.y * sensitivity);
 		rotateYaw(deltaMouse.x * sensitivity);
 
+		float modSpeed = 1.0f;
+
+		if (_inputHandler->isKeyDown(GLFW_KEY_LEFT_SHIFT))
+		{
+			modSpeed = 2.0f;
+		}
+
 		if (_inputHandler->isKeyDown(GLFW_KEY_A))
 		{
-			_position -= _right * delta * speed;
+			_position -= _right * delta * speed * modSpeed;
 		}
 
 		if (_inputHandler->isKeyDown(GLFW_KEY_D))
 		{
-			_position += _right * delta * speed;
+			_position += _right * delta * speed * modSpeed;
 		}
 
 		if (_inputHandler->isKeyDown(GLFW_KEY_W))
 		{
-			_position += _forward * delta * speed;
+			_position += _forward * delta * speed * modSpeed;
 		}
 
 		if (_inputHandler->isKeyDown(GLFW_KEY_S))
 		{
-			_position -= _forward * delta * speed;
+			_position -= _forward * delta * speed * modSpeed;
 		}
 
 		if (_inputHandler->isKeyDown(GLFW_KEY_SPACE))
 		{
-			_position.y += speed * delta;
+			_position.y += speed * delta * modSpeed;
 		}
 
 		if (_inputHandler->isKeyDown(GLFW_KEY_LEFT_CONTROL))
 		{
-			_position.y -= speed * delta;
+			_position.y -= speed * delta * modSpeed;
 		}
 
 	}

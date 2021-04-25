@@ -1,0 +1,75 @@
+#version 450
+#extension GL_ARB_separate_shader_objects : enable
+
+#define WIDTH 1600
+#define HEIGHT 900
+#define WORKGROUP_SIZE 32
+layout (local_size_x = WORKGROUP_SIZE, local_size_y = WORKGROUP_SIZE, local_size_z = 1) in;
+
+layout(push_constant) uniform constants
+{
+    mat4 model;
+    mat4 view;
+    mat4 projection;
+    float time;
+} PushConstants;
+
+struct Pixel
+{
+    vec4 value;
+};
+
+layout (binding = 0, rgba8) uniform image2D resultImage;
+
+float DE()
+{
+    return 0.0f;
+}
+
+vec3 ray_march(vec3 origin, vec3 direction)
+{
+
+    vec3 pos = origin;
+
+    for (int i=0; i<100; i++)
+    {
+        pos = origin + i * direction * 0.1;
+        vec3 modpos = mod(pos, 4) - vec3(1);
+        if (dot(modpos * modpos, vec3(1)) < 1.0f)
+        {
+            vec3 lightdir = normalize(vec3(0, -1, -1));
+            vec3 lightcolor = vec3(1);
+            return vec3(1, 0, 0) * lightcolor * max(dot(-lightdir, normalize( modpos + vec3(1))), 0);
+        }
+    }
+
+    // Calculate sky color
+    return vec3(0.5, 0.85, 0.9) + vec3(dot(direction, vec3(0, 1, 0) * 0.6));
+//    return vec3(1, 0, 0);
+}
+
+void main()
+{
+    // Terminate unnecessary workgroup threads
+    if (gl_GlobalInvocationID.x >= WIDTH || gl_GlobalInvocationID.y >= HEIGHT)
+    return;
+
+    // Camera setup
+    float x = float(gl_GlobalInvocationID.x) / float(WIDTH);
+    float y = float(gl_GlobalInvocationID.y) / float(HEIGHT);
+    vec2 uv = vec2(x, y) * 2.0 - 1.0;
+    uv.x *= WIDTH / float(HEIGHT);
+
+    // World setup
+    float near = 1.0f;
+    float far = 1000.0f;
+    vec4 worldpos4 = ((inverse(PushConstants.model) * inverse(PushConstants.view) * inverse(PushConstants.projection) * vec4(uv, -1, 1)));
+    vec3 worldpos = worldpos4.xyz / worldpos4.w * near;
+    vec3 worlddir = normalize((-(PushConstants.view * PushConstants.projection) * vec4(-uv * (far - near), far + near, far - near)).xyz);
+
+    vec3 color = vec3(0);
+    // Ray marching
+    color = ray_march(worldpos, worlddir);
+
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
+}
