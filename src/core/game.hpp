@@ -41,8 +41,10 @@
 #include <core/graphics/render_pipeline.h>
 #include <core/graphics/compute_pipeline.h>
 #include <core/graphics/compute_pipeline.h>
+#include <core/graphics/raymarch_pipeline.h>
+#include <core/engine/compute_manager.h>
 #include "graphics/renderable.h"
-#include "game/world.h"
+#include "engine/world.h"
 #include "camera.h"
 
 const bool VALIDATION_LAYERS_ENABLED = true;
@@ -65,8 +67,11 @@ class Game
 		recreateSwapChain();
 		createDescriptorPool();
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
-		computepipeline = new ComputePipeline(device, *swapChain, descriptorPool);
-		basepipeline->bindTexture(computepipeline->getComputeTarget());
+		lowqualitypipeline = new ComputePipeline(device, *swapChain, descriptorPool);
+		raymarchpipeline = new RayMarchPipeline(device, *swapChain, descriptorPool);
+		movepipeline = new MovePipeline(device, *swapChain, descriptorPool);
+		computeManager.init(*raymarchpipeline, *movepipeline);
+		basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
 		createCommandBuffers();
 
 		initImGui();
@@ -105,7 +110,7 @@ class Game
 	{
 		ImGui_ImplVulkan_Shutdown();
 		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
+		if (imguiInitialized) ImGui::DestroyContext();
 	}
 
  private:
@@ -121,10 +126,14 @@ class Game
 	VksInput inputhandler = VksInput();
 	Camera camera;
 
-	ComputePipeline* computepipeline = nullptr;
+	ComputePipeline* lowqualitypipeline = nullptr;
 	BaseRenderPipeline* basepipeline = nullptr;
+	RayMarchPipeline* raymarchpipeline = nullptr;
+	MovePipeline* movepipeline = nullptr;
+	ComputeManager computeManager = ComputeManager(device);
 
 	bool imguiDataAvailable = false;
+	bool imguiInitialized = false;
 	IRenderable* world = new World(device);
 	VkResult err;
 
@@ -132,6 +141,7 @@ class Game
 	float gui_x = 0;
 	float gui_y = 0;
 	float gui_z = 0;
+	bool showingcompute = false;
 
 	void input(float delta)
 	{
@@ -149,6 +159,17 @@ class Game
 			{
 				inputhandler.swallowMouse();
 			}
+		}
+
+		if (inputhandler.isKeyDown(GLFW_KEY_R))
+		{
+			computeManager.render(camera);
+			basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
+			showingcompute = true;
+		}
+		if (inputhandler.isKeyDown(GLFW_KEY_E))
+		{
+			basepipeline->bindTexture(movepipeline->getComputeTarget());
 		}
 
 //        entity.position = glm::vec3(gui_x, gui_y, gui_z);
@@ -212,6 +233,8 @@ class Game
 		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
 		device.endSingleTimeCommands(commandBuffer);
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
+
+		imguiInitialized = true;
 	}
 
 	/**
@@ -229,12 +252,8 @@ class Game
 
 		ImGui::NewFrame();
 
-		ImGui::Begin("Stats");
+		ImGui::Begin("View settings");
 		{
-			ImGui::Text("Fps: %d", 0);
-			ImGui::SliderFloat("x", &gui_x, -1, 1, "%.2f");
-			ImGui::SliderFloat("y", &gui_y, -1, 1, "%.2f");
-			ImGui::SliderFloat("z", &gui_z, -1, 1, "%.2f");
 			ImGui::Text("pos: %f %f %f", camera.getPosition().x,
 				camera.getPosition().y, camera.getPosition().z);
 			glm::vec3 look = camera.getForward();
@@ -243,6 +262,14 @@ class Game
 			ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
 			glm::vec3 up = camera.getUp();
 			ImGui::Text("up: %f %f %f", up.x, up.y, up.z);
+		}
+		ImGui::End();
+
+		ImGui::Begin("Shader settings");
+		{
+			ImGui::SliderFloat("a", &gui_x, -1, 1, "%.2f");
+			ImGui::SliderFloat("b", &gui_y, -1, 1, "%.2f");
+			ImGui::SliderFloat("c", &gui_z, -1, 1, "%.2f");
 		}
 		ImGui::End();
 
@@ -342,9 +369,9 @@ class Game
 		}
 
 		// Compute
-		computepipeline->begin(computeCommandBuffer, 0);
-		computepipeline->updateBuffers(camera);
-		computepipeline->end();
+		movepipeline->begin(computeCommandBuffer, 0);
+		movepipeline->updateBuffers(camera);
+		movepipeline->end();
 
 		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS)
 		{
@@ -375,7 +402,7 @@ class Game
 			computeBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
 			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-			computeBarrier.image = computepipeline->getResultImage();
+			computeBarrier.image = lowqualitypipeline->getResultImage();
 			computeBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
 			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
@@ -455,7 +482,7 @@ class Game
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 //		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
+		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 //		submitInfo.waitSemaphoreCount = 1;
 //		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;

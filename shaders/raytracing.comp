@@ -25,7 +25,6 @@ struct cast_result {
     vec3 pos;
     vec3 normal;
     vec3 color;
-    float depth;
 };
 
 layout (binding = 0, rgba8) uniform image2D resultImage;
@@ -49,11 +48,15 @@ float raySphereIntersect(vec3 r0, vec3 rd, vec3 s0, float sr) {
 
 cast_result cast_ray(vec3 origin, vec3 direction)
 {
-    vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
-    //    vec3 spherepos = vec3(0, 2, 0);
+        vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
+//    vec3 spherepos = vec3(0, 2, 0);
+    vec3 spherepos2 = vec3(0, 2, 4);
+    vec3 spherepos3 = vec3(4, 2, 4);
     float sphereradius = 1.0f;
 
     float r = raySphereIntersect(origin, direction, spherepos, sphereradius);
+    float r2 = raySphereIntersect(origin, direction, spherepos2, sphereradius);
+    float r3 = raySphereIntersect(origin, direction, spherepos3, sphereradius);
     float t = - origin.y / direction.y;
     vec3 tv = origin + direction * t;
 
@@ -61,47 +64,49 @@ cast_result cast_ray(vec3 origin, vec3 direction)
     result.reflective = false;
     result.valid = true;
     result.color = vec3(0);
-    result.depth = -1;
 
-    if (r < 0 && t < 0) {
+    if (r < 0 && r2 < 0 && t < 0 && r3 < 0) {
         result.valid = false;
         return result;
     }
     if (r < 0) r = 2139095039;
+    if (r2 < 0) r2 = 2139095039;
+    if (r3 < 0) r3 = 2139095039;
     if (t < 0) t = 2139095039;
 
-    if (r < t) {
+    if (r < t && r < r2 && r < r3) {
         result.pos = origin + direction * r;
         result.normal = normalize(result.pos - spherepos);
-        result.color = vec3(0.5, 0.5, 0);
-        result.depth = r;
-        //        result.reflective = true;
-    } else if ((t < r) && abs(tv.x) < 5 && abs(tv.z) < 5) {
+        result.color = vec3(0.05);
+        result.reflective = true;
+    } else if (r2 < t && r2 < r && r2 < r3) {
+        result.pos = origin + direction * r2;
+        result.normal = normalize(result.pos - spherepos2);
+        result.color = vec3(0.05);
+        result.reflective = true;
+    } else if (r3 < t && r3 < r && r3 < r2) {
+        result.pos = origin + direction * r3;
+        result.normal = normalize(result.pos - spherepos3);
+        result.color = vec3(0.05);
+        result.reflective = true;
+    } else if ((t < r && t < r2 && t < r3) && abs(tv.x) < 5 && abs(tv.z) < 5) {
         result.pos = tv;
         result.normal = vec3(0, 1, 0);
         result.color = vec3(tv.x, 0.2f, tv.z);
-        result.depth = t;
     }
 
     return result;
 }
 
-bool isShadowedByDirectionalLight(vec3 pos, vec3 lightdir)
-{
-    float len = 100;
-    vec3 lightpos = pos + -lightdir * len;
-
-    cast_result cr = cast_ray(lightpos, lightdir);
-    return cr.depth < len - 2;
-}
-
 void main()
 {
+    //    vec3 camerapos = (PushConstants.transform * vec4(0, 0, 0, 1)).xyz;
+    //    vec3 cameradir = (PushConstants.transform * vec4(0, 0, 1, 0)).xyz;
+
     // Terminate unnecessary workgroup threads
     if (gl_GlobalInvocationID.x >= WIDTH || gl_GlobalInvocationID.y >= HEIGHT)
     return;
 
-    // Camera setup
     float x = float(gl_GlobalInvocationID.x) / float(WIDTH);
     float y = float(gl_GlobalInvocationID.y) / float(HEIGHT);
 
@@ -117,14 +122,13 @@ void main()
     vec3 worlddir = normalize((-(PushConstants.view * PushConstants.projection) * vec4(-uv * (far - near), far + near, far - near)).xyz);
     //    vec3 worlddir = vec3(1);
 
-    // Raycasting
     int maxsteps = 5;
+
     vec3 pos = worldpos;
     vec3 dir = worlddir;
-    cast_result res;
     vec3 color = vec3(0);
     for (int i=0; i<maxsteps; i++) {
-        res = cast_ray(pos, dir);
+        cast_result res = cast_ray(pos, dir);
 
         if (res.valid) {
             color += res.color;
@@ -139,28 +143,10 @@ void main()
 
         break;
     }
+    //    vec4 color = vec4(worldpos + worlddir * 10, 1);
+    //    vec4 color = vec4(vec3(dot(vec3(1), vec3(1))/6), 1);
 
-    // Don't add any lighting if there's no collision
-    if (!res.valid) {
-        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
-        return;
-    }
-
-    // Light
-    vec3 ambientlight = vec3(0.1, 0.1, 0.1);
-    vec3 ambientcolor = color * ambientlight;
-
-    vec3 lightdir = normalize(vec3(0, -1, -1));
-    vec3 diffusecolor = vec3(0);
-    vec3 lightcolor = vec3(1);
-    if (!isShadowedByDirectionalLight(res.pos, lightdir))
-    {
-        diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
-    }
-
-    vec3 light = max(ambientcolor, diffusecolor);
-
-    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(light, 1));
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
     //    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlduv, 1));
     //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlddir, 1));
     //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(camerapos, 1));
