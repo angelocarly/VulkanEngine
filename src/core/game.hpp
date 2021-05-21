@@ -68,10 +68,11 @@ class Game
 		createDescriptorPool();
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		lowqualitypipeline = new ComputePipeline(device, *swapChain, descriptorPool);
-		raymarchpipeline = new RayMarchPipeline(device, *swapChain, descriptorPool);
-		movepipeline = new MovePipeline(device, *swapChain, descriptorPool);
-		computeManager.init(*raymarchpipeline, *movepipeline);
-		basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
+//		raymarchpipeline = new RayMarchPipeline(device, *swapChain, descriptorPool);
+//		movepipeline = new MovePipeline(device, *swapChain, descriptorPool);
+//		computeManager.init(*raymarchpipeline, *movepipeline);
+//		basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
+		basepipeline->bindTexture(lowqualitypipeline->getComputeTarget());
 		createCommandBuffers();
 
 		initImGui();
@@ -128,9 +129,9 @@ class Game
 
 	ComputePipeline* lowqualitypipeline = nullptr;
 	BaseRenderPipeline* basepipeline = nullptr;
-	RayMarchPipeline* raymarchpipeline = nullptr;
-	MovePipeline* movepipeline = nullptr;
-	ComputeManager computeManager = ComputeManager(device);
+//	RayMarchPipeline* raymarchpipeline = nullptr;
+//	MovePipeline* movepipeline = nullptr;
+//	ComputeManager computeManager = ComputeManager(device);
 
 	bool imguiDataAvailable = false;
 	bool imguiInitialized = false;
@@ -161,16 +162,16 @@ class Game
 			}
 		}
 
-		if (inputhandler.isKeyDown(GLFW_KEY_R))
-		{
-			computeManager.render(camera);
-			basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
-			showingcompute = true;
-		}
-		if (inputhandler.isKeyDown(GLFW_KEY_E))
-		{
-			basepipeline->bindTexture(movepipeline->getComputeTarget());
-		}
+//		if (inputhandler.isKeyDown(GLFW_KEY_R))
+//		{
+//			computeManager.render(camera);
+//			basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
+//			showingcompute = true;
+//		}
+//		if (inputhandler.isKeyDown(GLFW_KEY_E))
+//		{
+//			basepipeline->bindTexture(movepipeline->getComputeTarget());
+//		}
 
 //        entity.position = glm::vec3(gui_x, gui_y, gui_z);
 
@@ -369,9 +370,9 @@ class Game
 		}
 
 		// Compute
-		movepipeline->begin(computeCommandBuffer, 0);
-		movepipeline->updateBuffers(camera);
-		movepipeline->end();
+		lowqualitypipeline->begin(computeCommandBuffer, 0);
+		lowqualitypipeline->updateBuffers(camera);
+		lowqualitypipeline->end();
 
 		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS)
 		{
