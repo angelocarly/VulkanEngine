@@ -68,10 +68,6 @@ class Game
 		createDescriptorPool();
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		lowqualitypipeline = new ComputePipeline(device, *swapChain, descriptorPool);
-//		raymarchpipeline = new RayMarchPipeline(device, *swapChain, descriptorPool);
-//		movepipeline = new MovePipeline(device, *swapChain, descriptorPool);
-//		computeManager.init(*raymarchpipeline, *movepipeline);
-//		basepipeline->bindTexture(raymarchpipeline->getComputeTarget());
 		basepipeline->bindTexture(lowqualitypipeline->getComputeTarget());
 		createCommandBuffers();
 
@@ -79,7 +75,6 @@ class Game
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
-//		inputhandler.swallowMouse();
 
 		spdlog::get("vulkan")->info("Instantiated application");
 	}
@@ -139,8 +134,8 @@ class Game
 	VkResult err;
 
 	// ImGui
-	float gui_x = 0;
-	float gui_y = 0;
+	float gui_x = 0.001f;
+	int gui_y = 200;
 	float gui_z = 0;
 	bool showingcompute = false;
 
@@ -161,6 +156,9 @@ class Game
 				inputhandler.swallowMouse();
 			}
 		}
+
+		lowqualitypipeline->setEpsilon(gui_x);
+		lowqualitypipeline->setMaxPasses(gui_y);
 
 //		if (inputhandler.isKeyDown(GLFW_KEY_R))
 //		{
@@ -268,9 +266,8 @@ class Game
 
 		ImGui::Begin("Shader settings");
 		{
-			ImGui::SliderFloat("a", &gui_x, -1, 1, "%.2f");
-			ImGui::SliderFloat("b", &gui_y, -1, 1, "%.2f");
-			ImGui::SliderFloat("c", &gui_z, -1, 1, "%.2f");
+			ImGui::SliderFloat("epsilon", &gui_x, 0.000001f, 0.05f, "%.7f");
+			ImGui::SliderInt("max passes", &gui_y, 1, 500);
 		}
 		ImGui::End();
 

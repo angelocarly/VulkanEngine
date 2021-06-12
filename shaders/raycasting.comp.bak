@@ -12,12 +12,7 @@ layout(push_constant) uniform constants
     mat4 view;
     mat4 projection;
     float time;
-    float epsilon;
-    int max_passes;
 } PushConstants;
-#define EPSILON PushConstants.epsilon
-//#define EPSILON 0.0005
-#define MAX_PASSES PushConstants.max_passes
 
 struct Pixel
 {
@@ -35,88 +30,32 @@ struct cast_result {
 
 layout (binding = 0, rgba8) uniform image2D resultImage;
 
-float sdBox(vec3 p, vec3 b)
-{
-    vec3 q = abs(p) - b;
-    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
-}
-
-float sphereSdf(vec3 p)
-{
-    return length(p) - 1;
-}
-
-float DE(vec3 z)
-{
-    float Scale = 2.0f;
-    vec3 a1 = vec3(1,1,1);
-    vec3 a2 = vec3(-1,-1,1);
-    vec3 a3 = vec3(1,-1,-1);
-    vec3 a4 = vec3(-1,1,-1);
-    vec3 c;
-    int n = 0;
-    float dist, d;
-    while (n < 5) {
-        c = a1; dist = length(z-a1);
-        d = length(z-a2); if (d < dist) { c = a2; dist=d; }
-        d = length(z-a3); if (d < dist) { c = a3; dist=d; }
-        d = length(z-a4); if (d < dist) { c = a4; dist=d; }
-        z = Scale*z-c*(Scale-1.0);
-        n++;
+float raySphereIntersect(vec3 r0, vec3 rd, vec3 s0, float sr) {
+    // - r0: ray origin
+    // - rd: normalized ray direction
+    // - s0: sphere center
+    // - sr: sphere radius
+    // - Returns distance from r0 to first intersecion with sphere,
+    //   or -1.0 if no intersection.
+    float a = dot(rd, rd);
+    vec3 s0_r0 = r0 - s0;
+    float b = 2.0 * dot(rd, s0_r0);
+    float c = dot(s0_r0, s0_r0) - (sr * sr);
+    if (b*b - 4.0*a*c < 0.0) {
+        return -1.0;
     }
-
-    return length(z) * pow(Scale, float(-n));
-}
-
-float sceneSDF(vec3 p)
-{
-//    return max(-sphereSdf(p), sdBox(p, vec3(0.75)));
-
-    return DE(p);
-}
-
-
-vec3 estimateNormal(vec3 p)
-{
-    return normalize(vec3(
-    sceneSDF(vec3(p.x + EPSILON, p.y, p.z)) - sceneSDF(vec3(p.x - EPSILON, p.y, p.z)),
-    sceneSDF(vec3(p.x, p.y + EPSILON, p.z)) - sceneSDF(vec3(p.x, p.y - EPSILON, p.z)),
-    sceneSDF(vec3(p.x, p.y, p.z  + EPSILON)) - sceneSDF(vec3(p.x, p.y, p.z - EPSILON))
-    ));
+    return (-b - sqrt((b*b) - 4.0*a*c))/(2.0*a);
 }
 
 cast_result cast_ray(vec3 origin, vec3 direction)
 {
-//        vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
-    vec3 spherepos = vec3(0, 0, 0);
+    vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
     //    vec3 spherepos = vec3(0, 2, 0);
     float sphereradius = 1.0f;
 
-    float t = 0;
-    bool overshot = false;
-    for(int i=0; i<MAX_PASSES; i++)
-    {
-        float dist = sceneSDF(origin + direction * t - spherepos);
-        if (dist >= 0.05f)
-        {
-            dist -= 0.05f;
-        }
-        else
-        {
-            break;
-        }
-
-        t += dist;
-
-        if (dist <= EPSILON) {
-            break;
-        }
-
-        if (dist >= 10 || i == MAX_PASSES - 1) {
-            overshot = true;
-        }
-
-    }
+    float r = raySphereIntersect(origin, direction, spherepos, sphereradius);
+    float t = - origin.y / direction.y;
+    vec3 tv = origin + direction * t;
 
     cast_result result;
     result.reflective = false;
@@ -124,16 +63,36 @@ cast_result cast_ray(vec3 origin, vec3 direction)
     result.color = vec3(0);
     result.depth = -1;
 
-    if (!overshot) {
-        result.pos = origin + direction * t;
-        result.normal = estimateNormal(result.pos);
+    if (r < 0 && t < 0) {
+        result.valid = false;
+        return result;
+    }
+    if (r < 0) r = 2139095039;
+    if (t < 0) t = 2139095039;
+
+    if (r < t) {
+        result.pos = origin + direction * r;
+        result.normal = normalize(result.pos - spherepos);
         result.color = vec3(0.5, 0.5, 0);
-//        result.color = result.normal;
+        result.depth = r;
+        //        result.reflective = true;
+    } else if ((t < r) && abs(tv.x) < 5 && abs(tv.z) < 5) {
+        result.pos = tv;
+        result.normal = vec3(0, 1, 0);
+        result.color = vec3(tv.x, 0.2f, tv.z);
         result.depth = t;
-//                result.reflective = true;
     }
 
     return result;
+}
+
+bool isShadowedByDirectionalLight(vec3 pos, vec3 lightdir)
+{
+    float len = 100;
+    vec3 lightpos = pos + -lightdir * len;
+
+    cast_result cr = cast_ray(lightpos, lightdir);
+    return cr.depth < len - 2;
 }
 
 void main()
@@ -194,10 +153,19 @@ void main()
     vec3 lightdir = normalize(vec3(0, -1, -1));
     vec3 diffusecolor = vec3(0);
     vec3 lightcolor = vec3(1);
-    diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
+    if (!isShadowedByDirectionalLight(res.pos, lightdir))
+    {
+        diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
+    }
 
     vec3 light = max(ambientcolor, diffusecolor);
 
     imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(light, 1));
+    //    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlduv, 1));
+    //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlddir, 1));
+    //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(camerapos, 1));
+    //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worldpos, 1));
+    //    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(uv, 0, 1));
+
 
 }
