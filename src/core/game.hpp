@@ -41,6 +41,7 @@
 #include <core/graphics/compute_pipeline.h>
 #include <core/graphics/raymarch_pipeline.h>
 #include <core/engine/compute_manager.h>
+#include <core/graphics/octree_pipeline.h>
 #include "graphics/renderable.h"
 #include "engine/world.h"
 #include "camera.h"
@@ -67,10 +68,11 @@ public:
 		createDescriptorPool();
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		lowqualitypipeline = new ComputePipeline(device, *swapChain, descriptorPool);
+		octreepipeline = new OctreePipeline(device, *swapChain, descriptorPool);
 		basepipeline->bindTexture(lowqualitypipeline->getComputeTarget());
 		createCommandBuffers();
 
-		gui.initImGui(&device, swapChain.get(), descriptorPool);
+		gui.initImGui(device, *swapChain, descriptorPool);
 		gui_input = gui.getData();
 
 		inputhandler.init(&window);
@@ -119,6 +121,7 @@ private:
 	Camera camera;
 
 	ComputePipeline *lowqualitypipeline = nullptr;
+	OctreePipeline *octreepipeline = nullptr;
 	BaseRenderPipeline *basepipeline = nullptr;
 //	RayMarchPipeline* raymarchpipeline = nullptr;
 //	MovePipeline* movepipeline = nullptr;

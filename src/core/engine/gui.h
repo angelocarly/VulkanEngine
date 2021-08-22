@@ -43,7 +43,7 @@ public:
 	/**
 	 * Setup the ImGui GUI bindings
 	 */
-	void initImGui(vks::VksDevice* device, vks::VksSwapChain* swapChain, VkDescriptorPool descriptorPool)
+	void initImGui(vks::VksDevice& device, vks::VksSwapChain& swapChain, VkDescriptorPool descriptorPool)
 	{
 
 		IMGUI_CHECKVERSION();
@@ -60,25 +60,25 @@ public:
 		// Setup Platform/Renderer bindings
 		ImGui_ImplGlfw_InitForVulkan(_window->getWindow(), true);
 		ImGui_ImplVulkan_InitInfo init_info = {};
-		init_info.Instance = device->getInstance();
-		init_info.PhysicalDevice = device->getPhysicalDevice();
-		init_info.Device = device->getVkDevice();
-		init_info.QueueFamily = device->findQueueFamilies().graphicsFamily.value();
-		init_info.Queue = device->getGraphicsQueue();
+		init_info.Instance = device.getInstance();
+		init_info.PhysicalDevice = device.getPhysicalDevice();
+		init_info.Device = device.getVkDevice();
+		init_info.QueueFamily = device.findQueueFamilies().graphicsFamily.value();
+		init_info.Queue = device.getGraphicsQueue();
 		init_info.PipelineCache = VK_NULL_HANDLE;
 		init_info.DescriptorPool = descriptorPool;
 		init_info.Allocator = NULL;
 		init_info.MinImageCount = 2;
-		init_info.ImageCount = static_cast<uint32_t>(swapChain->getImageCount());
+		init_info.ImageCount = static_cast<uint32_t>(swapChain.getImageCount());
 		init_info.CheckVkResultFn = NULL;
-		ImGui_ImplVulkan_Init(&init_info, swapChain->getRenderPass());
+		ImGui_ImplVulkan_Init(&init_info, swapChain.getRenderPass());
 
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
-		VkCommandBuffer commandBuffer = device->beginSingleTimeCommands();
+		VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
 		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-		device->endSingleTimeCommands(commandBuffer);
+		device.endSingleTimeCommands(commandBuffer);
 		ImGui_ImplVulkan_DestroyFontUploadObjects();
 
 		imguiInitialized = true;
