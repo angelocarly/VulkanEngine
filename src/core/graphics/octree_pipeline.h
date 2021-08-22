@@ -2,18 +2,18 @@
 // Created by magnias on 04/04/2021.
 //
 
-#ifndef _COMPUTE_PIPELINE_H_
-#define _COMPUTE_PIPELINE_H_
+#ifndef _OCTREE_PIPELINE_H_
+#define _OCTREE_PIPELINE_H_
 
 #include <vks/vks_util.h>
 #include "render_pipeline.h"
 #include <lodepng.h>
 #include <vks/VulkanInitializers.h>
 
-class ComputePipeline : public IRenderPipeline
+class OctreePipeline : public IRenderPipeline
 {
  public:
-	ComputePipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
+    OctreePipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
 		: _device(device), _descriptorPool(descriptorPool), _swapChain(swapChain)
 	{
 		init();
@@ -401,4 +401,4 @@ class ComputePipeline : public IRenderPipeline
 
 };
 
-#endif //_COMPUTE_PIPELINE_H_
+#endif //_OCTREE_PIPELINE_H_

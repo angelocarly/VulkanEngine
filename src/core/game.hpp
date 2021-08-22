@@ -26,10 +26,8 @@
 #include "../vks/vks_swap_chain.h"
 #include "../vks/vks_pipeline.h"
 #include <memory>
-#include "../imgui/imgui.h"
-#include "../imgui/imgui_impl_glfw.h"
-#include "../imgui/imgui_impl_vulkan.h"
 #include "../vks/vks_model.h"
+#include "engine/gui.h"
 #include <spdlog/spdlog.h>
 
 #define GLM_FORCE_DEFAULT_ALIGNED_GENTYPES
@@ -48,15 +46,16 @@
 #include "camera.h"
 
 const bool VALIDATION_LAYERS_ENABLED = true;
+
 const bool VSYNC = true;
 
 using namespace vks;
 
 class Game
 {
- public:
+public:
 
-	Game(VksWindow& window)
+	Game(VksWindow &window)
 		: window(window)
 	{
 
@@ -71,7 +70,8 @@ class Game
 		basepipeline->bindTexture(lowqualitypipeline->getComputeTarget());
 		createCommandBuffers();
 
-		initImGui();
+		gui.initImGui(&device, swapChain.get(), descriptorPool);
+		gui_input = gui.getData();
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
@@ -84,11 +84,9 @@ class Game
 	{
 		input(delta);
 
-		if (!imguiDataAvailable)
-		{
-			imGuiCreateRenderData();
-			imguiDataAvailable = true;
-		}
+		Gui::gui_output output{};
+		output.campos = glm::vec4(camera.getPosition(), 0);
+		gui.createRenderData(output);
 
 		recordCommandBuffers();
 		drawFrame();
@@ -104,14 +102,12 @@ class Game
 
 	~Game()
 	{
-		ImGui_ImplVulkan_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		if (imguiInitialized) ImGui::DestroyContext();
+		gui.destroy();
 	}
 
- private:
+private:
 
-	VksWindow& window;
+	VksWindow &window;
 
 	// Vulkan properties
 	VksDevice device = VksDevice(window, VALIDATION_LAYERS_ENABLED);
@@ -122,43 +118,37 @@ class Game
 	VksInput inputhandler = VksInput();
 	Camera camera;
 
-	ComputePipeline* lowqualitypipeline = nullptr;
-	BaseRenderPipeline* basepipeline = nullptr;
+	ComputePipeline *lowqualitypipeline = nullptr;
+	BaseRenderPipeline *basepipeline = nullptr;
 //	RayMarchPipeline* raymarchpipeline = nullptr;
 //	MovePipeline* movepipeline = nullptr;
 //	ComputeManager computeManager = ComputeManager(device);
 
-	bool imguiDataAvailable = false;
-	bool imguiInitialized = false;
-	IRenderable* world = new World(device);
+	IRenderable *world = new World(device);
 	VkResult err;
 
 	// ImGui
-	float gui_x = 0.001f;
-	int gui_y = 200;
-	float gui_z = 0;
+	Gui gui = Gui(&window);
+	Gui::gui_input *gui_input;
 	bool showingcompute = false;
 
 	void input(float delta)
 	{
 
-		if (inputhandler.isKeyDown(GLFW_KEY_ESCAPE))
-		{
+		if (inputhandler.isKeyDown(GLFW_KEY_ESCAPE)) {
 			inputhandler.showMouse();
 		}
 
-		if (inputhandler.isButtonClicked(GLFW_MOUSE_BUTTON_1))
-		{
+		if (inputhandler.isButtonClicked(GLFW_MOUSE_BUTTON_1)) {
 
-			ImGuiIO& io = ImGui::GetIO();
-			if (!io.WantCaptureMouse)
-			{
+			ImGuiIO &io = ImGui::GetIO();
+			if (!io.WantCaptureMouse) {
 				inputhandler.swallowMouse();
 			}
 		}
 
-		lowqualitypipeline->setEpsilon(gui_x);
-		lowqualitypipeline->setMaxPasses(gui_y);
+		lowqualitypipeline->setEpsilon(0.0003f);
+		lowqualitypipeline->setMaxPasses(40);
 
 //		if (inputhandler.isKeyDown(GLFW_KEY_R))
 //		{
@@ -192,104 +182,21 @@ class Game
 			abort();
 	}
 
-	/**
-	 * Setup the ImGui GUI bindings
-	 */
-	void initImGui()
-	{
-
-		IMGUI_CHECKVERSION();
-		ImGui::CreateContext();
-		ImGuiIO& io = ImGui::GetIO();
-		(void)io;
-		//            io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		//            io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable;
-		//io.Fonts->AddFontFromFileTTF("../../Assets/Fonts/Roboto-Medium.ttf", 16.0f);
-
-		io.DisplaySize = ImVec2(window.getWidth(), window.getHeight());
-		io.DisplayFramebufferScale = ImVec2(1.0f, 1.0f);
-
-		// Setup Platform/Renderer bindings
-		ImGui_ImplGlfw_InitForVulkan(window.getWindow(), true);
-		ImGui_ImplVulkan_InitInfo init_info = {};
-		init_info.Instance = device.getInstance();
-		init_info.PhysicalDevice = device.getPhysicalDevice();
-		init_info.Device = device.getVkDevice();
-		init_info.QueueFamily = device.findQueueFamilies().graphicsFamily.value();
-		init_info.Queue = device.getGraphicsQueue();
-		init_info.PipelineCache = VK_NULL_HANDLE;
-		init_info.DescriptorPool = descriptorPool;
-		init_info.Allocator = NULL;
-		init_info.MinImageCount = 2;
-		init_info.ImageCount = static_cast<uint32_t>(swapChain->getImageCount());
-		init_info.CheckVkResultFn = NULL;
-		ImGui_ImplVulkan_Init(&init_info, swapChain->getRenderPass());
-
-		// Setup Dear ImGui style
-		ImGui::StyleColorsDark();
-
-		VkCommandBuffer commandBuffer = device.beginSingleTimeCommands();
-		ImGui_ImplVulkan_CreateFontsTexture(commandBuffer);
-		device.endSingleTimeCommands(commandBuffer);
-		ImGui_ImplVulkan_DestroyFontUploadObjects();
-
-		imguiInitialized = true;
-	}
-
-	/**
-	 * Draw an ImGUI GUI window in the commandbuffer
-	 */
-	void imGuiCreateRenderData()
-	{
-		ImGuiIO& io = ImGui::GetIO();
-		ImGui_ImplVulkan_NewFrame();
-		ImGui_ImplGlfw_NewFrame();
-
-		auto WindowSize = ImVec2((float)window.getWidth(), (float)window.getHeight());
-		ImGui::SetNextWindowSize(WindowSize, ImGuiCond_::ImGuiCond_FirstUseEver);
-		ImGui::SetNextWindowPos(ImVec2(0, 0), ImGuiCond_::ImGuiCond_FirstUseEver);
-
-		ImGui::NewFrame();
-
-		ImGui::Begin("View settings");
-		{
-			ImGui::Text("pos: %f %f %f", camera.getPosition().x,
-				camera.getPosition().y, camera.getPosition().z);
-			glm::vec3 look = camera.getForward();
-			ImGui::Text("forward: %f %f %f", look.x, look.y, look.z);
-			glm::vec3 right = camera.getRight();
-			ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
-			glm::vec3 up = camera.getUp();
-			ImGui::Text("up: %f %f %f", up.x, up.y, up.z);
-		}
-		ImGui::End();
-
-		ImGui::Begin("Shader settings");
-		{
-			ImGui::SliderFloat("epsilon", &gui_x, 0.000001f, 0.05f, "%.7f");
-			ImGui::SliderInt("max passes", &gui_y, 1, 500);
-		}
-		ImGui::End();
-
-		// Store the created window in memory until it can be rendered
-		ImGui::Render();
-	}
-
 	void createDescriptorPool()
 	{
 		VkDescriptorPoolSize pool_sizes[] =
 			{
-				{ VK_DESCRIPTOR_TYPE_SAMPLER, 5 },
-				{ VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 5 },
-				{ VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 5 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 5 },
-				{ VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 5 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 5 },
-				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 5 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 5 },
-				{ VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 5 },
-				{ VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 5 },
-				{ VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 5 }
+				{VK_DESCRIPTOR_TYPE_SAMPLER, 5},
+				{VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER, 5},
+				{VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE, 5},
+				{VK_DESCRIPTOR_TYPE_STORAGE_IMAGE, 5},
+				{VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER, 5},
+				{VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER, 5},
+				{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER, 5},
+				{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER, 5},
+				{VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC, 5},
+				{VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC, 5},
+				{VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT, 5}
 			};
 
 		VkDescriptorPoolCreateInfo pool_info = {};
@@ -361,24 +268,21 @@ class Game
 		beginInfo.flags = 0;                   // Optional
 		beginInfo.pInheritanceInfo = nullptr;  // Optional
 
-		if (vkBeginCommandBuffer(computeCommandBuffer, &beginInfo) != VK_SUCCESS)
-		{
+		if (vkBeginCommandBuffer(computeCommandBuffer, &beginInfo) != VK_SUCCESS) {
 			throw std::runtime_error("failed to begin recording command buffer!");
 		}
 
 		// Compute
 		lowqualitypipeline->begin(computeCommandBuffer, 0);
-		lowqualitypipeline->updateBuffers(camera);
+		lowqualitypipeline->updateBuffers(camera, gui_input->lookat);
 		lowqualitypipeline->end();
 
-		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS)
-		{
+		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
 		}
 
 		// Swapchain renderpasses
-		for (size_t i = 0; i < commandBuffers.size(); i++)
-		{
+		for (size_t i = 0; i < commandBuffers.size(); i++) {
 			err = vkResetCommandBuffer(commandBuffers[i], VK_COMMAND_BUFFER_RESET_RELEASE_RESOURCES_BIT);
 			check_vk_result(err);
 
@@ -387,8 +291,7 @@ class Game
 			beginInfo.flags = 0;                   // Optional
 			beginInfo.pInheritanceInfo = nullptr;  // Optional
 
-			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS)
-			{
+			if (vkBeginCommandBuffer(commandBuffers[i], &beginInfo) != VK_SUCCESS) {
 				throw std::runtime_error("failed to begin recording command buffer!");
 			}
 
@@ -401,7 +304,7 @@ class Game
 			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
 			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
 			computeBarrier.image = lowqualitypipeline->getResultImage();
-			computeBarrier.subresourceRange = { VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1 };
+			computeBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 
@@ -421,12 +324,12 @@ class Game
 			renderPassInfo.renderPass = swapChain->getRenderPass();
 			renderPassInfo.framebuffer = swapChain->getFrameBuffer(i);
 
-			renderPassInfo.renderArea.offset = { 0, 0 };
+			renderPassInfo.renderArea.offset = {0, 0};
 			renderPassInfo.renderArea.extent = swapChain->getSwapChainExtent();
 
 			std::array<VkClearValue, 2> clearValues{};
-			clearValues[0].color = { 0.0f, 0.0f, 0.0f, 1.0f };
-			clearValues[1].depthStencil = { 1.0f, 0 };
+			clearValues[0].color = {0.0f, 0.0f, 0.0f, 1.0f};
+			clearValues[1].depthStencil = {1.0f, 0};
 			renderPassInfo.clearValueCount = static_cast<uint32_t>(clearValues.size());
 			renderPassInfo.pClearValues = clearValues.data();
 
@@ -439,7 +342,7 @@ class Game
 			viewport.height = static_cast<float>(swapChain->getSwapChainExtent().height);
 			viewport.minDepth = 0.0f;
 			viewport.maxDepth = 1.0f;
-			VkRect2D scissor{{ 0, 0 }, swapChain->getSwapChainExtent() };
+			VkRect2D scissor{{0, 0}, swapChain->getSwapChainExtent()};
 			vkCmdSetViewport(commandBuffers[i], 0, 1, &viewport);
 			vkCmdSetScissor(commandBuffers[i], 0, 1, &scissor);
 
@@ -457,18 +360,13 @@ class Game
 			basepipeline->drawScreenRect();
 
 			// Render imgui data
-			if (imguiDataAvailable)
-			{
-				ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), commandBuffers[i]);
-			}
+			gui.render(commandBuffers[i]);
 
 			vkCmdEndRenderPass(commandBuffers[i]);
-			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS)
-			{
+			if (vkEndCommandBuffer(commandBuffers[i]) != VK_SUCCESS) {
 				throw std::runtime_error("failed to record command buffer!");
 			}
 		}
-		imguiDataAvailable = false;
 	}
 
 	/**
@@ -480,7 +378,7 @@ class Game
 		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 
 //		VkSemaphore waitSemaphores[] = {imageAvailableSemaphores[currentFrame]};
-		VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+		VkPipelineStageFlags waitStages[] = {VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT};
 //		submitInfo.waitSemaphoreCount = 1;
 //		submitInfo.pWaitSemaphores = waitSemaphores;
 		submitInfo.pWaitDstStageMask = waitStages;
@@ -492,14 +390,12 @@ class Game
 		submitInfo.signalSemaphoreCount = 0;
 //		submitInfo.pSignalSemaphores = signalSemaphores;
 		if (vkQueueSubmit(device.getGraphicsQueue(), 1, &submitInfo, nullptr) !=
-			VK_SUCCESS)
-		{
+			VK_SUCCESS) {
 			throw std::runtime_error("failed to submit draw command buffer!");
 		}
 
 		// Recreate the swapchain if GLFW emits a resized event
-		if (window.pollFrameBufferResized())
-		{
+		if (window.pollFrameBufferResized()) {
 			spdlog::get("vulkan")->warn("Swapchain image is out of date");
 			recreateSwapChain();
 			return;
@@ -508,15 +404,13 @@ class Game
 		// Load the next image in the swapchain
 		uint32_t imageIndex;
 		auto result = swapChain->acquireNextImage(&imageIndex);
-		if (result == VK_ERROR_OUT_OF_DATE_KHR)
-		{
+		if (result == VK_ERROR_OUT_OF_DATE_KHR) {
 			// When the swapchain is out of date, recreate a new one
 			spdlog::get("vulkan")->warn("Swapchain image is out of date");
 			recreateSwapChain();
 			return;
 		}
-		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
-		{
+		else if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR) {
 			spdlog::get("vulkan")->warn("Swapchain image is not optimal");
 		}
 
@@ -529,8 +423,7 @@ class Game
 			recreateSwapChain();
 
 		}
-		else if (result != VK_SUCCESS)
-		{
+		else if (result != VK_SUCCESS) {
 			throw std::runtime_error("failed to present swap chain image!");
 		}
 	}
@@ -538,22 +431,18 @@ class Game
 	void recreateSwapChain()
 	{
 		auto extent = window.getExtent();
-		while (extent.width == 0 || extent.height == 0)
-		{
+		while (extent.width == 0 || extent.height == 0) {
 			extent = window.getExtent();
 			glfwWaitEvents();
 		}
 		vkDeviceWaitIdle(device.getVkDevice());
 
-		if (swapChain == nullptr)
-		{
+		if (swapChain == nullptr) {
 			swapChain = std::make_unique<VksSwapChain>(device, extent, VSYNC);
 		}
-		else
-		{
+		else {
 			swapChain = std::make_unique<VksSwapChain>(device, extent, VSYNC, std::move(swapChain));
-			if (swapChain->getImageCount() != commandBuffers.size())
-			{
+			if (swapChain->getImageCount() != commandBuffers.size()) {
 				freeCommandBuffers();
 				createCommandBuffers();
 			}
