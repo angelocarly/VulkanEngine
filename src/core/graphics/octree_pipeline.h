@@ -340,7 +340,7 @@ class OctreePipeline : public IRenderPipeline
 		VkPipelineShaderStageCreateInfo shaderStageCreateInfo = {};
 		shaderStageCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		shaderStageCreateInfo.stage = VK_SHADER_STAGE_COMPUTE_BIT;
-		shaderStageCreateInfo.module = _device.createShaderModule(VksUtil::readFile("shaders/raycasting.comp.spv"));
+		shaderStageCreateInfo.module = _device.createShaderModule(VksUtil::readFile("shaders/octree.comp.spv"));
 		shaderStageCreateInfo.pName = "main";
 
 		VkPushConstantRange push_constant;
