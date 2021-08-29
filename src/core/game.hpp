@@ -69,7 +69,7 @@ public:
 		basepipeline = new BaseRenderPipeline(device, *swapChain, descriptorPool);
 		lowqualitypipeline = new ComputePipeline(device, *swapChain, descriptorPool);
 		octreepipeline = new OctreePipeline(device, *swapChain, descriptorPool);
-		basepipeline->bindTexture(lowqualitypipeline->getComputeTarget());
+		basepipeline->bindTexture(octreepipeline->getComputeTarget());
 		createCommandBuffers();
 
 		gui.initImGui(device, *swapChain, descriptorPool);
@@ -152,6 +152,8 @@ private:
 
 		lowqualitypipeline->setEpsilon(0.0003f);
 		lowqualitypipeline->setMaxPasses(40);
+		octreepipeline->setEpsilon(0.000003f);
+		octreepipeline->setMaxPasses(10);
 
 //		if (inputhandler.isKeyDown(GLFW_KEY_R))
 //		{
@@ -276,9 +278,9 @@ private:
 		}
 
 		// Compute
-		lowqualitypipeline->begin(computeCommandBuffer, 0);
-		lowqualitypipeline->updateBuffers(camera, gui_input->lookat);
-		lowqualitypipeline->end();
+		octreepipeline->begin(computeCommandBuffer, 0);
+		octreepipeline->updateBuffers(camera, gui_input->lookat);
+		octreepipeline->end();
 
 		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
 			throw std::runtime_error("failed to record command buffer!");
@@ -306,7 +308,7 @@ private:
 			computeBarrier.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT;
 			computeBarrier.oldLayout = VK_IMAGE_LAYOUT_GENERAL;
 			computeBarrier.newLayout = VK_IMAGE_LAYOUT_GENERAL;
-			computeBarrier.image = lowqualitypipeline->getResultImage();
+			computeBarrier.image = octreepipeline->getResultImage();
 			computeBarrier.subresourceRange = {VK_IMAGE_ASPECT_COLOR_BIT, 0, 1, 0, 1};
 			computeBarrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 			computeBarrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;

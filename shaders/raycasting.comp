@@ -11,6 +11,7 @@ layout(push_constant) uniform constants
     mat4 model;
     mat4 view;
     mat4 projection;
+    vec4 lookat;
     float time;
     float epsilon;
     int max_passes;
@@ -27,8 +28,8 @@ struct Pixel
 struct cast_result {
     bool valid;
     bool reflective;
-    vec3 pos;
-    vec3 normal;
+    vec4 pos;
+    vec4 normal;
     vec3 color;
     float depth;
 };
@@ -38,7 +39,7 @@ layout (binding = 0, rgba8) uniform image2D resultImage;
 float sdBox(vec3 p, vec3 b)
 {
     vec3 q = abs(p) - b;
-    return length(max(q,0.0)) + min(max(q.x,max(q.y,q.z)),0.0);
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
 float sphereSdf(vec3 p)
@@ -46,55 +47,29 @@ float sphereSdf(vec3 p)
     return length(p) - 1;
 }
 
-float DE(vec3 z)
+float DE(vec4 z)
 {
-    float Scale = 2.0f;
-    vec3 a1 = vec3(1,1,1);
-    vec3 a2 = vec3(-1,-1,1);
-    vec3 a3 = vec3(1,-1,-1);
-    vec3 a4 = vec3(-1,1,-1);
-    vec3 c;
-    int n = 0;
-    float dist, d;
-    while (n < 5) {
-        c = a1; dist = length(z-a1);
-        d = length(z-a2); if (d < dist) { c = a2; dist=d; }
-        d = length(z-a3); if (d < dist) { c = a3; dist=d; }
-        d = length(z-a4); if (d < dist) { c = a4; dist=d; }
-        z = Scale*z-c*(Scale-1.0);
-        n++;
-    }
-
-    return length(z) * pow(Scale, float(-n));
+    return length(z);
 }
 
-float sceneSDF(vec3 p)
+float sceneSDF(vec4 p)
 {
-//    return max(-sphereSdf(p), sdBox(p, vec3(0.75)));
+    //    return max(-sphereSdf(p), sdBox(p, vec3(0.75)));
 
     return DE(p);
 }
 
 
-vec3 estimateNormal(vec3 p)
+cast_result cast_ray(vec4 origin, vec4 direction)
 {
-    return normalize(vec3(
-    sceneSDF(vec3(p.x + EPSILON, p.y, p.z)) - sceneSDF(vec3(p.x - EPSILON, p.y, p.z)),
-    sceneSDF(vec3(p.x, p.y + EPSILON, p.z)) - sceneSDF(vec3(p.x, p.y - EPSILON, p.z)),
-    sceneSDF(vec3(p.x, p.y, p.z  + EPSILON)) - sceneSDF(vec3(p.x, p.y, p.z - EPSILON))
-    ));
-}
-
-cast_result cast_ray(vec3 origin, vec3 direction)
-{
-//        vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
-    vec3 spherepos = vec3(0, 0, 0);
+    //        vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
+    vec4 spherepos = vec4(0, 0, 0, 0);
     //    vec3 spherepos = vec3(0, 2, 0);
     float sphereradius = 1.0f;
 
     float t = 0;
     bool overshot = false;
-    for(int i=0; i<MAX_PASSES; i++)
+    for (int i=0; i<MAX_PASSES; i++)
     {
         float dist = sceneSDF(origin + direction * t - spherepos);
         if (dist >= 0.05f)
@@ -126,11 +101,12 @@ cast_result cast_ray(vec3 origin, vec3 direction)
 
     if (!overshot) {
         result.pos = origin + direction * t;
-        result.normal = estimateNormal(result.pos);
+        //result.normal = estimateNormal(result.pos);
+        result.normal = normalize(result.pos - origin);
         result.color = vec3(0.5, 0.5, 0);
-//        result.color = result.normal;
+        //        result.color = result.normal;
         result.depth = t;
-//                result.reflective = true;
+        //                result.reflective = true;
     }
 
     return result;
@@ -159,45 +135,71 @@ void main()
     //    vec3 worlddir = vec3(1);
 
     // Raycasting
-    int maxsteps = 5;
-    vec3 pos = worldpos;
-    vec3 dir = worlddir;
-    cast_result res;
+    //    vec4 pos = worldpos;
     vec3 color = vec3(0);
-    for (int i=0; i<maxsteps; i++) {
-        res = cast_ray(pos, dir);
+    if (x < 0.5 && y < 0.5) {
+        uv = vec2(x, y) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, -1);
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(uv.x, 0, uv.y, 0));
 
+        cast_result res = cast_ray(pos, dir);
         if (res.valid) {
-            color += res.color;
-
-            if (res.reflective) {
-                pos = res.pos;
-                vec3 reflection = normalize(2 * dot(-dir, res.normal) * res.normal + dir);
-                dir = reflection;
-                continue;
-            }
+            color += res.normal.xyz * 15;
         }
+    } else if (x >= 0.5 && y < 0.5) {
+        uv = vec2(x - 0.5, y) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, 2);
+        //    vec3 dir = worlddir;
+        uv /= 30.0;
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(uv.x, uv.y, 0, 0));
 
-        break;
-    }
+        cast_result res = cast_ray(pos, dir);
+        if (res.valid) {
+            color += res.normal.xyz * 15;
+        }
+    } else if (x < 0.5 && y >= 0.5) {
+        uv = vec2(x, y - 0.5) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, 2);
+        //    vec3 dir = worlddir;
+        uv /= 30.0;
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(0, uv.x, uv.y, 0));
 
-    // Don't add any lighting if there's no collision
-    if (!res.valid) {
-        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
-        return;
+        cast_result res = cast_ray(pos, dir);
+        if (res.valid) {
+            color += res.normal.xyz * 15;
+        }
+    } else if (x >= 0.5 && y >= 0.5) {
+        uv = vec2(x - 0.5, y - 0.5) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, 2);
+        //    vec3 dir = worlddir;
+        uv /= 30.0;
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(uv.x, 0, uv.y, 0));
+
+        cast_result res = cast_ray(pos, dir);
+        if (res.valid) {
+            color += res.normal.xyw * 15;
+        }
     }
 
     // Light
-    vec3 ambientlight = vec3(0.1, 0.1, 0.1);
-    vec3 ambientcolor = color * ambientlight;
+//    vec3 ambientlight = vec3(0.1, 0.1, 0.1);
+//    vec3 ambientcolor = color * ambientlight;
+//
+//    vec3 lightdir = normalize(vec3(0, -1, -1));
+//    vec3 diffusecolor = vec3(0);
+//    vec3 lightcolor = vec3(1);
+//    diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
+//
+//    vec3 light = max(ambientcolor, diffusecolor);
 
-    vec3 lightdir = normalize(vec3(0, -1, -1));
-    vec3 diffusecolor = vec3(0);
-    vec3 lightcolor = vec3(1);
-    diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
-
-    vec3 light = max(ambientcolor, diffusecolor);
-
-    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(light, 1));
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
 
 }
