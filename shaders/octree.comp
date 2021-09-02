@@ -18,34 +18,41 @@ layout(push_constant) uniform constants
 } PushConstants;
 #define EPSILON PushConstants.epsilon
 //#define EPSILON 0.0005
-#define MAX_PASSES PushConstants.max_passes
+#define MAX_PASSES 100
+#define PASS_CUTOFF PushConstants.max_passes
 
 struct octree_cast_result {
     bool valid;
     int index;
     vec3 pos;
-    vec3 color;
+    vec4 color;
     float depth;
 };
-
-layout (binding = 0, rgba8) uniform image2D resultImage;
 
 struct oc_node {
     int index;
     int[8] child;
-    bool leaf;
-    vec3 color;
+    int leaf;
+    int no;
+    int no2;
+    vec4 color;
 };
 
-oc_node[] octree = oc_node[](
-oc_node(0, int[8](2, 2, 1, 2, 1, 1, 1, 1), false,   vec3(1)),
-oc_node(1, int[8](3, 2, 2, 2, 2, 2, 2, 2), false,   vec3(0, 0, 1)),
-oc_node(2, int[8](4, 1, 1, 1, 1, 1, 1, 0), false,   vec3(0, 0, 1)),
-oc_node(3, int[8](4, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0, 1, 0)),
-oc_node(4, int[8](5, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0, 0, 1)),
-oc_node(5, int[8](6, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0)),
-oc_node(6, int[8](0, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0))
-);
+layout (binding = 0, rgba8) uniform image2D resultImage;
+layout (std430, binding = 1) readonly buffer Octree {
+    oc_node[] nodes;
+} octree;
+
+
+//oc_node[] octree = oc_node[](
+//oc_node(0, int[8](2, 2, 1, 2, 1, 1, 1, 1), false,   vec3(1)),
+//oc_node(1, int[8](1, 2, 1, 2, 1, 2, 1, 2), false,   vec3(0, 1, 0)),
+//oc_node(2, int[8](2, 1, 2, 1, 2, 1, 2, 1), false,   vec3(0, 0, 1)),
+//oc_node(3, int[8](4, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0, 1, 0)),
+//oc_node(4, int[8](5, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0, 0, 1)),
+//oc_node(5, int[8](6, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0)),
+//oc_node(6, int[8](0, 0, 0, 0, 0, 0, 0, 0), true,    vec3(0))
+//);
 
 float ray_box(vec3 org, vec3 dir, vec3 lb, vec3 rt)
 {
@@ -92,18 +99,19 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
     octree_cast_result c;
     c.valid = false;
     c.pos = vec3(0);
+    c.color = vec4(0);
 
     vec3 nodesize = vec3(8);
 
     // Traverse octree
     int index = 0;
     vec3 nodepos = vec3(0);
-    int[20] nodestack;
-    ivec3[20] sectionstack;
-    oc_node node = octree[index];
+    int[MAX_PASSES] nodestack;
+    ivec3[MAX_PASSES] sectionstack;
+    oc_node node = octree.nodes[index];
 
     // calculate entrance from outside of octree
-    double t = ray_box(origin, direction, vec3(0), nodesize);
+    float t = ray_box(origin, direction, vec3(0), nodesize);
     if (t < 0) {
         if (insideBox3D(origin, vec3(0), nodesize) == 0) return c;
         t = 0;
@@ -112,12 +120,11 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
     vec3 rp = vec3(origin + direction * t);
     ivec3 godir = ivec3(0);
     ivec3 step = ivec3(sign(direction));
-    bool exit = false;
     ivec3 d = ivec3(clamp(floor((rp - nodepos) / (nodesize / 2)), vec3(0), vec3(1)));
 
-    for (int pass=0; pass < 30; pass++) {
+    for (int pass=0; pass < PushConstants.max_passes; pass++) {
 
-        if (node.leaf) {
+        if (node.leaf == 1) {
             c.valid = true;
             c.color = node.color;
             break;
@@ -139,14 +146,14 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
                 vec3 childpos = nodepos + childsize * d;
                 if (node.child[section] > 0) {
 
-                    if (pass == 30 - 1) {
+                    if (pass == PushConstants.max_passes - 1 || index == MAX_PASSES - 1) {
                         c.valid = true;
                         c.color = node.color;
                     }
 
                     // enter child node
                     nodestack[index] = node.index;
-                    node = octree[node.child[section]];
+                    node = octree.nodes[node.child[section]];
                     nodesize = childsize;
                     nodepos = childpos;
                     sectionstack[index] = d;
@@ -194,19 +201,19 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
             if (go_up) {
 
                 index--;
-                if (index < 0) {
-                    exit = true;
+                if (pass == PushConstants.max_passes - 1 || index < 0) {
+                    c.valid = true;
+                    c.color = node.color;
                     break;
                 }
 
-                node = octree[nodestack[index]];
+                node = octree.nodes[nodestack[index]];
                 d = sectionstack[index];
                 nodepos = nodepos - nodesize * d;
                 nodesize = nodesize * 2;
-                continue;
+
             } else if (!go_down) break;
 
-            if (exit) break;
         }
     }
 
@@ -249,12 +256,13 @@ void main()
         //        color += vec3(1);
         //        color += res.normal.xyz * 15;
         //                        color += res.color;
-        color = res.color;
+        color = res.color.rgb;
+        //        color = res.pos;
     }
     else {
-//        color = vec3(0, 0, res.depth / 4);
+        //        color = vec3(0, 0, res.depth / 4);
     }
-//    color = res.pos;
+    //    color = res.pos;
 
     // Light
     //    vec3 ambientlight = vec3(0.1, 0.1, 0.1);

@@ -21,6 +21,7 @@ public:
 	struct gui_input
 	{
 		glm::vec4 lookat;
+		int pass_cutoff;
 	};
 
 	Gui(vks::VksWindow* window)
@@ -115,6 +116,7 @@ public:
 		ImGui::Begin("Shader settings");
 		{
 			ImGui::SliderFloat4("lookat", glm::value_ptr(data->lookat), -1.0f, 1.0f, "%.7f");
+			ImGui::SliderInt("pass cutoff", &data->pass_cutoff, 1, 100);
 		}
 		ImGui::End();
 

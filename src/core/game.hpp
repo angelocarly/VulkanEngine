@@ -74,6 +74,7 @@ public:
 
 		gui.initImGui(device, *swapChain, descriptorPool);
 		gui_input = gui.getData();
+		gui_input->pass_cutoff = 20;
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);
@@ -153,7 +154,6 @@ private:
 		lowqualitypipeline->setEpsilon(0.0003f);
 		lowqualitypipeline->setMaxPasses(40);
 		octreepipeline->setEpsilon(0.000003f);
-		octreepipeline->setMaxPasses(10);
 
 //		if (inputhandler.isKeyDown(GLFW_KEY_R))
 //		{
@@ -280,6 +280,7 @@ private:
 		// Compute
 		octreepipeline->begin(computeCommandBuffer, 0);
 		octreepipeline->updateBuffers(camera, gui_input->lookat);
+		octreepipeline->setMaxPasses(gui_input->pass_cutoff);
 		octreepipeline->end();
 
 		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {
