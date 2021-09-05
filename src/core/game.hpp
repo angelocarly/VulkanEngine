@@ -83,12 +83,27 @@ public:
 	}
 
 	// Render game and handle input
+	float _fpstimer = 9999999;
+	int _fpsindex = 0;
+	float _fps[30];
 	void update(float delta)
 	{
 		input(delta);
 
 		Gui::gui_output output{};
 		output.campos = glm::vec4(camera.getPosition(), 0);
+
+		// Calculate average fps
+		_fps[_fpsindex++] = delta;
+		if(_fpsindex == 30) _fpsindex = 0;
+		float average = 0;
+		for(int i=0; i < 30; i++)
+		{
+			average += _fps[i];
+		}
+		average /= 30.0f;
+		output.fps = 1.0f / average;
+		output.deltatime = average * 1000;
 		gui.createRenderData(output);
 
 		recordCommandBuffers();

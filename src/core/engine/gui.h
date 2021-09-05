@@ -14,6 +14,8 @@ public:
 
 	struct gui_output
 	{
+		float deltatime;
+		float fps;
 		glm::vec3 camdir;
 		glm::vec4 campos;
 	};
@@ -100,12 +102,11 @@ public:
 
 		ImGui::NewFrame();
 
-		ImGui::Begin("View settings");
+		ImGui::Begin("stats");
 		{
-			ImGui::Text("pos: %f %f %f", output_data.campos.x,
+			ImGui::Text("average %.3f ms/frame (%.0f FPS)", output_data.deltatime, output_data.fps);
+			ImGui::Text("pos: %.2f %.2f %.2f", output_data.campos.x,
 						output_data.campos.y, output_data.campos.z);
-//			glm::vec3 look = camera.getForward();
-//			ImGui::Text("forward: %f %f %f", look.x, look.y, look.z);
 //			glm::vec3 right = camera.getRight();
 //			ImGui::Text("right: %f %f %f", right.x, right.y, right.z);
 //			glm::vec3 up = camera.getUp();
