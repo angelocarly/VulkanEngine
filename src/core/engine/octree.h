@@ -47,7 +47,7 @@ public:
 		}
 	};
 
-	static OctreeNode convert_array(float* data, int dimension, glm::vec3 pos, glm::vec3 size)
+	static OctreeNode convert_array(float *data, int dimension, glm::vec3 pos, glm::vec3 size)
 	{
 		OctreeNode root(pos, size);
 
@@ -67,16 +67,19 @@ public:
 				if (level == max_level) {
 					// move array in node
 					int nodesize = pow(2, max_level - level);
-					glm::ivec3 npos = rpos + glm::ivec3(section % 2, (int) floor(section % 4 / 2.0f), (int) floor(section / 4.0f)) * nodesize;
+					glm::ivec3 npos = rpos
+						+ glm::ivec3(section % 2, (int)floor(section % 4 / 2.0f), (int)floor(section / 4.0f))
+							* nodesize;
 					node->getChildren()[section]
 						->setColor(glm::vec3(data[npos.x + npos.y * dimension + npos.z * dimension * dimension]));
+					node->getChildren()[section]->setLeaf(true);
 				}
 				else {
 					// go in child
 					node = node->getChildren()[section];
 					nextnode = true;
 					int nodesize = pow(2, max_level - level);
-					rpos += glm::ivec3(section % 2, (int) floor(section % 4 / 2), (int) floor(section / 4)) * nodesize;
+					rpos += glm::ivec3(section % 2, (int)floor(section % 4 / 2), (int)floor(section / 4)) * nodesize;
 					level++;
 					sectionstack.push_back(section);
 					section = 0;
@@ -93,7 +96,7 @@ public:
 				section = sectionstack.back();
 				sectionstack.pop_back();
 				int nodesize = pow(2, max_level - level);
-				rpos -= glm::ivec3(section % 2, (int) floor(section % 4 / 2), (int) floor(section / 4)) * nodesize;
+				rpos -= glm::ivec3(section % 2, (int)floor(section % 4 / 2), (int)floor(section / 4)) * nodesize;
 				section++;
 			}
 			else {
@@ -152,6 +155,68 @@ public:
 			section = sectionstack.back() + 1;
 			sectionstack.pop_back();
 		}
+	}
+
+	void compact_nodes()
+	{
+		OctreeNode *o = this;
+		std::vector<int> sectionstack;
+		std::vector<bool> fillstack;
+		int section = 0;
+		bool filled = true;
+		while (true) {
+			bool nextnode = false;
+
+			if (!o->hasChildren() || o->isLeaf()) {
+				if (!o->hasParent()) break;
+
+				o = o->getParent();
+				section = sectionstack.back() + 1;
+				sectionstack.pop_back();
+				filled = fillstack.back();
+				fillstack.pop_back();
+				continue;
+			}
+
+			for (; section < 8; section++) {
+				if (o->getChildren()[section] != nullptr) {
+					o = o->getChildren()[section];
+					sectionstack.push_back(section);
+					fillstack.push_back(filled);
+					nextnode = true;
+					section = 0;
+					filled = true;
+					break;
+				}
+				else {
+					filled = false;
+				}
+			}
+
+			if (nextnode) continue;
+
+			if (filled) {
+				glm::vec3 averagecolor = glm::vec3(0);
+				for (int i = 0; i < 8; i++) {
+					averagecolor += o->getChildren()[i]->getColor();
+				}
+				averagecolor /= 8;
+				o->setColor(averagecolor);
+			}
+			o->setLeaf(filled);
+
+			if (section == 7 && sectionstack.empty()) break;
+			if (sectionstack.size() == 0) break;
+
+			o = o->getParent();
+			if(filled) filled = fillstack.back();
+			fillstack.pop_back();
+			section = sectionstack.back() + 1;
+			sectionstack.pop_back();
+
+
+		}
+
 	}
 
 	OctreeNode(OctreeNode &parent, int parentIndex)
@@ -291,6 +356,16 @@ public:
 		_color = color;
 	}
 
+	bool isLeaf()
+	{
+		return _leaf;
+	}
+
+	void setLeaf(bool leaf)
+	{
+		_leaf = leaf;
+	}
+
 private:
 //    std::vector<std::reference_wrapper<OctreeNode>> _children;
 	OctreeNode *_children[8];
@@ -301,6 +376,7 @@ private:
 	int _parentIndex;
 
 	glm::vec3 _color;
+	bool _leaf = false;
 };
 
 class Octree: public IRenderable

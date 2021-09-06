@@ -296,6 +296,7 @@ private:
 		octreepipeline->begin(computeCommandBuffer, 0);
 		octreepipeline->updateBuffers(camera, gui_input->lookat);
 		octreepipeline->setMaxPasses(gui_input->pass_cutoff);
+		octreepipeline->setDepth(gui_input->depth);
 		octreepipeline->end();
 
 		if (vkEndCommandBuffer(computeCommandBuffer) != VK_SUCCESS) {

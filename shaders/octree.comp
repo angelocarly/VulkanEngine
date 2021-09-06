@@ -15,6 +15,7 @@ layout(push_constant) uniform constants
     float time;
     float epsilon;
     int max_passes;
+    int max_depth;
 } PushConstants;
 #define EPSILON PushConstants.epsilon
 //#define EPSILON 0.0005
@@ -115,18 +116,19 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
     int pass = 0;
     for (; pass < PushConstants.max_passes; pass++) {
 
-        if (node.leaf == 1) {
+        if (node.leaf == 1 && index <= PushConstants.max_depth) {
             c.valid = true;
             c.color = node.color;
             break;
         } else {
+
             // traverse children
             vec3 childsize = nodesize / 2;
 
             d += godir;
 
             bool go_up = false;
-            if (d.x < 0 || d.y < 0 || d.z < 0 || d.x > 1 || d.y > 1 || d.z > 1) {
+            if (d.x < 0 || d.y < 0 || d.z < 0 || d.x > 1 || d.y > 1 || d.z > 1 ) {
                 go_up = true;
             }
 
@@ -135,7 +137,7 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
             {
                 int section = int(d.x + 2*d.y + 4*d.z);
                 vec3 childpos = nodepos + childsize * d;
-                if (node.child[section] > 0) {
+                if (node.child[section] > 0 && index <= PushConstants.max_depth) {
 
                     if (pass == PushConstants.max_passes - 1 || index == MAX_PASSES - 1) {
                         c.valid = true;

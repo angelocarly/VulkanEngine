@@ -92,6 +92,7 @@ public:
 		constants.view = camera.calculateViewMatrix();
 		constants.projection = camera.calculateProjectionMatrix();
 		constants.lookat = lookat;
+		constants.depth = _depth;
 		std::chrono::milliseconds time =
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch()
@@ -120,6 +121,10 @@ public:
 		return imageInfo;
 	}
 
+	void setDepth(int depth)
+	{
+		_depth = depth;
+	}
 private:
 
 	struct MeshPushConstants
@@ -131,10 +136,12 @@ private:
 		float time;
 		float epsilon;
 		int max_passes;
+		int depth;
 	};
 
 	float _epsilon = 0.001f;
 	int _max_passes = 200;
+	int _depth = 3;
 
 	const int WIDTH = 1600;
 	const int HEIGHT = 900;
@@ -213,14 +220,15 @@ private:
 	void createOctreeBuffer()
 	{
 
-		glm::vec4 position = glm::vec4(0, 0, 0, 1.3f);
+		glm::vec4 position = glm::vec4(0, 0, 0, 1.32f);
 		glm::vec4 direction = glm::vec4(0, 0, 0, -0.32f);
 		float width = 0.02f;
 		float height = 0.02f;
 		float depth = 0.02f;
 
-		int size = 64;
-		float marchdata[size * size * size];
+		int size = 128;
+		float *marchdata;
+		marchdata = static_cast<float *>(malloc(sizeof(float) * size * size * size));
 		for (int x = 0; x < size; x++) {
 			for (int y = 0; y < size; y++) {
 				for (int z = 0; z < size; z++) {
@@ -239,7 +247,7 @@ private:
 					);
 					n = normalize_corr(n);
 					cast_res cres = cast_ray(p, n);
-					if (cres.valid) marchdata[x + y * size + z * size * size] = cres.depth;
+					if (cres.valid) marchdata[x + y * size + z * size * size] = cres.depth / 1.2f;
 					else marchdata[x + y * size + z * size * size] = -1;
 				}
 			}
@@ -247,6 +255,7 @@ private:
 
 		OctreeNode root = OctreeNode::convert_array(marchdata, size, glm::vec3(0), glm::vec3(size));
 		root.cleanup_empty_nodes();
+		root.compact_nodes();
 		// convert to oc_node struct
 
 		std::vector<oc_node> nodes;
@@ -282,7 +291,7 @@ private:
 					indexstack.push_back(index);
 					index = newindex;
 					node = *node.getChildren()[section];
-					nodes.push_back({index, {0, 0, 0, 0, 0, 0, 0, 0}, 0, 0, 0, glm::vec4(node.getColor(),0)});
+					nodes.push_back({index, {0, 0, 0, 0, 0, 0, 0, 0}, node.isLeaf()? 1:0, 0, 0, glm::vec4(node.getColor(),0)});
 					sectionstack.push_back(section);
 					section = 0;
 					break;
@@ -298,8 +307,6 @@ private:
 			indexstack.pop_back();
 			node = *node.getParent();
 		}
-		oc_node ddd[nodes.size()];
-		std::copy(nodes.begin(), nodes.end(), ddd);
 
 		_bufferSize = sizeof(oc_node) * nodes.size();
 		_device.
