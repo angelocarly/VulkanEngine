@@ -121,7 +121,7 @@ public:
 		return imageInfo;
 	}
 
-	void setDepth(int depth)
+	void setDepth(float depth)
 	{
 		_depth = depth;
 	}
@@ -136,12 +136,12 @@ private:
 		float time;
 		float epsilon;
 		int max_passes;
-		int depth;
+		float depth;
 	};
 
 	float _epsilon = 0.001f;
 	int _max_passes = 200;
-	int _depth = 3;
+	float _depth = 0.3f;
 
 	const int WIDTH = 1600;
 	const int HEIGHT = 900;
@@ -171,16 +171,81 @@ private:
 	VkImageView _imageView;
 	VkDeviceMemory _computeTextureMemory;
 
+	glm::mat4 rotXW(float t) {
+		return glm::mat4(
+			1.0, 0.0, 0.0, 0.0,
+			0.0, cos(t), sin(t), 0.0,
+			0.0, - sin(t), cos(t), 0.0,
+			0.0, 0.0, 0.0, 1.0
+		);
+	}
+	glm::mat4 rotXY(float t) {
+		return glm::mat4(
+			1.0, 0.0, 0.0, 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			0.0, 0.0, cos(t), sin(t),
+			0.0, 0.0, - sin(t), cos(t)
+		);
+	}
+	glm::mat4 rotXZ(float t) {
+		return glm::mat4(
+			1.0, 0.0, 0.0, 0.0,
+			0.0, cos(t), 0.0, sin(t),
+			0.0, 0.0, 1.0, 0.0,
+			0.0, - sin(t), 0.0, cos(t)
+		);
+	}
+	glm::mat4 rotYZ(float t) {
+		return glm::mat4(
+			cos(t), 0.0, 0.0, sin(t),
+			0.0, 1.0, 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0,
+			- sin(t), 0.0, 0.0, cos(t)
+		);
+	}
+	glm::mat4 rotYW(float t) {
+		return glm::mat4(
+			cos(t), 0.0, sin(t), 0.0,
+			0.0, 1.0, 0.0, 0.0,
+			- sin(t), 0.0, cos(t), 0.0,
+			0.0, 0.0, 0.0, 1.0
+		);
+	}
+	glm::mat4 rotZW(float t) {
+		return glm::mat4(
+			cos(t), sin(t), 0.0, 0.0,
+			- sin(t), cos(t), 0.0, 0.0,
+			0.0, 0.0, 1.0, 0.0,
+			0.0, 0.0, 0.0, 1.0
+		);
+	}
+
 	float sdf(glm::vec4 point)
 	{
-		float radius = 1.0f;
-		return glm::length(point) - radius;
+//		float radius = 1.0f;
+//		return glm::length(point) - radius;
+
+		glm::mat4 g = rotXZ(0) * rotZW(0.5f) * rotXY(0.2f) * rotYZ(0.5f);
+		glm::vec4 d = abs(g * point) - glm::vec4(0.8f);
+		return length(max(d, glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.w)), 0.0f);
+	}
+
+	glm::vec4 getNormal(glm::vec4 p) {
+		float d = 0.25f; // epsilon
+		float sdp = sdf(p);
+		return normalize(glm::vec4(
+			sdf(p + glm::vec4(d, 0.0, 0.0, 0.0)) - sdp,
+			sdf(p + glm::vec4(0.0, d, 0.0, 0.0)) - sdp,
+			sdf(p + glm::vec4(0.0, 0.0, d, 0.0)) - sdp,
+			sdf(p + glm::vec4(0.0, 0.0, 0.0, d)) - sdp
+		));
 	}
 
 	struct cast_res
 	{
 		bool valid;
 		float depth;
+		glm::vec4 normal;
 	};
 	cast_res cast_ray(glm::vec4 origin, glm::vec4 direction)
 	{
@@ -205,7 +270,10 @@ private:
 
 		}
 
+
 		cast_res res;
+		if (!overshot) res.normal = getNormal(origin + direction * t);
+//		if (!overshot) res.normal = glm::vec3(0, 1, 0);
 		res.valid = !overshot;
 		res.depth = t;
 		return res;
@@ -220,15 +288,15 @@ private:
 	void createOctreeBuffer()
 	{
 
-		glm::vec4 position = glm::vec4(0, 0, 0, 1.32f);
+		glm::vec4 position = glm::vec4(0, 0, 0, 2.22f);
 		glm::vec4 direction = glm::vec4(0, 0, 0, -0.32f);
 		float width = 0.02f;
 		float height = 0.02f;
 		float depth = 0.02f;
 
-		int size = 128;
-		float *marchdata;
-		marchdata = static_cast<float *>(malloc(sizeof(float) * size * size * size));
+		int size = 64;
+		glm::vec3 *marchdata;
+		marchdata = static_cast<glm::vec3 *>(malloc(sizeof(glm::vec4) * size * size * size));
 		for (int x = 0; x < size; x++) {
 			for (int y = 0; y < size; y++) {
 				for (int z = 0; z < size; z++) {
@@ -247,15 +315,17 @@ private:
 					);
 					n = normalize_corr(n);
 					cast_res cres = cast_ray(p, n);
-					if (cres.valid) marchdata[x + y * size + z * size * size] = cres.depth / 1.2f;
-					else marchdata[x + y * size + z * size * size] = -1;
+					if (cres.valid) marchdata[x + y * size + z * size * size] = glm::vec3(cres.depth / 1.2f);
+					else marchdata[x + y * size + z * size * size] = glm::vec3(-1);
+//					if (cres.valid) marchdata[x + y * size + z * size * size] = cres.normal;
+//					else marchdata[x + y * size + z * size * size] = glm::vec3(-1);
 				}
 			}
 		}
 
 		OctreeNode root = OctreeNode::convert_array(marchdata, size, glm::vec3(0), glm::vec3(size));
 		root.cleanup_empty_nodes();
-		root.compact_nodes();
+//		root.compact_nodes();
 		// convert to oc_node struct
 
 		std::vector<oc_node> nodes;

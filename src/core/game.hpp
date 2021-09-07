@@ -74,7 +74,8 @@ public:
 
 		gui.initImGui(device, *swapChain, descriptorPool);
 		gui_input = gui.getData();
-		gui_input->pass_cutoff = 20;
+		gui_input->pass_cutoff = 120;
+		gui_input->depth = 15;
 
 		inputhandler.init(&window);
 		camera.setInputHandler(&inputhandler);

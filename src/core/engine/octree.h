@@ -47,7 +47,7 @@ public:
 		}
 	};
 
-	static OctreeNode convert_array(float *data, int dimension, glm::vec3 pos, glm::vec3 size)
+	static OctreeNode convert_array(glm::vec3 *data, int dimension, glm::vec3 pos, glm::vec3 size)
 	{
 		OctreeNode root(pos, size);
 

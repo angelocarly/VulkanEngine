@@ -15,11 +15,11 @@ layout(push_constant) uniform constants
     float time;
     float epsilon;
     int max_passes;
-    int max_depth;
+    float max_depth;
 } PushConstants;
 #define EPSILON PushConstants.epsilon
 //#define EPSILON 0.0005
-#define MAX_PASSES 100
+#define MAX_PASSES 200
 #define PASS_CUTOFF PushConstants.max_passes
 
 struct octree_cast_result {
@@ -116,10 +116,52 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
     int pass = 0;
     for (; pass < PushConstants.max_passes; pass++) {
 
-        if (node.leaf == 1 && index <= PushConstants.max_depth) {
-            c.valid = true;
-            c.color = node.color;
-            break;
+        if (node.leaf == 1) {
+            if (node.color.g >= PushConstants.max_depth) {
+                // skip this node
+                vec3 tmax = (nodepos + nodesize - rp);
+                if (direction.x < 0) tmax.x = nodesize.x - tmax.x;
+                if (direction.y < 0) tmax.y = nodesize.y - tmax.y;
+                if (direction.z < 0) tmax.z = nodesize.z - tmax.z;
+                tmax /= abs(direction);
+
+                godir = ivec3(0);
+                if (tmax.x < tmax.y) {
+                    if (tmax.x < tmax.z) {
+                        t += tmax.x;
+                        godir.x += step.x;
+                    } else {
+                        t += tmax.z;
+                        godir.z += step.z;
+                    }
+                } else if (tmax.y < tmax.z) {
+                    t += tmax.y;
+                    godir.y += step.y;
+                } else {
+                    t += tmax.z;
+                    godir.z += step.z;
+                }
+                rp = origin + direction * float(t);
+                index--;
+                if (pass == PushConstants.max_passes - 1 || index < 0) {
+                    //                    c.valid = true;
+                    //                    c.color = node.color;
+                    break;
+                }
+
+                node = octree.nodes[nodestack[index]];
+                d = sectionstack[index];
+                nodepos = nodepos - nodesize * d;
+                nodesize = nodesize * 2;
+                continue;
+//                c.valid = true;
+//                c.color = vec4(0, 1, 0, 1);
+//                break;
+            } else {
+                c.valid = true;
+                c.color = node.color;
+                break;
+            }
         } else {
 
             // traverse children
@@ -137,7 +179,7 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
             {
                 int section = int(d.x + 2*d.y + 4*d.z);
                 vec3 childpos = nodepos + childsize * d;
-                if (node.child[section] > 0 && index <= PushConstants.max_depth) {
+                if (node.child[section] > 0) {
 
                     if (pass == PushConstants.max_passes - 1 || index == MAX_PASSES - 1) {
                         c.valid = true;
@@ -194,6 +236,7 @@ octree_cast_result octree_cast(vec3 origin, vec3 direction)
             if (go_up) {
 
                 index--;
+                pass--; // dont count going up
                 if (pass == PushConstants.max_passes - 1 || index < 0) {
                     //                    c.valid = true;
                     //                    c.color = node.color;
@@ -273,7 +316,7 @@ void main()
 
     // Raycasting
     //    vec4 pos = worldpos;
-    vec3 color = vec3(0);
+    vec3 color = vec3(0.2);
     vec3 pos = worldpos;
     vec3 dir = worlddir;
 
@@ -283,7 +326,7 @@ void main()
         //        color += vec3(1);
         //        color += res.normal.xyz * 15;
 //                                color = res.color;
-        color = res.color.rgb;
+        color = res.color.rgb * 5 / res.depth;
 //                color = smoothRainbow(0.04 / (res.index / 100.0));
 //        color = res.pos;
 //                color = vec3(res.index);
