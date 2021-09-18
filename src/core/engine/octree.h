@@ -47,7 +47,11 @@ public:
 		}
 	};
 
-	static OctreeNode convert_array(glm::vec3 *data, int dimension, glm::vec3 pos, glm::vec3 size)
+	struct octree_data {
+		glm::vec3 color;
+		float depth;
+	};
+	static OctreeNode convert_array(octree_data *data, int dimension, glm::vec3 pos, glm::vec3 size)
 	{
 		OctreeNode root(pos, size);
 
@@ -62,7 +66,7 @@ public:
 			bool nextnode = false;
 			for (; section < 8; section++) {
 				node->addChild(section);
-				node->getChildren()[section]->setColor(glm::vec3(-1));
+				node->getChildren()[section]->setMetadata({glm::vec3(-1), -1});
 
 				if (level == max_level) {
 					// move array in node
@@ -70,8 +74,8 @@ public:
 					glm::ivec3 npos = rpos
 						+ glm::ivec3(section % 2, (int)floor(section % 4 / 2.0f), (int)floor(section / 4.0f))
 							* nodesize;
-					node->getChildren()[section]
-						->setColor(glm::vec3(data[npos.x + npos.y * dimension + npos.z * dimension * dimension]));
+					octree_data ocdata = data[npos.x + npos.y * dimension + npos.z * dimension * dimension];
+					node->getChildren()[section]->setMetadata(ocdata);
 					node->getChildren()[section]->setLeaf(true);
 				}
 				else {
@@ -116,7 +120,7 @@ public:
 			bool nextnode = false;
 
 			if (!o->hasChildren()) {
-				if (o->getColor() == glm::vec3(-1)) {
+				if (o->getMetadata().color == glm::vec3(-1)) {
 					// delete node
 					o = o->getParent();
 					section = sectionstack.back();
@@ -198,10 +202,10 @@ public:
 			if (filled) {
 				glm::vec3 averagecolor = glm::vec3(0);
 				for (int i = 0; i < 8; i++) {
-					averagecolor += o->getChildren()[i]->getColor();
+					averagecolor += o->getChildren()[i]->getMetadata().color;
 				}
 				averagecolor /= 8;
-				o->setColor(averagecolor);
+				o->getMetadata().color = averagecolor;
 			}
 			o->setLeaf(filled);
 
@@ -345,17 +349,6 @@ public:
 		}
 		return index;
 	}
-
-	glm::vec3 getColor()
-	{
-		return _color;
-	}
-
-	void setColor(glm::vec3 color)
-	{
-		_color = color;
-	}
-
 	bool isLeaf()
 	{
 		return _leaf;
@@ -364,6 +357,16 @@ public:
 	void setLeaf(bool leaf)
 	{
 		_leaf = leaf;
+	}
+
+	octree_data getMetadata()
+	{
+		return _metadata;
+	}
+
+	void setMetadata(octree_data metadata)
+	{
+		_metadata = metadata;
 	}
 
 private:
@@ -375,7 +378,7 @@ private:
 	OctreeNode *_parent;
 	int _parentIndex;
 
-	glm::vec3 _color;
+	octree_data _metadata{};
 	bool _leaf = false;
 };
 

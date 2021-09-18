@@ -20,7 +20,7 @@ public:
 		int index;
 		int child[8];
 		int leaf;
-		int no;
+		float depth;
 		int no2;
 		glm::vec4 color;
 	};
@@ -145,7 +145,7 @@ private:
 
 	const int WIDTH = 1600;
 	const int HEIGHT = 900;
-	const int WORKGROUP_SIZE = 32;
+	const int WORKGROUP_SIZE = 16;
 
 	VksDevice &_device;
 	VkDescriptorPool &_descriptorPool;
@@ -220,14 +220,94 @@ private:
 		);
 	}
 
+	float box_size = 1.0f;
+	glm::vec4 rotate_sdf(glm::vec4 point)
+	{
+		glm::mat4 g = rotXW(1.2f) * rotZW(3.0f) * rotYW(-1.3f) * rotXZ(3.78f) * rotXY(2.8f) * rotYZ(0.8f) ;
+		return g * point;
+	}
+
 	float sdf(glm::vec4 point)
 	{
 //		float radius = 1.0f;
 //		return glm::length(point) - radius;
 
-		glm::mat4 g = rotXZ(0) * rotZW(0.5f) * rotXY(0.2f) * rotYZ(0.5f);
-		glm::vec4 d = abs(g * point) - glm::vec4(0.8f);
+		glm::vec4 d = abs(rotate_sdf(point)) - glm::vec4(box_size);
 		return length(max(d, glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.w)), 0.0f);
+	}
+
+	glm::vec3 sdf_color(glm::vec4 point)
+	{
+		float mindist = 99999;
+		glm::vec3 color;
+
+		glm::vec4 np = rotate_sdf(point);
+
+		glm::vec3 d = abs(glm::vec3(np.x, np.y, np.z)) - glm::vec3(box_size);
+		float f = abs(np.w - box_size);
+		float dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(200 / 255.0f, 0 / 241.0f, 0.0f / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.x, np.y, np.z)) - glm::vec3(box_size);
+		f = abs(np.w + box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(255 / 255.0f, 140 / 255.0f, 0.0f / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.x, np.y, np.w)) - glm::vec3(box_size);
+		f = abs(np.z - box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(236 / 255.0f, 0 / 255.0f, 140 / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.x, np.y, np.w)) - glm::vec3(box_size);
+		f = abs(np.z + box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(104 / 255.0f, 33 / 255.0f, 143 / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.x, np.z, np.w)) - glm::vec3(box_size);
+		f = abs(np.y - box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(0 / 255.0f, 178 / 255.0f, 148 / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.x, np.z, np.w)) - glm::vec3(box_size);
+		f = abs(np.y + box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(0 / 255.0f, 24 / 255.0f, 143 / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.y, np.z, np.w)) - glm::vec3(box_size);
+		f = abs(np.x - box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(0 / 255.0f, 188 / 255.0f, 242 / 255.0f);
+		}
+
+		d = abs(glm::vec3(np.y, np.z, np.w)) - glm::vec3(box_size);
+		f = abs(np.x + box_size);
+		dist = length(max(glm::vec4(d, f), glm::vec4(0))) + std::min(glm::max(d.x, glm::max(d.y, d.z)), 0.0f);
+		if (dist < mindist) {
+			mindist = dist;
+			color = glm::vec3(186 / 255.0f, 216 / 255.0f, 10 / 255.0f);
+		}
+
+		return color;
 	}
 
 	glm::vec4 getNormal(glm::vec4 p) {
@@ -246,6 +326,7 @@ private:
 		bool valid;
 		float depth;
 		glm::vec4 normal;
+		glm::vec3 color;
 	};
 	cast_res cast_ray(glm::vec4 origin, glm::vec4 direction)
 	{
@@ -260,7 +341,7 @@ private:
 
 			t += dist;
 
-			if (dist <= .04f) {
+			if (dist <= .0004f) {
 				break;
 			}
 
@@ -274,6 +355,7 @@ private:
 		cast_res res;
 		if (!overshot) res.normal = getNormal(origin + direction * t);
 //		if (!overshot) res.normal = glm::vec3(0, 1, 0);
+		if (!overshot) res.color = sdf_color(origin + direction * t);
 		res.valid = !overshot;
 		res.depth = t;
 		return res;
@@ -295,8 +377,8 @@ private:
 		float depth = 0.02f;
 
 		int size = 64;
-		glm::vec3 *marchdata;
-		marchdata = static_cast<glm::vec3 *>(malloc(sizeof(glm::vec4) * size * size * size));
+		OctreeNode::octree_data *marchdata;
+		marchdata = static_cast<OctreeNode::octree_data *>(malloc(sizeof(OctreeNode::octree_data) * size * size * size));
 		for (int x = 0; x < size; x++) {
 			for (int y = 0; y < size; y++) {
 				for (int z = 0; z < size; z++) {
@@ -315,8 +397,16 @@ private:
 					);
 					n = normalize_corr(n);
 					cast_res cres = cast_ray(p, n);
-					if (cres.valid) marchdata[x + y * size + z * size * size] = glm::vec3(cres.depth / 1.2f);
-					else marchdata[x + y * size + z * size * size] = glm::vec3(-1);
+//					if (cres.valid) marchdata[x + y * size + z * size * size] = glm::vec3(cres.depth / 1.2f);
+					OctreeNode::octree_data cdata{
+						glm::vec3(-1),
+						-1
+					};
+					if (cres.valid) {
+						cdata.color = cres.color;
+						cdata.depth = cres.depth;
+					}
+					marchdata[x + y * size + z * size * size] = cdata;
 //					if (cres.valid) marchdata[x + y * size + z * size * size] = cres.normal;
 //					else marchdata[x + y * size + z * size * size] = glm::vec3(-1);
 				}
@@ -333,7 +423,7 @@ private:
 		std::vector<int> indexstack;
 		int index = 0;
 		OctreeNode node = root;
-		nodes.push_back({0, {0, 0, 0, 0, 0, 0, 0, 0}, 0, 0, 0, glm::vec4(node.getColor(), 1)});
+		nodes.push_back({0, {0, 0, 0, 0, 0, 0, 0, 0}, 0, node.getMetadata().depth, 0, glm::vec4(node.getMetadata().color, 1)});
 		int section = 0;
 		while(true){
 
@@ -361,7 +451,7 @@ private:
 					indexstack.push_back(index);
 					index = newindex;
 					node = *node.getChildren()[section];
-					nodes.push_back({index, {0, 0, 0, 0, 0, 0, 0, 0}, node.isLeaf()? 1:0, 0, 0, glm::vec4(node.getColor(),0)});
+					nodes.push_back({index, {0, 0, 0, 0, 0, 0, 0, 0}, node.isLeaf()? 1:0, node.getMetadata().depth, 0, glm::vec4(node.getMetadata().color,0)});
 					sectionstack.push_back(section);
 					section = 0;
 					break;
