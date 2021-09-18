@@ -3,7 +3,7 @@
 
 #define WIDTH 1600
 #define HEIGHT 900
-#define WORKGROUP_SIZE 32
+#define WORKGROUP_SIZE 16
 layout (local_size_x = WORKGROUP_SIZE, local_size_y = WORKGROUP_SIZE, local_size_z = 1) in;
 
 layout(push_constant) uniform constants
@@ -11,41 +11,256 @@ layout(push_constant) uniform constants
     mat4 model;
     mat4 view;
     mat4 projection;
+    vec4 lookat;
     float time;
+    float epsilon;
+    int max_passes;
+    float max_depth;
 } PushConstants;
+#define EPSILON PushConstants.epsilon
+//#define EPSILON 0.0005
+#define MAX_PASSES 200
+#define PASS_CUTOFF PushConstants.max_passes
 
-struct Pixel
-{
-    vec4 value;
+struct octree_cast_result {
+    bool valid;
+    int index;
+    int passes;
+    vec3 pos;
+    vec4 color;
+    float depth;
+};
+
+struct oc_node {
+    int index;
+    int[8] child;
+    int leaf;
+    float depth;
+    int no2;
+    vec4 color;
 };
 
 layout (binding = 0, rgba8) uniform image2D resultImage;
+layout (std430, binding = 1) readonly buffer Octree {
+    oc_node[] nodes;
+} octree;
 
-float DE()
+float ray_box(vec3 org, vec3 dir, vec3 lb, vec3 rt)
 {
-    return 0.0f;
+    vec3 dirfrac = vec3(0);
+    // r.dir is unit direction vector of ray
+    dirfrac.x = 1.0f / dir.x;
+    dirfrac.y = 1.0f / dir.y;
+    dirfrac.z = 1.0f / dir.z;
+    // lb is the corner of AABB with minimal coordinates - left bottom, rt is maximal corner
+    // r.org is origin of ray
+    float t1 = (lb.x - org.x)*dirfrac.x;
+    float t2 = (rt.x - org.x)*dirfrac.x;
+    float t3 = (lb.y - org.y)*dirfrac.y;
+    float t4 = (rt.y - org.y)*dirfrac.y;
+    float t5 = (lb.z - org.z)*dirfrac.z;
+    float t6 = (rt.z - org.z)*dirfrac.z;
+
+    float tmin = max(max(min(t1, t2), min(t3, t4)), min(t5, t6));
+    float tmax = min(min(max(t1, t2), max(t3, t4)), max(t5, t6));
+
+    // if tmax < 0, ray (line) is intersecting AABB, but the whole AABB is behind us
+    if (tmax < 0)
+    {
+        return -1;
+    }
+
+    // if tmin > tmax, ray doesn't intersect AABB
+    if (tmin > tmax)
+    {
+        return -1;
+    }
+
+    return tmin;
 }
 
-vec3 ray_march(vec3 origin, vec3 direction)
+float insideBox3D(vec3 v, vec3 bottomLeft, vec3 topRight) {
+    vec3 s = step(bottomLeft, v) - step(topRight, v);
+    return s.x * s.y * s.z;
+}
+
+struct index_data {
+    int index;
+    ivec3 section;
+};
+octree_cast_result octree_cast(vec3 origin, vec3 direction)
 {
+    direction = normalize(direction);
+    octree_cast_result c;
+    c.valid = false;
+    c.pos = vec3(0);
+    c.color = vec4(0);
 
-    vec3 pos = origin;
+    vec3 nodesize = vec3(10);
 
-    for (int i=0; i<100; i++)
-    {
-        pos = origin + i * direction * 0.1;
-        vec3 modpos = mod(pos, 4) - vec3(1);
-        if (dot(modpos * modpos, vec3(1)) < 1.0f)
-        {
-            vec3 lightdir = normalize(vec3(0, -1, -1));
-            vec3 lightcolor = vec3(1);
-            return vec3(1, 0, 0) * lightcolor * max(dot(-lightdir, normalize( modpos + vec3(1))), 0);
+    // Traverse octree
+    int index = 0;
+    vec3 nodepos = vec3(0);
+//    int[MAX_PASSES] nodestack;
+//    ivec3[MAX_PASSES] sectionstack;
+    index_data[MAX_PASSES] stack;
+    oc_node node = octree.nodes[index];
+
+    // calculate entrance from outside of octree
+    float t = ray_box(origin, direction, vec3(0), nodesize);
+    if (t < 0) {
+        if (insideBox3D(origin, vec3(0), nodesize) == 0) return c;
+        t = 0;
+    }
+
+    vec3 rp = vec3(origin + direction * t);
+    ivec3 godir = ivec3(0);
+    ivec3 step = ivec3(sign(direction));
+    ivec3 d = ivec3(clamp(floor((rp - nodepos) / (nodesize / 2)), vec3(0), vec3(1)));
+
+    int passes = 0;
+    for (int pass = 0; pass < PushConstants.max_passes; pass++) {
+        passes++;
+
+        if (node.leaf == 1) {
+            c.valid = true;
+            c.color = node.color;
+            break;
+        } else {
+
+            // traverse children
+            vec3 childsize = nodesize / 2;
+
+            d += godir;
+
+            bool go_up = false;
+            if (d.x < 0 || d.y < 0 || d.z < 0 || d.x > 1 || d.y > 1 || d.z > 1) {
+                go_up = true;
+            }
+
+            bool go_down = false;
+            if (!go_up) for (int w=0; w<4; w++)
+            {
+                int section = int(d.x + 2*d.y + 4*d.z);
+                vec3 childpos = nodepos + childsize * d;
+                if (node.child[section] > 0) { //&& octree.nodes[node.child[section]].depth <= PushConstants.max_depth) {
+
+                    if (pass == PushConstants.max_passes - 1 || index == MAX_PASSES - 1) {
+                        c.valid = true;
+                        c.color = node.color;
+                    }
+
+                    // enter child node
+//                    nodestack[index] = node.index;
+                    index_data newin = {
+                        node.index,
+                        d
+                    };
+                    stack[index] = newin;
+                    node = octree.nodes[node.child[section]];
+                    nodesize = childsize;
+                    nodepos = childpos;
+//                    sectionstack[index] = d;
+                    d = ivec3(clamp(floor((rp - nodepos) / (nodesize / 2)), vec3(0), vec3(1)));
+                    godir = ivec3(0);
+                    index++;
+                    go_down = true;
+                    break;
+                }
+
+                vec3 tmax = (childpos + childsize - rp);
+                if (direction.x < 0) tmax.x = childsize.x - tmax.x;
+                if (direction.y < 0) tmax.y = childsize.y - tmax.y;
+                if (direction.z < 0) tmax.z = childsize.z - tmax.z;
+                tmax /= abs(direction);
+
+                godir = ivec3(0);
+                if (tmax.x < tmax.y) {
+                    if (tmax.x < tmax.z) {
+                        t += tmax.x;
+                        godir.x += step.x;
+                    } else {
+                        t += tmax.z;
+                        godir.z += step.z;
+                    }
+                } else if (tmax.y < tmax.z) {
+                    t += tmax.y;
+                    godir.y += step.y;
+                } else {
+                    t += tmax.z;
+                    godir.z += step.z;
+                }
+                d += godir;
+
+                rp = origin + direction * t;
+
+                // Check if we exit the root node
+                if (d.x < 0 || d.y < 0 || d.z < 0 || d.x > 1 || d.y > 1 || d.z > 1) {
+                    go_up = true;
+                    break;
+                }
+
+            }
+
+            if (go_up) {
+
+                index--;
+                if (passes == PushConstants.max_passes - 1 || index < 0) {
+                    //                    c.valid = true;
+                    //                    c.color = node.color;
+                    break;
+                }
+
+                index_data id = stack[index];
+//                node = octree.nodes[nodestack[index]];
+//                d = sectionstack[index];
+                node = octree.nodes[id.index];
+                d = id.section;
+                nodepos = nodepos - nodesize * d;
+                nodesize = nodesize * 2;
+
+            } else if (!go_down) break;
+
         }
     }
 
-    // Calculate sky color
-    return vec3(0.5, 0.85, 0.9) + vec3(dot(direction, vec3(0, 1, 0) * 0.6));
-//    return vec3(1, 0, 0);
+    c.pos = rp;
+    c.depth = float(t);
+    c.index = index;
+    c.passes = passes;
+    return c;
+}
+
+vec3 rainbow(float level)
+{
+    /*
+        Target colors
+        =============
+
+        L  x   color
+        0  0.0 vec4(1.0, 0.0, 0.0, 1.0);
+        1  0.2 vec4(1.0, 0.5, 0.0, 1.0);
+        2  0.4 vec4(1.0, 1.0, 0.0, 1.0);
+        3  0.6 vec4(0.0, 0.5, 0.0, 1.0);
+        4  0.8 vec4(0.0, 0.0, 1.0, 1.0);
+        5  1.0 vec4(0.5, 0.0, 0.5, 1.0);
+    */
+
+    float r = float(level <= 2.0) + float(level > 4.0) * 0.5;
+    float g = max(1.0 - abs(level - 2.0) * 0.5, 0.0);
+    float b = (1.0 - (level - 4.0) * 0.5) * float(level >= 4.0);
+    return vec3(r, g, b);
+}
+
+vec3 smoothRainbow (float x)
+{
+    float level1 = floor(x*6.0);
+    float level2 = min(6.0, floor(x*6.0) + 1.0);
+
+    vec3 a = rainbow(level1);
+    vec3 b = rainbow(level2);
+
+    return mix(a, b, fract(x*6.0));
 }
 
 void main()
@@ -57,19 +272,53 @@ void main()
     // Camera setup
     float x = float(gl_GlobalInvocationID.x) / float(WIDTH);
     float y = float(gl_GlobalInvocationID.y) / float(HEIGHT);
+
     vec2 uv = vec2(x, y) * 2.0 - 1.0;
     uv.x *= WIDTH / float(HEIGHT);
+    //    uv.y *= HEIGHT / float(WIDTH);
 
-    // World setup
     float near = 1.0f;
-    float far = 1000.0f;
+    float far = 100.0f;
+    //    vec3 worldpos = ((-(PushConstants.model * PushConstants.view * PushConstants.projection) * (vec4(uv, 1, 1) * near))).xyz;
     vec4 worldpos4 = ((inverse(PushConstants.model) * inverse(PushConstants.view) * inverse(PushConstants.projection) * vec4(uv, -1, 1)));
     vec3 worldpos = worldpos4.xyz / worldpos4.w * near;
     vec3 worlddir = normalize((-(PushConstants.view * PushConstants.projection) * vec4(-uv * (far - near), far + near, far - near)).xyz);
+    //    vec3 worlddir = vec3(1);
 
-    vec3 color = vec3(0);
-    // Ray marching
-    color = ray_march(worldpos, worlddir);
+    // Raycasting
+    //    vec4 pos = worldpos;
+    vec3 color = vec3(0.2);
+    vec3 pos = worldpos;
+    vec3 dir = worlddir;
+
+    //    cast_result res = cast_ray(pos, dir);
+    octree_cast_result res = octree_cast(pos, dir);
+    if (res.valid) {
+        //        color += vec3(1);
+        //        color += res.normal.xyz * 15;
+//                                        color = res.color;
+        color = res.color.rgb * 5 / res.depth;
+//                        color = smoothRainbow(0.04 / (res.passes / 100.0));
+//                        color = vec3(res.index);
+    }
+    else {
+        //        color = vec3(0, 0, res.depth / 4);
+    }
+//    color = vec3(res.passes / 100.0);
+    //    color = smoothRainbow(0.04 / (res.passes / 100.0));
+    //    color = res.pos;
+
+    // Light
+    //    vec3 ambientlight = vec3(0.1, 0.1, 0.1);
+    //    vec3 ambientcolor = color * ambientlight;
+    //
+    //    vec3 lightdir = normalize(vec3(0, -1, -1));
+    //    vec3 diffusecolor = vec3(0);
+    //    vec3 lightcolor = vec3(1);
+    //    diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
+    //
+    //    vec3 light = max(ambientcolor, diffusecolor);
 
     imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
+
 }

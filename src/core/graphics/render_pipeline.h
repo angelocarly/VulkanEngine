@@ -30,188 +30,188 @@ struct MeshPushConstants
 class IRenderProvider
 {
  public:
-	virtual ~IRenderProvider()
-	{
-	};
-	virtual void bindModelTransform(glm::mat4 transform) = 0;
-	virtual void bindModel(vks::VksModel& model) = 0;
-	virtual void drawModel() = 0;
+virtual ~IRenderProvider()
+{
+};
+virtual void bindModelTransform(glm::mat4 transform) = 0;
+virtual void bindModel(vks::VksModel& model) = 0;
+virtual void drawModel() = 0;
 };
 
 class IRenderPipeline
 {
- public:
-	virtual ~IRenderPipeline()
-	{
-	};
+public:
+virtual ~IRenderPipeline()
+{
+};
 
-	virtual void updateBuffers(Camera camera) = 0;
-	virtual void begin(VkCommandBuffer& commandBuffer, int frame) = 0;
-	virtual void end() = 0;
+virtual void updateBuffers(Camera camera) = 0;
+virtual void begin(VkCommandBuffer& commandBuffer, int frame) = 0;
+virtual void end() = 0;
 };
 
 class BaseRenderPipeline : public IRenderPipeline, public IRenderProvider
 {
- public:
-	BaseRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
-		: _device(device), _descriptorPool(descriptorPool), _swapChain(swapChain)
-	{
-		init();
-	}
+public:
+BaseRenderPipeline(VksDevice& device, VksSwapChain& swapChain, VkDescriptorPool& descriptorPool)
+    : _device(device), _descriptorPool(descriptorPool), _swapChain(swapChain)
+{
+    init();
+}
 
-	void init()
-	{
-		std::vector<vks::VksModel::Vertex> vertices
-			{
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }}, // Bottom
-				{{ 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
-				{{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
-				{{ 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
-			};
-		_screenModel = new vks::VksModel(_device, vertices);
+void init()
+{
+    std::vector<vks::VksModel::Vertex> vertices
+        {
+            {{ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }}, // Bottom
+            {{ 1.0f, 0.0f, 0.0f }, { 1.0f, 1.0f }},
+            {{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+            {{ 0.0f, 0.0f, 0.0f }, { 0.0f, 1.0f }},
+            {{ 1.0f, 1.0f, 0.0f }, { 1.0f, 0.0f }},
+            {{ 0.0f, 1.0f, 0.0f }, { 0.0f, 0.0f }},
+        };
+    _screenModel = new vks::VksModel(_device, vertices);
 
-		createTextureImage(_device);
-		createTextureImageView(_device);
-		createTextureSampler(_device);
-		createDescriptorSetLayout();
-		createPipelineLayout();
-		createPipeline();
-		createUniformBuffers();
-		createDescriptorSets();
-	}
+    createTextureImage(_device);
+    createTextureImageView(_device);
+    createTextureSampler(_device);
+    createDescriptorSetLayout();
+    createPipelineLayout();
+    createPipeline();
+    createUniformBuffers();
+    createDescriptorSets();
+}
 
-	void begin(VkCommandBuffer& commandBuffer, int frame) override
-	{
-		_currentCommandBuffer = &commandBuffer;
-		_currentFrame = frame;
+void begin(VkCommandBuffer& commandBuffer, int frame) override
+{
+    _currentCommandBuffer = &commandBuffer;
+    _currentFrame = frame;
 
-		vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
-			&descriptorSets[frame], 0, nullptr);
+    vkCmdBindDescriptorSets(commandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, pipelineLayout, 0, 1,
+        &descriptorSets[frame], 0, nullptr);
 
-		pipeline->bind(commandBuffer);
-	};
+    pipeline->bind(commandBuffer);
+};
 
-	void end() override
-	{
-		_currentCommandBuffer = nullptr;
-		_currentFrame = -1;
-	}
+void end() override
+{
+    _currentCommandBuffer = nullptr;
+    _currentFrame = -1;
+}
 
-	void updateBuffers(Camera camera) override
-	{
-		UniformBufferObject ubo{};
-		ubo.model = camera.calculateModelMatrix();
-		ubo.view = camera.calculateViewMatrix();
-		ubo.proj = camera.calculateProjectionMatrix();
-		ubo.proj[1][1] *= -1;
+void updateBuffers(Camera camera) override
+{
+    UniformBufferObject ubo{};
+    ubo.model = camera.calculateModelMatrix();
+    ubo.view = camera.calculateViewMatrix();
+    ubo.proj = camera.calculateProjectionMatrix();
+    ubo.proj[1][1] *= -1;
 
-		ubo.view = glm::inverse(ubo.view);
+    ubo.view = glm::inverse(ubo.view);
 
-		void* data;
-		vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
-	}
+    void* data;
+    vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
+}
 
-	void bindModelTransform(glm::mat4 transform) override
-	{
-		if (_currentCommandBuffer == nullptr)
-		{
-			throw std::runtime_error("No command buffer is bound");
-		}
+void bindModelTransform(glm::mat4 transform) override
+{
+    if (_currentCommandBuffer == nullptr)
+    {
+        throw std::runtime_error("No command buffer is bound");
+    }
 
-		MeshPushConstants constants;
-		constants.transform = transform;
-		vkCmdPushConstants(*_currentCommandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
-			sizeof(MeshPushConstants), &constants);
+    MeshPushConstants constants;
+    constants.transform = transform;
+    vkCmdPushConstants(*_currentCommandBuffer, pipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, 0,
+        sizeof(MeshPushConstants), &constants);
 
-	}
+}
 
-	void bindModel(vks::VksModel& model) override
-	{
-		_currentModel = &model;
-		_currentModel->bind(*_currentCommandBuffer);
-	}
+void bindModel(vks::VksModel& model) override
+{
+    _currentModel = &model;
+    _currentModel->bind(*_currentCommandBuffer);
+}
 
-	void drawModel() override
-	{
-		if (_currentModel == nullptr)
-		{
-			throw std::runtime_error("Can't draw if no model is currently bound");
-		}
+void drawModel() override
+{
+    if (_currentModel == nullptr)
+    {
+        throw std::runtime_error("Can't draw if no model is currently bound");
+    }
 
-		_currentModel->draw(*_currentCommandBuffer);
-	}
+    _currentModel->draw(*_currentCommandBuffer);
+}
 
-	void drawScreenRect()
-	{
-		_screenModel->bind(*_currentCommandBuffer);
-		glm::mat4 transform = glm::mat4(1);
-		glm::translate(transform, glm::vec3());
-		bindModelTransform(transform);
+void drawScreenRect()
+{
+    _screenModel->bind(*_currentCommandBuffer);
+    glm::mat4 transform = glm::mat4(1);
+    glm::translate(transform, glm::vec3());
+    bindModelTransform(transform);
 
-		UniformBufferObject ubo{};
-		ubo.model = glm::mat4(1);
-		ubo.view = glm::mat4(1);
-		ubo.proj = glm::ortho(0.f, 1.f, 0.f, 1.f, -1.f, 1.f);
-		ubo.view = glm::inverse(ubo.view);
+    UniformBufferObject ubo{};
+    ubo.model = glm::mat4(1);
+    ubo.view = glm::mat4(1);
+    ubo.proj = glm::ortho(0.f, 1.f, 0.f, 1.f, -1.f, 1.f);
+    ubo.view = glm::inverse(ubo.view);
 
-		void* data;
-		vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
-		memcpy(data, &ubo, sizeof(ubo));
-		vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
+    void* data;
+    vkMapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame], 0, sizeof(ubo), 0, &data);
+    memcpy(data, &ubo, sizeof(ubo));
+    vkUnmapMemory(_device.getVkDevice(), _uniformBuffersMemory[_currentFrame]);
 
-		_screenModel->draw(*_currentCommandBuffer);
-	}
+    _screenModel->draw(*_currentCommandBuffer);
+}
 
-	std::vector<VkDescriptorSet> getVkDescriptorSet()
-	{
-		return descriptorSets;
-	}
+std::vector<VkDescriptorSet> getVkDescriptorSet()
+{
+    return descriptorSets;
+}
 
-	VkPipelineLayout getVkPipelinelayout()
-	{
-		return pipelineLayout;
-	}
+VkPipelineLayout getVkPipelinelayout()
+{
+    return pipelineLayout;
+}
 
-	VkPipeline getVkPipeline()
-	{
-		return pipeline->getPipeline();
-	}
+VkPipeline getVkPipeline()
+{
+    return pipeline->getPipeline();
+}
 
-	void bindTexture(VkDescriptorImageInfo imageInfo)
-	{
-		for (size_t i = 0; i < _swapChain.getImageCount(); i++)
-		{
-			VkDescriptorBufferInfo bufferInfo{};
-			bufferInfo.buffer = _uniformBuffers[i];
-			bufferInfo.offset = 0;
-			bufferInfo.range = sizeof(UniformBufferObject);
+void bindTexture(VkDescriptorImageInfo imageInfo)
+{
+    for (size_t i = 0; i < _swapChain.getImageCount(); i++)
+    {
+        VkDescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = _uniformBuffers[i];
+        bufferInfo.offset = 0;
+        bufferInfo.range = sizeof(UniformBufferObject);
 
-			std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
+        std::array<VkWriteDescriptorSet, 2> descriptorWrites{};
 
-			descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[0].dstSet = descriptorSets[i];
-			descriptorWrites[0].dstBinding = 0;
-			descriptorWrites[0].dstArrayElement = 0;
-			descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			descriptorWrites[0].descriptorCount = 1;
-			descriptorWrites[0].pBufferInfo = &bufferInfo;
+        descriptorWrites[0].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[0].dstSet = descriptorSets[i];
+        descriptorWrites[0].dstBinding = 0;
+        descriptorWrites[0].dstArrayElement = 0;
+        descriptorWrites[0].descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+        descriptorWrites[0].descriptorCount = 1;
+        descriptorWrites[0].pBufferInfo = &bufferInfo;
 
-			descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-			descriptorWrites[1].dstSet = descriptorSets[i];
-			descriptorWrites[1].dstBinding = 1;
-			descriptorWrites[1].dstArrayElement = 0;
-			descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			descriptorWrites[1].descriptorCount = 1;
-			descriptorWrites[1].pImageInfo = &imageInfo;
+        descriptorWrites[1].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        descriptorWrites[1].dstSet = descriptorSets[i];
+        descriptorWrites[1].dstBinding = 1;
+        descriptorWrites[1].dstArrayElement = 0;
+        descriptorWrites[1].descriptorType = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+        descriptorWrites[1].descriptorCount = 1;
+        descriptorWrites[1].pImageInfo = &imageInfo;
 
-			vkUpdateDescriptorSets(_device.getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
-		}
-	}
- private:
+        vkUpdateDescriptorSets(_device.getVkDevice(), static_cast<uint32_t>(descriptorWrites.size()), descriptorWrites.data(), 0, nullptr);
+    }
+}
+private:
 
 	VksDevice& _device;
 	VkDescriptorPool& _descriptorPool;

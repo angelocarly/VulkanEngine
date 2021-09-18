@@ -11,8 +11,14 @@ layout(push_constant) uniform constants
     mat4 model;
     mat4 view;
     mat4 projection;
+    vec4 lookat;
     float time;
+    float epsilon;
+    int max_passes;
 } PushConstants;
+#define EPSILON PushConstants.epsilon
+//#define EPSILON 0.0005
+#define MAX_PASSES PushConstants.max_passes
 
 struct Pixel
 {
@@ -22,40 +28,70 @@ struct Pixel
 struct cast_result {
     bool valid;
     bool reflective;
-    vec3 pos;
-    vec3 normal;
+    vec4 pos;
+    vec4 normal;
     vec3 color;
     float depth;
 };
 
 layout (binding = 0, rgba8) uniform image2D resultImage;
 
-float raySphereIntersect(vec3 r0, vec3 rd, vec3 s0, float sr) {
-    // - r0: ray origin
-    // - rd: normalized ray direction
-    // - s0: sphere center
-    // - sr: sphere radius
-    // - Returns distance from r0 to first intersecion with sphere,
-    //   or -1.0 if no intersection.
-    float a = dot(rd, rd);
-    vec3 s0_r0 = r0 - s0;
-    float b = 2.0 * dot(rd, s0_r0);
-    float c = dot(s0_r0, s0_r0) - (sr * sr);
-    if (b*b - 4.0*a*c < 0.0) {
-        return -1.0;
-    }
-    return (-b - sqrt((b*b) - 4.0*a*c))/(2.0*a);
+float sdBox(vec3 p, vec3 b)
+{
+    vec3 q = abs(p) - b;
+    return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
 }
 
-cast_result cast_ray(vec3 origin, vec3 direction)
+float sphereSdf(vec3 p)
 {
-    vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
+    return length(p) - 1;
+}
+
+float DE(vec4 z)
+{
+    return length(z);
+}
+
+float sceneSDF(vec4 p)
+{
+    //    return max(-sphereSdf(p), sdBox(p, vec3(0.75)));
+
+    return DE(p);
+}
+
+
+cast_result cast_ray(vec4 origin, vec4 direction)
+{
+    //        vec3 spherepos = vec3(sin(PushConstants.time * 3.14 / 4) * 5, 2, 0);
+    vec4 spherepos = vec4(0, 0, 0, 0);
     //    vec3 spherepos = vec3(0, 2, 0);
     float sphereradius = 1.0f;
 
-    float r = raySphereIntersect(origin, direction, spherepos, sphereradius);
-    float t = - origin.y / direction.y;
-    vec3 tv = origin + direction * t;
+    float t = 0;
+    bool overshot = false;
+    for (int i=0; i<MAX_PASSES; i++)
+    {
+        float dist = sceneSDF(origin + direction * t - spherepos);
+        if (dist >= 0.05f)
+        {
+            dist -= 0.05f;
+        }
+        else
+        {
+            break;
+        }
+
+        t += dist;
+
+        if (dist <= EPSILON) {
+            break;
+        }
+
+        if (dist >= 10 || i == MAX_PASSES - 1) {
+            overshot = true;
+        }
+
+    }
 
     cast_result result;
     result.reflective = false;
@@ -63,36 +99,17 @@ cast_result cast_ray(vec3 origin, vec3 direction)
     result.color = vec3(0);
     result.depth = -1;
 
-    if (r < 0 && t < 0) {
-        result.valid = false;
-        return result;
-    }
-    if (r < 0) r = 2139095039;
-    if (t < 0) t = 2139095039;
-
-    if (r < t) {
-        result.pos = origin + direction * r;
-        result.normal = normalize(result.pos - spherepos);
+    if (!overshot) {
+        result.pos = origin + direction * t;
+        //result.normal = estimateNormal(result.pos);
+        result.normal = normalize(result.pos - origin);
         result.color = vec3(0.5, 0.5, 0);
-        result.depth = r;
-        //        result.reflective = true;
-    } else if ((t < r) && abs(tv.x) < 5 && abs(tv.z) < 5) {
-        result.pos = tv;
-        result.normal = vec3(0, 1, 0);
-        result.color = vec3(tv.x, 0.2f, tv.z);
+        //        result.color = result.normal;
         result.depth = t;
+        //                result.reflective = true;
     }
 
     return result;
-}
-
-bool isShadowedByDirectionalLight(vec3 pos, vec3 lightdir)
-{
-    float len = 100;
-    vec3 lightpos = pos + -lightdir * len;
-
-    cast_result cr = cast_ray(lightpos, lightdir);
-    return cr.depth < len - 2;
 }
 
 void main()
@@ -118,54 +135,71 @@ void main()
     //    vec3 worlddir = vec3(1);
 
     // Raycasting
-    int maxsteps = 5;
-    vec3 pos = worldpos;
-    vec3 dir = worlddir;
-    cast_result res;
+    //    vec4 pos = worldpos;
     vec3 color = vec3(0);
-    for (int i=0; i<maxsteps; i++) {
-        res = cast_ray(pos, dir);
+    if (x < 0.5 && y < 0.5) {
+        uv = vec2(x, y) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, -1);
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(uv.x, 0, uv.y, 0));
 
+        cast_result res = cast_ray(pos, dir);
         if (res.valid) {
-            color += res.color;
-
-            if (res.reflective) {
-                pos = res.pos;
-                vec3 reflection = normalize(2 * dot(-dir, res.normal) * res.normal + dir);
-                dir = reflection;
-                continue;
-            }
+            color += res.normal.xyz * 15;
         }
+    } else if (x >= 0.5 && y < 0.5) {
+        uv = vec2(x - 0.5, y) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, 2);
+        //    vec3 dir = worlddir;
+        uv /= 30.0;
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(uv.x, uv.y, 0, 0));
 
-        break;
-    }
+        cast_result res = cast_ray(pos, dir);
+        if (res.valid) {
+            color += res.normal.xyz * 15;
+        }
+    } else if (x < 0.5 && y >= 0.5) {
+        uv = vec2(x, y - 0.5) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, 2);
+        //    vec3 dir = worlddir;
+        uv /= 30.0;
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(0, uv.x, uv.y, 0));
 
-    // Don't add any lighting if there's no collision
-    if (!res.valid) {
-        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
-        return;
+        cast_result res = cast_ray(pos, dir);
+        if (res.valid) {
+            color += res.normal.xyz * 15;
+        }
+    } else if (x >= 0.5 && y >= 0.5) {
+        uv = vec2(x - 0.5, y - 0.5) * 2.0 * 2.0 - 1.0;
+        uv.x *= WIDTH / float(HEIGHT);
+        vec4 pos = vec4(0, 0, 0, 2);
+        //    vec3 dir = worlddir;
+        uv /= 30.0;
+        vec4 dir = normalize(vec4(PushConstants.lookat - pos));
+        dir = normalize(dir + vec4(uv.x, 0, uv.y, 0));
+
+        cast_result res = cast_ray(pos, dir);
+        if (res.valid) {
+            color += res.normal.xyw * 15;
+        }
     }
 
     // Light
-    vec3 ambientlight = vec3(0.1, 0.1, 0.1);
-    vec3 ambientcolor = color * ambientlight;
+//    vec3 ambientlight = vec3(0.1, 0.1, 0.1);
+//    vec3 ambientcolor = color * ambientlight;
+//
+//    vec3 lightdir = normalize(vec3(0, -1, -1));
+//    vec3 diffusecolor = vec3(0);
+//    vec3 lightcolor = vec3(1);
+//    diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
+//
+//    vec3 light = max(ambientcolor, diffusecolor);
 
-    vec3 lightdir = normalize(vec3(0, -1, -1));
-    vec3 diffusecolor = vec3(0);
-    vec3 lightcolor = vec3(1);
-    if (!isShadowedByDirectionalLight(res.pos, lightdir))
-    {
-        diffusecolor = color * lightcolor * max(dot(-lightdir, res.normal), 0);
-    }
-
-    vec3 light = max(ambientcolor, diffusecolor);
-
-    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(light, 1));
-    //    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlduv, 1));
-    //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worlddir, 1));
-    //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(camerapos, 1));
-    //        imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(worldpos, 1));
-    //    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(uv, 0, 1));
-
+    imageStore(resultImage, ivec2(gl_GlobalInvocationID.xy), vec4(color, 1));
 
 }

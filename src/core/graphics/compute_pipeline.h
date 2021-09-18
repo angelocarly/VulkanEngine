@@ -46,7 +46,20 @@ class ComputePipeline : public IRenderPipeline
 	{
 	}
 
-	void updateBuffers(Camera camera) override
+	void setEpsilon(float epsilon)
+	{
+		_epsilon = epsilon;
+	}
+
+	void setMaxPasses(int max_passes)
+	{
+		_max_passes = max_passes;
+	}
+
+    void updateBuffers(Camera camera)
+    {}
+
+	void updateBuffers(Camera camera, glm::vec4 lookat)
 	{
 //		UniformBufferObject ubo{};
 //		ubo.model = camera.calculateModelMatrix();
@@ -64,11 +77,14 @@ class ComputePipeline : public IRenderPipeline
 		constants.model = camera.calculateModelMatrix();
 		constants.view = camera.calculateViewMatrix();
 		constants.projection = camera.calculateProjectionMatrix();
+		constants.lookat = lookat;
 		std::chrono::milliseconds time =
 			std::chrono::duration_cast<std::chrono::milliseconds>(
 				std::chrono::system_clock::now().time_since_epoch()
 			);
 		constants.time = time.count() % 10000 / 1000.0f;
+		constants.epsilon = _epsilon;
+		constants.max_passes = _max_passes;
 		vkCmdPushConstants(_currentCommandBuffer, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0,
 			sizeof(MeshPushConstants), &constants);
 
@@ -97,8 +113,14 @@ class ComputePipeline : public IRenderPipeline
 		glm::mat4 model;
 		glm::mat4 view;
 		glm::mat4 projection;
+        glm::vec4 lookat;
 		float time;
+		float epsilon;
+		int max_passes;
 	};
+
+	float _epsilon = 0.001f;
+	int _max_passes = 200;
 
 	const int WIDTH = 1600;
 	const int HEIGHT = 900;

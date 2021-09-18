@@ -14,7 +14,6 @@
 #ifndef VULKANENGINE_VULKANINITIALIZERS_H
 #define VULKANENGINE_VULKANINITIALIZERS_H
 
-#endif //VULKANENGINE_VULKANINITIALIZERS_H
 
 namespace vks::initializers
 {
@@ -168,3 +167,5 @@ namespace vks::initializers
 //        return device;
 //    }
 }
+
+#endif //VULKANENGINE_VULKANINITIALIZERS_H
